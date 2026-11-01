@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy import select, update
@@ -26,7 +25,6 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from powercontext.artifacts import ArtifactRef
 from powercontext.builtin.persistence.errors import RepositoryNotFoundError, StoredPayloadConflictError
 from powercontext.builtin.persistence.tables import ARTIFACT_HEADS_TABLE
-from powercontext.builtin.records import BaseArtifactFamily
 from powercontext.errors import PowerContextError
 
 
@@ -50,48 +48,17 @@ class ArtifactGovernance(BaseModel):
     artifact: ArtifactRef
     lifecycle_state: ArtifactLifecycleState
     replacement_artifact_id: str | None = None
-    merged_into_id: str | None = None
     governance_generation: int = Field(ge=0)
 
     @model_validator(mode="after")
     def validate_replacement(self) -> ArtifactGovernance:
         if self.replacement_artifact_id is not None and self.lifecycle_state is not ArtifactLifecycleState.DEPRECATED:
             raise ValueError("only a deprecated Artifact may name a replacement")  # noqa: TRY003
-        if self.merged_into_id is not None and (
-            self.lifecycle_state is not ArtifactLifecycleState.DEPRECATED
-            or self.replacement_artifact_id is not None
-            or self.merged_into_id == self.artifact.artifact_id
-        ):
-            raise ValueError("a frozen input requires a distinct merge result and no ordinary replacement")  # noqa: TRY003
         return self
 
 
 class ArtifactGovernanceRepository:
     """Read and transition governance state without changing the head Revision."""
-
-    def __init__(self, *, prepared_indexes=None):
-        self.prepared_indexes = prepared_indexes or {}
-
-    async def _prepare_custom_transition(self, connection, scope_id, family, artifact_id, lifecycle_state):
-        if family in get_args(BaseArtifactFamily):
-            return None
-        from powercontext.builtin.persistence.artifact_indexes import ArtifactProjectionPublisher, lock_state
-        from powercontext.builtin.persistence.custom_artifacts import custom_artifact_repository
-
-        await lock_state(connection, scope_id, family)
-        artifact = await custom_artifact_repository(family).latest(connection, scope_id, family, artifact_id)
-        publisher = ArtifactProjectionPublisher(None)
-        prepared = self.prepared_indexes.get((scope_id, family, artifact_id))
-        if lifecycle_state is ArtifactLifecycleState.ACTIVE:
-            await publisher.validate_prepared(
-                connection, scope_id, family, artifact.content.schema_version, artifact.content.content, prepared
-            )
-        return publisher, artifact, prepared
-
-    async def _publish_custom_transition(self, connection, scope_id, custom):
-        if custom is not None:
-            publisher, artifact, prepared = custom
-            await publisher.publish(connection, scope_id, artifact, prepared)
 
     async def get(
         self,
@@ -100,82 +67,23 @@ class ArtifactGovernanceRepository:
         family: str,
         artifact_id: str,
         /,
-        *,
-        for_update: bool = False,
     ) -> ArtifactGovernance:
-        statement = select(ARTIFACT_HEADS_TABLE).where(
-            ARTIFACT_HEADS_TABLE.c.scope_id == scope_id,
-            ARTIFACT_HEADS_TABLE.c.family == family,
-            ARTIFACT_HEADS_TABLE.c.artifact_id == artifact_id,
+        row = (
+            (
+                await connection.execute(
+                    select(ARTIFACT_HEADS_TABLE).where(
+                        ARTIFACT_HEADS_TABLE.c.scope_id == scope_id,
+                        ARTIFACT_HEADS_TABLE.c.family == family,
+                        ARTIFACT_HEADS_TABLE.c.artifact_id == artifact_id,
+                    )
+                )
+            )
+            .mappings()
+            .one_or_none()
         )
-        if for_update:
-            statement = statement.with_for_update()
-        row = (await connection.execute(statement)).mappings().one_or_none()
         if row is None:
             raise RepositoryNotFoundError("artifact-head", (scope_id, family, artifact_id))
-        return decode_artifact_governance(row)
-
-    async def require_summary(
-        self, connection: AsyncConnection, scope_id: str, family: str, artifact_id: str, expected: ArtifactGovernance
-    ) -> ArtifactGovernance:
-        current = await self.get(connection, scope_id, family, artifact_id, for_update=True)
-        if (
-            current.lifecycle_state != expected.lifecycle_state
-            or current.merged_into_id != expected.merged_into_id
-            or current.replacement_artifact_id != expected.replacement_artifact_id
-            or current.governance_generation != expected.governance_generation
-        ):
-            raise StoredPayloadConflictError("artifact-governance", (scope_id, family, artifact_id))
-        return current
-
-    async def transition_merge(
-        self,
-        connection: AsyncConnection,
-        scope_id: str,
-        family: str,
-        artifact_id: str,
-        expected: ArtifactGovernance,
-        lifecycle_state: ArtifactLifecycleState,
-        merged_into_id: str | None = None,
-        replacement_artifact_id: str | None = None,
-    ) -> ArtifactGovernance:
-        """Apply a service-validated group transition while retaining unchanged state generations."""
-
-        custom = await self._prepare_custom_transition(connection, scope_id, family, artifact_id, lifecycle_state)
-        _validate_transition(expected.lifecycle_state, lifecycle_state)
-        current = await self.require_summary(connection, scope_id, family, artifact_id, expected)
-        if (
-            expected.lifecycle_state == lifecycle_state
-            and expected.merged_into_id == merged_into_id
-            and expected.replacement_artifact_id == replacement_artifact_id
-        ):
-            return current
-        requested = ArtifactGovernance(
-            artifact=current.artifact,
-            lifecycle_state=lifecycle_state,
-            merged_into_id=merged_into_id,
-            replacement_artifact_id=replacement_artifact_id,
-            governance_generation=expected.governance_generation + 1,
-        )
-        result = await connection.execute(
-            update(ARTIFACT_HEADS_TABLE)
-            .where(
-                ARTIFACT_HEADS_TABLE.c.scope_id == scope_id,
-                ARTIFACT_HEADS_TABLE.c.family == family,
-                ARTIFACT_HEADS_TABLE.c.artifact_id == artifact_id,
-                ARTIFACT_HEADS_TABLE.c.governance_generation == expected.governance_generation,
-            )
-            .values(
-                lifecycle_state=lifecycle_state.value,
-                merged_into_id=merged_into_id,
-                replacement_artifact_id=replacement_artifact_id,
-                governance_generation=requested.governance_generation,
-            )
-        )
-        if result.rowcount != 1:
-            raise StoredPayloadConflictError("artifact-governance", (scope_id, family, artifact_id))
-        await self._publish_custom_transition(connection, scope_id, custom)
-        return requested
+        return _governance(row)
 
     async def transition(
         self,
@@ -188,22 +96,7 @@ class ArtifactGovernanceRepository:
         replacement_artifact_id: str | None,
         /,
     ) -> ArtifactGovernance:
-        custom = await self._prepare_custom_transition(connection, scope_id, family, artifact_id, lifecycle_state)
         current = await self.get(connection, scope_id, family, artifact_id)
-        if current.merged_into_id is not None:
-            raise InvalidArtifactLifecycleError("frozen merge inputs require whole-group restoration")  # noqa: TRY003
-        if lifecycle_state is ArtifactLifecycleState.RETIRED:
-            frozen_input = await connection.scalar(
-                select(ARTIFACT_HEADS_TABLE.c.artifact_id)
-                .where(
-                    ARTIFACT_HEADS_TABLE.c.scope_id == scope_id,
-                    ARTIFACT_HEADS_TABLE.c.family == family,
-                    ARTIFACT_HEADS_TABLE.c.merged_into_id == artifact_id,
-                )
-                .limit(1)
-            )
-            if frozen_input is not None:
-                raise InvalidArtifactLifecycleError("an effective merge result cannot strand frozen inputs")  # noqa: TRY003
         _validate_transition(current.lifecycle_state, lifecycle_state)
         if replacement_artifact_id is not None:
             if replacement_artifact_id == artifact_id:
@@ -235,7 +128,6 @@ class ArtifactGovernanceRepository:
             raise StoredPayloadConflictError(
                 "artifact-governance", (scope_id, family, artifact_id, expected_generation)
             )
-        await self._publish_custom_transition(connection, scope_id, custom)
         return requested
 
 
@@ -251,7 +143,7 @@ def _validate_transition(current: ArtifactLifecycleState, requested: ArtifactLif
         )
 
 
-def decode_artifact_governance(row) -> ArtifactGovernance:
+def _governance(row) -> ArtifactGovernance:
     return ArtifactGovernance(
         artifact=ArtifactRef(
             family=str(row["family"]),
@@ -262,7 +154,6 @@ def decode_artifact_governance(row) -> ArtifactGovernance:
         replacement_artifact_id=(
             None if row["replacement_artifact_id"] is None else str(row["replacement_artifact_id"])
         ),
-        merged_into_id=None if row["merged_into_id"] is None else str(row["merged_into_id"]),
         governance_generation=int(row["governance_generation"]),
     )
 

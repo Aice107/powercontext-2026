@@ -37,16 +37,8 @@ class GraphStore(Protocol):
     identity: str
 
     def create(
-        self,
-        directory: Path,
-        nodes: list[dict[str, Any]],
-        edges: list[dict[str, Any]],
-        deadline: float,
-        *,
-        generation_id: str | None = None,
-    ) -> dict[str, Any]:
-        """Write one generation; the caller may name it so a recall can address it later."""
-        ...
+        self, directory: Path, nodes: list[dict[str, Any]], edges: list[dict[str, Any]], deadline: float
+    ) -> dict[str, Any]: ...
 
     def verify(self, directory: Path, manifest: dict[str, Any], deadline: float) -> None: ...
 
@@ -55,14 +47,5 @@ class GraphStore(Protocol):
     ) -> AbstractContextManager[GraphReader]: ...
 
     def remove(self, directory: Path, deadline: float) -> None: ...
-
-    def remove_generation(self, generation_id: str, binding: str, deadline: float) -> None:
-        """Drop a commit by identifier, for directories that no longer exist.
-
-        ``remove()`` takes a directory and reads the identifier out of it. When the
-        directory is already gone, this is the only entry point that can still
-        reach the rows.
-        """
-        ...
 
     def size(self, directory: Path, deadline: float) -> int: ...

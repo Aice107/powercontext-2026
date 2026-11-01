@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Literal, NoReturn, Protocol, TypeAlias
+from typing import Literal, Protocol, TypeAlias
 
 from pydantic import BaseModel, JsonValue, TypeAdapter, ValidationError
 
@@ -26,12 +26,6 @@ from powercontext.builtin.artifacts.memory.errors import InvalidMemoryEvidenceEr
 from powercontext.builtin.artifacts.memory.models import MemoryEntryInput, MemoryEntryVersion
 from powercontext.builtin.artifacts.memory.protocols import MemoryCandidateRequest
 from powercontext.builtin.inference import GenerationResult, InvalidInferenceOutputError, StructuredGenerator
-from powercontext.builtin.processing_diagnostics import (
-    ProcessingDiagnostics,
-    ProcessingFailureReason,
-    ProcessingStage,
-    attach_diagnostics,
-)
 from powercontext.sources import Source
 
 MemoryExtractionIntent: TypeAlias = Literal["add", "revise"]
@@ -129,7 +123,7 @@ class LLMMemoryCandidatePipeline:
         )
 
     async def extract(self, request: MemoryCandidateRequest, /) -> tuple[MemoryEntryInput, ...]:
-        """Generate and map candidates that still require Atomic Memory validation."""
+        """Generate and map candidates that still require MemoryService validation."""
 
         extraction_input, evidence = _extraction_input(request, self._evidence_projector)
         result = await self._generator.generate(extraction_input)
@@ -200,14 +194,16 @@ def _selected_evidence(
     evidence: Mapping[str, Source | Artifact[object]],
 ) -> tuple[tuple[Source, ...], tuple[Artifact[object], ...]]:
     if not proposal.evidence_ids:
-        _business_invalid("candidate does not cite evidence")
+        raise InvalidInferenceOutputError("memory-extract", "candidate does not cite evidence")
     selected_sources: list[Source] = []
     selected_artifacts: list[Artifact[object]] = []
     for evidence_id in dict.fromkeys(proposal.evidence_ids):
         try:
             value = evidence[evidence_id]
         except KeyError:
-            _business_invalid("candidate cites evidence outside the request")
+            raise InvalidInferenceOutputError(
+                "memory-extract", "candidate cites evidence outside the request"
+            ) from None
         if isinstance(value, Source):
             selected_sources.append(value)
         else:
@@ -222,31 +218,22 @@ def _revision_target(
 ) -> MemoryEntryVersion | None:
     if proposal.intent == "add":
         if proposal.entry_id is not None:
-            _business_invalid("add candidate must not identify an existing entry")
+            raise InvalidInferenceOutputError("memory-extract", "add candidate must not identify an existing entry")
         return None
     if proposal.intent != "revise":
-        _business_invalid("candidate has an unsupported intent")
+        raise InvalidInferenceOutputError("memory-extract", "candidate has an unsupported intent")
     if proposal.entry_id is None:
-        _business_invalid("revise candidate must identify an active entry")
+        raise InvalidInferenceOutputError("memory-extract", "revise candidate must identify an active entry")
     try:
         entry = current_entries[proposal.entry_id]
     except KeyError:
-        _business_invalid("revise candidate does not identify an active entry")
+        raise InvalidInferenceOutputError(
+            "memory-extract", "revise candidate does not identify an active entry"
+        ) from None
     if proposal.entry_id in revised_entries:
-        _business_invalid("an active entry can only be revised once per extraction")
+        raise InvalidInferenceOutputError("memory-extract", "an active entry can only be revised once per extraction")
     revised_entries.add(proposal.entry_id)
     return entry
-
-
-def _business_invalid(reason: str) -> NoReturn:
-    raise attach_diagnostics(
-        InvalidInferenceOutputError("memory-extract", reason),
-        ProcessingDiagnostics(
-            stage=ProcessingStage.BUSINESS_VALIDATION,
-            reason=ProcessingFailureReason.INVALID_OUTPUT,
-            failure_location="memory-extract",
-        ),
-    ) from None
 
 
 def _validated_json(value: object) -> JsonValue:

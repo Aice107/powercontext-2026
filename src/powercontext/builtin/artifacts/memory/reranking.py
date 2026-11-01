@@ -22,6 +22,7 @@ from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from powercontext.builtin.artifacts.memory.models import MemoryHit
 from powercontext.builtin.inference import InferenceUsage, StructuredGenerator
 
 MEMORY_RERANK_INSTRUCTIONS_VERSION = "powercontext.memory.rerank.listwise.v1"
@@ -83,26 +84,17 @@ class MemoryRerankDecision:
     usage: InferenceUsage
     discarded_rank_count: int = 0
     used_fallback: bool = False
-    fallback_reason: str | None = None
-
-
-class MemoryRerankText(Protocol):
-    """Only factual text crosses the rank-selection boundary."""
-
-    @property
-    def text(self) -> str: ...
 
 
 class MemoryReranker(Protocol):
     """Select final Memory hits from one already ordered coarse pool."""
 
     policy_id: str
-    supports_atomic_memory: bool
 
     async def rerank(
         self,
         query: str,
-        candidates: tuple[MemoryRerankText, ...],
+        candidates: tuple[MemoryHit, ...],
         limit: int,
         /,
     ) -> MemoryRerankDecision:
@@ -115,7 +107,6 @@ class LLMMemoryReranker:
     """Use one structured listwise generation request to select Memory hits."""
 
     policy_id = MEMORY_RERANK_INSTRUCTIONS_VERSION
-    supports_atomic_memory = True
 
     def __init__(
         self,
@@ -124,16 +115,10 @@ class LLMMemoryReranker:
     ) -> None:
         self._generator = generator
 
-    def receipt_configuration(self) -> dict[str, object]:
-        configuration = getattr(self._generator, "receipt_configuration", None)
-        if not callable(configuration):
-            raise TypeError("rerank configuration unavailable")  # noqa: TRY003
-        return {"policy_id": self.policy_id, **configuration()}
-
     async def rerank(
         self,
         query: str,
-        candidates: tuple[MemoryRerankText, ...],
+        candidates: tuple[MemoryHit, ...],
         limit: int,
         /,
     ) -> MemoryRerankDecision:
@@ -166,7 +151,6 @@ class LLMMemoryReranker:
             usage=result.usage,
             discarded_rank_count=discarded_rank_count,
             used_fallback=True,
-            fallback_reason="empty_selection",
         )
 
 
@@ -206,6 +190,5 @@ __all__ = [
     "MemoryRerankInput",
     "MemoryRerankMode",
     "MemoryRerankOutput",
-    "MemoryRerankText",
     "MemoryReranker",
 ]

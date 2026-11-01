@@ -16,22 +16,22 @@
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, Mapping
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
-from powercontext.artifacts import ArtifactRef, StableHandle
-from powercontext.builtin.sources import ContentCapture
+from powercontext.artifacts import ArtifactRef, MemoryCitation
 from powercontext.sources import SourceRef
 
 if TYPE_CHECKING:
+    from powercontext.builtin.artifacts.memory import MemoryEntryVersion
     from powercontext.builtin.persistence.cursor_codec import SignedCursorCodec
     from powercontext.builtin.tags import ArtifactTagSet, TagFilter, TagQuery, TagQueryPage, TagTarget
 
-BaseArtifactFamily = Literal["atomic-memory", "experience", "skill", "handoff", "profile", "prompt", "topic-memory"]
-ArtifactReadFamily = str
+BaseArtifactFamily = Literal["memory", "experience", "skill", "handoff", "profile", "prompt", "topic-memory"]
+ArtifactReadFamily = Literal["memory", "experience", "skill", "handoff", "profile", "prompt", "topic-memory"]
 
 
 class _RecordModel(BaseModel):
@@ -42,7 +42,7 @@ class SourceRecord(_RecordModel):
     """One durable Source and its journal position."""
 
     scope_id: str
-    source_type: str
+    source_type: Literal["content"]
     source_id: str
     content: JsonValue
     position: int
@@ -57,20 +57,11 @@ class SourceRecordPage(_RecordModel):
     next_cursor: str | None
 
 
-class ArtifactRevisionActor(_RecordModel):
-    """Principal that created a rollback revision. Ordinary revisions omit it."""
-
-    type: Literal["user", "service"]
-    id: str
-
-
 class ArtifactWrite(_RecordModel):
     """Complete family-specific content for one Artifact write."""
 
     content: dict[str, JsonValue]
     prompt_key: str | None = None
-    restored_from_revision: int | None = None
-    reason: str | None = None
 
 
 class ArtifactCreated(_RecordModel):
@@ -89,39 +80,29 @@ class ArtifactRecord(_RecordModel):
 
     scope_id: str
     family: ArtifactReadFamily
-    schema_version: str | None = None
     artifact_id: str
     revision: int
     content: dict[str, JsonValue]
     sources: tuple[SourceRef, ...]
     artifacts: tuple[ArtifactRef, ...]
+    memory_citations: tuple[MemoryCitation, ...] = ()
     content_digest: str
-    created_at: datetime | None = None
-    created_by: ArtifactRevisionActor | None = None
-    restored_from_revision: int | None = None
-    reason: str | None = None
 
 
 class ArtifactCollectionItem(_RecordModel):
-    """One active Artifact head with content omitted from serialization."""
+    """One active Artifact head without content or lineage."""
 
     scope_id: str
     family: ArtifactReadFamily
-    schema_version: str | None = None
     artifact_id: str
     revision: int
     sources: tuple[SourceRef, ...]
     artifacts: tuple[ArtifactRef, ...]
     content_digest: str
-    content: dict[str, JsonValue] | None = Field(default=None, exclude=True)
     title: str | None = None
     summary: str | None = None
     published_at: datetime | None = None
     source_count: int | None = None
-    created_at: datetime | None = None
-    created_by: ArtifactRevisionActor | None = None
-    restored_from_revision: int | None = None
-    reason: str | None = None
 
 
 class LogicalArtifactRecord(_RecordModel):
@@ -282,12 +263,7 @@ class RecordService(Protocol):
         /,
         *,
         handoff_receipt: bool = False,
-        working_note: bool = False,
     ) -> SourceRecord: ...
-
-    async def capture_sources(
-        self, scope_id: str, captures: Sequence[ContentCapture], /
-    ) -> tuple[SourceRecord, ...]: ...
 
     async def get_source(self, scope_id: str, source_type: str, source_id: str, /) -> SourceRecord: ...
 
@@ -307,27 +283,9 @@ class RecordService(Protocol):
         family: str,
         write: ArtifactWrite,
         /,
-        *,
-        execution_context: Any = None,
     ) -> ArtifactCreated: ...
 
-    async def create_atomic_memories(
-        self, scope_id: str, contents: tuple[dict[str, JsonValue], ...], *, execution_context: Any = None
-    ) -> tuple[ArtifactCreated, ...]: ...
-
-    async def bind_artifact_handle(
-        self,
-        scope_id: str,
-        handle: StableHandle,
-        target: ArtifactRef,
-        /,
-    ) -> ArtifactRef: ...
-
-    async def resolve_artifact_handle(self, scope_id: str, handle: StableHandle, /) -> ArtifactRef: ...
-
-    async def get_artifact(
-        self, scope_id: str, family: str, artifact_id: str, /, *, execution_context: Any = None
-    ) -> ArtifactRecord: ...
+    async def get_artifact(self, scope_id: str, family: str, artifact_id: str, /) -> ArtifactRecord: ...
 
     async def get_artifact_revision(
         self,
@@ -336,8 +294,6 @@ class RecordService(Protocol):
         artifact_id: str,
         revision: int,
         /,
-        *,
-        execution_context: Any = None,
     ) -> ArtifactRecord: ...
 
     async def list_artifact_revisions(
@@ -350,6 +306,8 @@ class RecordService(Protocol):
         limit: int,
         cursor: str | None,
     ) -> ArtifactRevisionPage: ...
+
+    async def current_memory_entry(self, scope_id: str, artifact_id: str, entry_id: str, /) -> MemoryEntryVersion: ...
 
     async def logical_artifacts(self, scope_id: str, /) -> tuple[LogicalArtifactRecord, ...]: ...
 
@@ -367,13 +325,7 @@ class RecordService(Protocol):
     async def get_tags(self, scope_id: str, target: TagTarget) -> ArtifactTagSet: ...
 
     async def replace_tags(
-        self,
-        scope_id: str,
-        target: TagTarget,
-        tags: tuple[str, ...],
-        *,
-        expected_etag: str,
-        execution_context: Any = None,
+        self, scope_id: str, target: TagTarget, tags: tuple[str, ...], *, expected_etag: str
     ) -> ArtifactTagSet: ...
 
     async def query_tags(self, scope_id: str, query: TagQuery, *, caller: str = "runtime") -> TagQueryPage: ...
@@ -386,10 +338,6 @@ class RecordService(Protocol):
         expected_etag: str,
         write: ArtifactWrite,
         /,
-        *,
-        actor_type: str | None = None,
-        actor_id: str | None = None,
-        execution_context: Any = None,
     ) -> ArtifactRecord: ...
 
     async def list_scopes(self, *, limit: int, cursor: str | None) -> ScopeSummaryPage: ...

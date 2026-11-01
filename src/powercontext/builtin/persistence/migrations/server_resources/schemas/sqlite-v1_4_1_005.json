@@ -1,3 +1,0 @@
-{
-  "statement": "ALTER TABLE pc_atomic_memory_current ADD COLUMN description VARCHAR(200)"
-}
