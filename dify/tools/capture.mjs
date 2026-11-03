@@ -38,7 +38,9 @@ const HIDE_CSS = `
   [class*="styles-module__fixedMarkersLayer"],
   [class*="styles-module__markersLayer"],
   [class*="agentation"],
-  [id*="react-scan"] { display: none !important; }
+  [id*="react-scan"],
+  code-inspector-component,
+  next-route-announcer { display: none !important; }
 `;
 
 const browser = await chromium.launch({
@@ -62,8 +64,49 @@ await page.addInitScript((css) => {
   else document.addEventListener('DOMContentLoaded', add);
 }, HIDE_CSS);
 
+async function hideIssues() {
+  // Dify 画布左下角的问题计数角标（"N Issues"），文本在 shadow/portal 里，用 Playwright 的文本引擎定位
+  try {
+    const loc = page.getByText(/^\s*\d+\s*Issues?\s*$/i).first();
+    if (await loc.count()) {
+      await loc.evaluate((el) => {
+        let node = el;
+        for (let i = 0; i < 4 && node; i += 1) {
+          node.style.display = 'none';
+          node = node.parentElement || node.getRootNode?.()?.host || null;
+        }
+      });
+    }
+  } catch {}
+}
+
 async function shot(name) {
   await page.addStyleTag({ content: HIDE_CSS }).catch(() => {});
+  await hideIssues();
+  // 开发模式还有一个标注工具的计数角标（“N Issues”，左下角红点），用文本定位后隐藏
+  await page.evaluate(() => {
+    const hide = (el) => {
+      let node = el;
+      for (let i = 0; i < 3 && node; i += 1) {
+        node.style.display = 'none';
+        node = node.parentElement;
+      }
+    };
+    document.querySelectorAll('body *').forEach((el) => {
+      const txt = el.textContent || '';
+      if (/^\s*\d+\s*Issues?\s*$/i.test(txt)) {
+        hide(el);
+        return;
+      }
+      // 兜底：左下角的小尺寸 fixed 浮层（dev 标注工具角标）
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      if (cs.position === 'fixed' && r.width > 0 && r.width < 220 && r.height < 80
+          && r.bottom > window.innerHeight - 90 && r.left < 140) {
+        hide(el);
+      }
+    });
+  }).catch(() => {});
   await page.screenshot({ path: path.join(OUT, name) });
   log('saved', name);
 }
@@ -87,6 +130,10 @@ await shot('02-app-list.png');
 
 await page.goto(`${BASE}/app/${APP_ID}/workflow`, { waitUntil: 'domcontentloaded', timeout: 240000 });
 await page.waitForTimeout(18000);
+// 让画布缩放到整图可见（Dify 快捷键 Shift+1 = 适应画布）
+await page.locator('body').click({ position: { x: 700, y: 700 } }).catch(() => {});
+await page.keyboard.press('Shift+1').catch(() => {});
+await page.waitForTimeout(2500);
 await shot('03-canvas.png');
 
 // 4b. 在画布上点「预览」，打开调试对话抽屉（比 /chat 路由轻，不用编译整站）
