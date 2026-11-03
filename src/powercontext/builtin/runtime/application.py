@@ -198,6 +198,7 @@ from powercontext.builtin.runtime.models import (
     PreparedContext,
     ProposeExperienceRequest,
     ProposeSkillRequest,
+    ReactivateMemoryEntryRequest,
     RejectArtifactCandidateRequest,
     RememberMemoryRequest,
     ResolveExternalSkillRequest,
@@ -2585,6 +2586,26 @@ class ScopedMemoryApplication:
                 entry=_entry_record(updated, retired),
             )
 
+    async def reactivate(self, request: ReactivateMemoryEntryRequest, /) -> MemoryMutationResult:
+        async with self._runtime._context(
+            self.scope_id,
+            embedding_purpose=ModelUsagePurpose.MEMORY_INDEXING,
+        ) as context:
+            async with self._runtime._locked(self.scope_id):
+                service = context.artifacts.memory
+                current, entry = await _current_citation(
+                    service,
+                    context.artifacts.memory_artifact_id,
+                    request.citation,
+                )
+                updated = await service.reactivate(current, entries=(entry,), reason=request.reason)
+            active = next(item for item in await service.entries(updated) if item.entry_id == entry.entry_id)
+            return MemoryMutationResult(
+                previous_revision=current.revision,
+                memory_ref=updated.as_ref(),
+                entry=_entry_record(updated, active),
+            )
+
     async def changes(self, *, since_revision: int | None = None) -> MemoryChangesPage:
         async with self._runtime._context(self.scope_id) as context:
             service = context.artifacts.memory
@@ -2683,6 +2704,7 @@ class ScopedTopicMemoryApplication:
                     query_embedding,
                     embedding_timeout_seconds,
                 )
+        result = await self._filter_topic_lifecycle(result)
         observer = self._runtime._topic_memory_search_observer
         if observer is not None:
             try:
@@ -2773,6 +2795,20 @@ class ScopedTopicMemoryApplication:
         )
         return result.model_copy(update={"embedding_calls": 1}), used_fallback
 
+    async def _filter_topic_lifecycle(self, result: TopicMemorySearchResult) -> TopicMemorySearchResult:
+        lifecycle = getattr(self._runtime, "lifecycle", None)
+        if lifecycle is None:
+            return result
+        inactive = await lifecycle.for_scope(self.scope_id).inactive_topic_identities()  # type: ignore[attr-defined]
+        if not inactive:
+            return result
+        hits = tuple(
+            hit for hit in result.hits if (hit.artifact_ref.artifact_id, hit.artifact_ref.revision) not in inactive
+        )
+        if len(hits) == len(result.hits):
+            return result
+        return result.model_copy(update={"hits": hits})
+
     async def get(self, request: GetTopicMemoryRequest, /) -> PublishedTopicMemory:
         if self._runtime._topic_memory_get is None:
             raise _RuntimeStateError("topic-memory-get")
@@ -2794,7 +2830,16 @@ class ScopedTopicMemoryApplication:
         if not 1 <= limit <= 100:
             raise InvalidRuntimeRequestError("topic-memory-browse-limit")
         async with self._runtime._scoped_operation(self.scope_id):
-            return await self._runtime._topic_memory_browse(self.scope_id, limit=limit, after=after)
+            items = await self._runtime._topic_memory_browse(self.scope_id, limit=limit, after=after)
+        lifecycle = getattr(self._runtime, "lifecycle", None)
+        if lifecycle is None:
+            return items
+        inactive = await lifecycle.for_scope(self.scope_id).inactive_topic_identities()  # type: ignore[attr-defined]
+        if not inactive:
+            return items
+        return tuple(
+            item for item in items if (item.artifact_ref.artifact_id, item.artifact_ref.revision) not in inactive
+        )
 
     async def flush(self) -> TopicMemoryFlushResult:
         if not self._runtime._topic_memory_processing_available or self._runtime._topic_memory_flush is None:
@@ -3096,6 +3141,7 @@ class BuiltinRuntime:
         self._readiness = RuntimeReadinessChecks() if readiness is None else readiness
         self._clock = _utc_now if clock is None else clock
         self._tracing = tracing
+        self.lifecycle: object | None = None
         self._scheduled_source_runner = scheduled_source_runner
         self._scheduled_experience_runner = scheduled_experience_runner
         self.source_window_limit = source_window_limit
