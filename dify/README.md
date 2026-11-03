@@ -74,7 +74,7 @@
 | --- | --- | --- | --- |
 | 事件持久化 | `inn_ledger` | 结构化 + `VECTOR(1024)` | `evidence/logs/S2_db_ledger.txt` |
 | 翻旧账 | `inn_ledger` | 向量相似 + 全文命中 + 玩家过滤，**单条 SQL** | `evidence/logs/S3_sql_hybrid.txt` |
-| 台词检索 | `inn_line` | ngram 全文索引（中文分词） | `inn_line` 41 条 |
+| 台词检索（语气锚点） | `inn_line` | 按当前档位取两句原话，随记账块 `LINES=` 进 prompt | `inn_line` 50 条（5 档 × 10 个高频道具） |
 | 结算聚合 | `inn_ledger` | `COUNT/SUM/MAX` 聚合 | `evidence/logs/S6_settle.log` |
 
 ### 2.2 PowerContext 在应用里的作用（可选层）

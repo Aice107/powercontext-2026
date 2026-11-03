@@ -1,51 +1,63 @@
--- 台词库：给 LLM 提供语气锚点（只做检索素材，不做判定）
+-- 扩充版台词库：5 档 × 10 个高频道具，用作 LLM 语气锚点（只做检索素材，不做判定）
 USE inn;
-
 DELETE FROM inn_line;
 
-INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES
-('柳三娘','大堂',0,'plain','客官里边请，今日有热酒，灶上还温着一锅汤。'),
-('柳三娘','大堂',0,'plain','住店三文，加饭两文，账我先记着，您别嫌我啰嗦。'),
-('柳三娘','大堂',0,'warm','看您这一路风尘，先坐下，我给您烫壶酒。'),
-('柳三娘','大堂',0,'warm','这店开了十九年，什么人没见过，您这样的，倒还算规矩。'),
-('柳三娘','后厨',0,'plain','后厨重地，您要瞧热闹就在门口瞧，别伸手。'),
-('柳三娘','客房',0,'plain','楼上第三间，被褥是新晒的，热水酉时送来。'),
-('柳三娘','大堂',0,'dry','您要是手头紧，账可以先记着——不过我记性一向好。'),
-('柳三娘','大堂',0,'warm','夜深了，客人少，您要是不困，我陪您说两句。'),
+-- T0
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',0,'t0','这坛酒是去年秋里埋的，您尝尝，不够我再添。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',0,'t0','账本我给您留着空行，住得舒坦比什么都强。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',0,'t0','靠窗那张桌子干净，您坐那儿亮堂。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',0,'t0','醋我拌了蒜，蘸饺子正好，您要不来一碟？');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',0,'t0','屋顶前儿刚补过，夜里下雨不打紧。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',0,'t0','客人不多，正好安静，您慢慢吃。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',0,'t0','灶上留着盘酱牛肉，温着，您要不要来两块？');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',0,'t0','行李我让小二送上楼，您轻省着走。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',0,'t0','柴房堆得满，夜里冷的话我给您多添床被。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',0,'t0','房钱不急，走时一起算就成。');
 
-('柳三娘','大堂',1,'cold','这坛酒……先付钱。'),
-('柳三娘','大堂',1,'cold','客官，您上次做的事，我可还记着。'),
-('柳三娘','后厨',1,'dry','后厨的门我上了栓，不是防贼，是防熟人。'),
-('柳三娘','大堂',1,'dry','住店三文，加饭两文，您的价钱跟旁人不太一样。'),
-('柳三娘','客房',1,'cold','被褥是新的，您别再拿它擦靴子。'),
-('柳三娘','大堂',1,'dry','您笑什么？我这人记性不好，就是账记得清。'),
-('柳三娘','大堂',1,'cold','酒还热着，人心可凉了。'),
-('柳三娘','地窖',1,'dry','地窖的酒坛我数过，少一口我都知道。'),
+-- T1
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',1,'t1','这坛酒……先付钱，我这人记性不好，账记得清。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'t1','账本您别碰，那上头写的都是我这份家业。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'t1','桌子别挪，底下垫着我自己的钱。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',1,'t1','醋坛盖着，您手别往里伸。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',1,'t1','屋顶上有瓦，您上去可别踩坏了。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'t1','客人是来看我这张脸的，不是来看您的。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',1,'t1','酱牛肉在灶上，我数过的，别拿。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',1,'t1','行李放柜上，丢了我不赔。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',1,'t1','柴房是给柴睡的，不是给客官睡的。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'t1','房钱涨了，涨多少看您今天表现。');
 
-('柳三娘','大堂',2,'cold','您的汤。（多放了半勺盐）'),
-('柳三娘','大堂',2,'cold','坐吧，别坐那桌，那桌我刚擦过。'),
-('柳三娘','后厨',2,'dry','您别进后厨了，我怕灶台受惊。'),
-('柳三娘','大堂',2,'cold','房钱涨了，涨多少看您今天表现。'),
-('柳三娘','客房',2,'cold','楼上第三间，门锁不太灵光——您自己当心。'),
-('柳三娘','大堂',2,'dry','我这店不赶客，只是有些客，我不留。'),
-('柳三娘','地窖',2,'cold','酒窖钥匙我随身带着，您就别惦记了。'),
-('柳三娘','大堂',2,'dry','账我记着，人情也记着，两样都跑不了。'),
+-- T2
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',2,'t2','酒还热着，人可凉了。您慢慢喝。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',2,'t2','账本我收进匣子里了，往后不摆外头。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',2,'t2','别坐那桌，那桌我刚擦过。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',2,'t2','醋坛子我上了锁，钥匙在袖子里。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',2,'t2','屋里漏不漏，您就别操心了。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',2,'t2','客人走了两个，我倒省一口饭。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',2,'t2','灶上没有牛肉了，您将就吃点青菜。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',2,'t2','行李搁门房，别放我柜台上。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',2,'t2','柴房门开着，您自己看，没别的东西。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',2,'t2','房钱翻倍，您嫌贵可以另找别家。');
 
-('柳三娘','客房',3,'sharp','楼上第三间，被窝里我放了点花椒，驱寒，您别客气。'),
-('柳三娘','大堂',3,'sharp','您的酒——兑了点井水，天热，败火。'),
-('柳三娘','后厨',3,'sharp','今晚的菜，我亲自掌勺，您可要吃完。'),
-('柳三娘','大堂',3,'sharp','小二，把这位客人的行李挪到柴房去，那儿凉快。'),
-('柳三娘','地窖',3,'sharp','地窖里有老鼠，您昨晚不是说胆子大么？去瞧瞧。'),
-('柳三娘','大堂',3,'cold','您这号人，我十九年碰上三个，前两个都在城外。'),
-('柳三娘','客房',3,'sharp','夜里要是听见屋顶响，别起来，是我在修瓦。'),
-('柳三娘','大堂',3,'dry','账清了？没清。慢慢清。'),
+-- T3
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',3,'t3','您的酒——兑了点井水，天热，败火。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',3,'t3','账本我另抄了一本，写得不客气。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',3,'t3','桌子腿我锯短了半寸，您掀的时候留神。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',3,'t3','醋坛里放了点料，您要是洗手，手会痒。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',3,'t3','夜里要是听见屋顶响，别起来，是我在修瓦。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',3,'t3','客人我也打了招呼，让他们绕开您这号人。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',3,'t3','牛肉我另添了盐，您就当补身子。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',3,'t3','行李我挪柴房去了，那儿凉快。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',3,'t3','柴房门上我挂了铃铛，谁进去我知道。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',3,'t3','房钱按三倍算，账上写得明白。');
 
-('柳三娘','大堂',4,'frozen','账清了，门在那边。'),
-('柳三娘','大堂',4,'frozen','我这店小，供不起您这尊佛。'),
-('柳三娘','大堂',4,'frozen','行李我让人收拾好了，一文不少，您点点。'),
-('柳三娘','大堂',4,'frozen','十九年，您是头一个让我翻脸的。'),
-('柳三娘','客房',4,'frozen','别上楼了，楼上没您的房了。'),
-('柳三娘','大堂',4,'frozen','走好，不必回头。'),
-('柳三娘','地窖',4,'frozen','酒窖的账，我明日就去衙门说。'),
-('柳三娘','大堂',4,'frozen','您再来，我就关门。'),
-('柳三娘','大堂',4,'cold','我记仇，但我讲理——理在我这边。');
+-- T4
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',4,'t4','这坛酒您别碰了，您喝了也是浪费我的水。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',4,'t4','账本记到最后一页了，写的是您。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',4,'t4','桌子我认了，钱您照赔。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',4,'t4','醋坛的钱也算在您头上。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',4,'t4','屋顶我自己修，不用您的人情。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',4,'t4','客人我拦回来了，您这脸他们不必再看。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',4,'t4','灶上不留您的份。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',4,'t4','行李我让伙计收拾齐整搁在门房，一样不少。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',4,'t4','柴房不必去了，您连柴房也住不得。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',4,'t4','账按双倍结，柜上现银，今日天黑前出门。');

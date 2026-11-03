@@ -338,6 +338,12 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
 
     if format == "block":
         sim = ";".join(f"{x['text']}({x['severity']}级,{x['days_ago']}天前)" for x in similar) or "无"
+        tier_now = _tier(after)
+        anchor = db.query(
+            "SELECT text FROM inn_line WHERE tier=%s ORDER BY id DESC LIMIT 2",
+            (tier_now,),
+        )
+        lines_txt = "；".join(r["text"] for r in anchor) or "无"
         return _block([
             ("EVENT", str(event_id)),
             ("TYPE", action_type),
@@ -347,6 +353,7 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
             ("GRUDGE", str(after)),
             ("TIER", str(_tier(after))),
             ("SIM", sim),
+            ("LINES", lines_txt[:300]),
         ])
 
     return {
@@ -447,13 +454,17 @@ def rumor_search(
 
 @app.get("/inn/line")
 def line_search(
-    tier: int = Query(0, ge=0, le=4),
+    tier: int = Query(-1, ge=-1, le=4),
     scene: str = Query("", max_length=32),
     q: str = Query("", max_length=256),
     limit: int = Query(3, ge=1, le=20),
-) -> dict:
-    sql = "SELECT id, npc, scene, tier, tone, text FROM inn_line WHERE tier=%s"
-    args: list[Any] = [tier]
+    format: str = Query("json", max_length=16),
+):
+    sql = "SELECT id, npc, scene, tier, tone, text FROM inn_line WHERE 1=1"
+    args: list[Any] = []
+    if tier >= 0:
+        sql += " AND tier=%s"
+        args.append(tier)
     if scene:
         sql += " AND scene=%s"
         args.append(scene)
@@ -463,6 +474,10 @@ def line_search(
     sql += " ORDER BY id DESC LIMIT %s"
     args.append(limit)
     rows = db.query(sql, args)
+    if format == "block":
+        # 给 LLM 的语气锚点：同类事件的旧台词，直接拼进 prompt
+        txt = "；".join(str(r.get("text", "")) for r in rows) or "无"
+        return _block([("LINES", txt[:400])])
     return {"count": len(rows), "lines": rows}
 
 

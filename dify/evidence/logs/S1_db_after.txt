@@ -1,1 +1,1 @@
-ERROR 1146 (42S02) at line 1: Table 'inn.inn_ledger' doesn't exist
+ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:2881' (111)
