@@ -280,6 +280,9 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
         player = _ensure_player(body.player_id, "浪客", body.session_id)
 
     action_type = body.action_type if body.action_type in rules.ACTION_TYPES else "other"
+    # 归一化：severity 为负一定是善举，避免模型把 action_type 误判成 property
+    if body.severity < 0:
+        action_type = "kindness"
     repeat_cnt = db.one(
         """SELECT COUNT(*) AS c FROM inn_ledger
             WHERE player_id=%s AND action_type=%s AND severity>=1""",

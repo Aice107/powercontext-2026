@@ -222,6 +222,11 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 `seekdb` / `oceanbase`（`api/configs/middleware/__init__.py`），改 `DB_TYPE=seekdb` 并指向 seekdb 实例即可验证——
 这属于可选扩展，未包含在本提交的验证范围内，故不在此声明已完成。
 
+### 7.1.1 性能实测（20 轮连打）
+
+`evidence/logs/run-loadtest.md`：单轮端到端 **中位数 5.6s / P95 9.0s**（含 2 次 LLM 调用：意图判定 + 回应生成），
+20/20 全部 succeeded；仇值按 12→100→76 走完"升级—触顶—和解"整条曲线；每轮写 1 条账本 + 1 条记忆。
+
 ### 7.2 网络与资源
 
 - Dify 进程需能访问：inn-api（默认 8010）、模型 API（如 `api.deepseek.com`）、插件 Marketplace；

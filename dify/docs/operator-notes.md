@@ -79,6 +79,15 @@ done
 
 `tools/watchdog.sh` 已按 base-dir 判断，并且用 `flock` 保证单实例（两个看门狗会抢同一 datadir）。
 
+## 4.8 压测
+
+```bash
+cd dify && python3 tools/run_loadtest.py 20          # 20 轮连打，报告写 evidence/logs/run-loadtest.md
+```
+
+注意：压测期间若 seekdb 被 OOM 杀掉，会出现"部分轮次 partial-succeeded"（走兜底话术，不写库），
+看门狗会在 90 秒内拉起；异常轮次不影响主结论，但写进报告前建议先确认 `healthz` 为 ok。
+
 ## 5. 已知环境问题
 
 1. **内存紧张**：本机 9.3GB + 3.8GB swap，swap 常年接近打满；Dify web dev 编译、seekdb 启动都会把内存推到临界，
