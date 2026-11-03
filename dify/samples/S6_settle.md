@@ -9,7 +9,8 @@
 发送：`打烊，结账`
 
 ## 预期表现
-- `/inn/settle?format=block` 返回 `EVENTS/ATTACK/REPAIR/VISITS/DAYS/TOP`
+- `/inn/settle?format=block` 返回 `EVENTS/ATTACK/REPAIR/VISITS/DAYS/TOP/RUMORS`
+- 若演示玩家有传闻，长卷里会引用（`RUMORS` 非"无"）
 - 「是否打烊」分支命中 `true`
 - 输出一份《账本长卷》：逐条念 TOP 账目、给总评、给结局判词（本例应为"相忘于江湖"或"逐客令"）
 

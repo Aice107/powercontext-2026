@@ -5,6 +5,7 @@ parameter-extractor  判定意图     succeeded case=None
 if-else              是否打烊     succeeded case=false
 if-else              是否闲聊     succeeded case=false
 http-request         记账       succeeded case=None
+http-request         生成传闻     succeeded case=None
 if-else              是否逐客     succeeded case=true
 llm                  逐客令      succeeded case=None
 answer               逐客       succeeded case=None

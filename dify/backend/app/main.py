@@ -49,7 +49,9 @@ class LedgerIn(BaseModel):
 
 
 class RumorIn(BaseModel):
-    player_id: str = Field(..., min_length=1, max_length=64)
+    player_id: str = Field("", max_length=64)
+    conversation_id: str = Field("", max_length=64)
+    severity: int = Field(0, ge=-3, le=5)
     source_event_id: int = Field(0, ge=0)
     rumor_text: str = Field(..., min_length=1, max_length=512)
     scene: str = Field("地窖", max_length=32)
@@ -348,6 +350,10 @@ def ledger_list(
 
 @app.post("/inn/rumor")
 def rumor_write(body: RumorIn) -> dict:
+    body.player_id = _resolve_pid(body.player_id, body.conversation_id)
+    if body.severity < 4:
+        # 低严重度事件不成传闻：避免传闻表被灌水
+        return {"created": False, "reason": "severity<4"}
     vec = embedding.to_literal(embedding.embed(body.rumor_text))
     db.execute(
         """INSERT INTO inn_rumor (player_id, source_event_id, rumor_text, spread, scene, embedding)
@@ -355,7 +361,7 @@ def rumor_write(body: RumorIn) -> dict:
         (body.player_id, body.source_event_id, body.rumor_text, 1, body.scene, vec),
     )
     rid = int((db.one("SELECT MAX(id) AS id FROM inn_rumor WHERE player_id=%s", (body.player_id,)) or {}).get("id", 0))
-    return {"rumor_id": rid, "player_id": body.player_id, "scene": body.scene}
+    return {"created": True, "rumor_id": rid, "player_id": body.player_id, "scene": body.scene}
 
 
 @app.get("/inn/rumor")
@@ -451,6 +457,7 @@ def settle(body: SettleIn | None = None, format: str = Query("json", max_length=
 
     if format == "block":
         top = ";".join(f"{r['action_text']}({r['severity']}级,{_days_ago(r['created_at'])}天前)" for r in top) or "无"
+        rumors_txt = ";".join(f"{r['rumor_text']}" for r in rumors) or "无"
         return _block([
             ("GRUDGE", str(int(player.get("grudge", 0)))),
             ("TIER", str(_tier(int(player.get("grudge", 0))))),
@@ -460,6 +467,7 @@ def settle(body: SettleIn | None = None, format: str = Query("json", max_length=
             ("VISITS", str(int(player.get("visits", 1)))),
             ("DAYS", str(int(player.get("days_known", 1)))),
             ("TOP", top),
+            ("RUMORS", rumors_txt),
         ])
 
     return {

@@ -60,7 +60,13 @@ RECENT=掀了半张桌子(5级,1天前);吓跑了两个住店的客人(4级,1天
 2. Dify 可以用 `contains "TIER=4"` 做分支，判定条件在 DSL 里可见、可审计；
 3. 人可读，日志即证据。
 
-## 5. 异常处理
+## 5. 传闻机制
+
+严重度 ≥ 4 的事件（吓跑客人、动手）在记账后额外写一条 `inn_rumor`：
+Dify 侧用模板拼一句"地窖里都在传……"，`POST /inn/rumor`；后端按 `severity < 4` 直接拒绝，
+所以传闻表只保留"值得传"的事。打烊结算块里的 `RUMORS` 字段会被长卷引用。
+
+## 6. 异常处理
 
 - HTTP 节点设置 `error_strategy: default-value`（status_code=500, body=OFFLINE）；
 - 入口分支「后端是否可用」按 `status_code ≥ 400` 短路到兜底话术；

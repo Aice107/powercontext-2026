@@ -172,11 +172,11 @@ workflow:
     - data:
         isInLoop: false
         sourceType: http-request
-        targetType: if-else
-      id: e-ledger-expel
+        targetType: http-request
+      id: e-ledger-rumor
       source: n_ledger
       sourceHandle: source
-      target: n_if_expel
+      target: n_rumor
       targetHandle: target
       type: custom
     - data:
@@ -237,6 +237,16 @@ workflow:
       source: n_if_offline
       sourceHandle: 'false'
       target: n_judge
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: if-else
+      id: e-rumor-expel
+      source: n_rumor
+      sourceHandle: source
+      target: n_if_expel
       targetHandle: target
       type: custom
     nodes:
@@ -919,6 +929,51 @@ workflow:
       positionAbsolute:
         x: 1540
         y: 200
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: "{\n  \"player_id\": \"{{#start.player_id#}}\",\n  \"conversation_id\": \"{{#sys.conversation_id#}}\",\n\
+              \  \"severity\": {{#n_judge.severity#}},\n  \"scene\": \"{{#n_judge.scene#}}\",\n  \"rumor_text\": \"{{#n_judge.action_type#}}：{{#sys.query#}}——地窖里都在传，说得有鼻子有眼。\"\
+              \n}\n"
+          type: json
+        desc: 严重度 ≥4 的事件自动成传闻（低严重度后端直接忽略）
+        error_strategy: default-value
+        default_value:
+        - key: status_code
+          type: number
+          value: 500
+        - key: body
+          type: string
+          value: OFFLINE
+        headers: 'Content-Type: application/json'
+        method: post
+        params: ''
+        selected: false
+        ssl_verify: false
+        timeout:
+          connect: 5
+          read: 15
+          write: 5
+        title: 生成传闻
+        type: http-request
+        url: http://127.0.0.1:8010/inn/rumor
+      height: 100
+      id: n_rumor
+      position:
+        x: 1840
+        y: 700
+      positionAbsolute:
+        x: 1840
+        y: 700
       selected: false
       sourcePosition: right
       targetPosition: left
