@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
@@ -354,7 +355,7 @@ class PreparedContextBuilder:
             )
         )
         if request.evidence_selection:
-            memory_entries = self._evidence_entries(memory_entries, request.query, current_scope_id)
+            memory_entries = self._evidence_entries(memory_entries, request.query, current_scope_id, request.max_bytes)
             topic_memory_entries = ()
             experience_entries = ()
         else:
@@ -480,11 +481,19 @@ class PreparedContextBuilder:
         entries: Sequence[_PreparedContextEntry],
         query: str,
         current_scope_id: str | None,
+        max_bytes: int,
     ) -> tuple[_PreparedContextEntry, ...]:
+        memory_entries = [entry for entry in entries if entry.kind == "memory"]
+        if not memory_entries:
+            return ()
+        terms = _query_terms(query)
+        document_frequency = _document_frequency(memory_entries, terms)
+        ranked = sorted(
+            memory_entries,
+            key=lambda entry: -_document_score(entry.content, terms, document_frequency, len(memory_entries)),
+        )
         selected: list[_PreparedContextEntry] = []
-        for entry in entries:
-            if entry.kind != "memory":
-                continue
+        for entry in ranked:
             if isinstance(entry.origin, MemoryEntryAddress):
                 address = entry.origin
             elif isinstance(entry.origin, MemoryCitation) and current_scope_id is not None:
@@ -495,7 +504,8 @@ class PreparedContextBuilder:
                 )
             else:
                 continue
-            for start, end, text in _query_spans(entry.content, query):
+            for start, end in _query_windows(entry.content, query, max_bytes):
+                text = entry.content[start:end]
                 fragment = PreparedContextFragment(address=address, start=start, end=end, text=text)
                 selected.append(
                     _PreparedContextEntry(
@@ -514,6 +524,8 @@ class PreparedContextBuilder:
                         fragment=fragment,
                     )
                 )
+                if len(selected) >= 10:
+                    return tuple(selected)
         return tuple(selected)
 
     def _memory_entries(
@@ -647,8 +659,9 @@ class PreparedContextBuilder:
         truncated_items = 0
         dropped_below_min_bytes = 0
         dropped_no_fitting_truncation = 0
+        entry_limit = max(self.entry_limit, 10) if request.evidence_selection else self.entry_limit
         for candidate in _interleave(memory_entries, topic_memory_entries, experience_entries):
-            if len(entries) >= self.entry_limit:
+            if len(entries) >= entry_limit:
                 break
             fit = self._fit_entry(
                 entries,
@@ -709,6 +722,8 @@ class PreparedContextBuilder:
         )
         if _rendered_bytes((*entries, candidate)) <= max_bytes:
             return _EntryFit(entry=candidate)
+        if fragment is not None:
+            return _EntryFit()
         if source_bytes < _MIN_TRUNCATED_CONTENT_BYTES:
             return _EntryFit(dropped_below_min_bytes=True)
 
@@ -811,8 +826,89 @@ _QUERY_TERM = re.compile(r"[a-z0-9]+|[\u4e00-\u9fff]")
 _SENTENCE = re.compile(r"[^.!?\u3002\uff01\uff1f\n]+[.!?\u3002\uff01\uff1f]?")
 
 
-def _query_terms(query: str) -> set[str]:
-    return set(_QUERY_TERM.findall(query.casefold()))
+def _query_terms(text: str) -> set[str]:
+    return set(_QUERY_TERM.findall(text.casefold()))
+
+
+def _document_frequency(entries: Sequence[_PreparedContextEntry], terms: set[str]) -> dict[str, int]:
+    counts = dict.fromkeys(terms, 0)
+    for entry in entries:
+        present = _query_terms(entry.content)
+        for term in terms:
+            if term in present:
+                counts[term] += 1
+    return counts
+
+
+def _document_score(
+    text: str,
+    terms: set[str],
+    document_frequency: dict[str, int],
+    document_count: int,
+) -> float:
+    words = re.findall(r"[a-z0-9]+|[\u4e00-\u9fff]", text.casefold())
+    if not words:
+        return 0.0
+    counts = dict.fromkeys(terms, 0)
+    for word in words:
+        if word in counts:
+            counts[word] += 1
+    length = len(words)
+    score = 0.0
+    for term in terms:
+        frequency = counts[term]
+        if not frequency:
+            continue
+        df = document_frequency.get(term, 0)
+        idf = math.log(1.0 + (document_count - df + 0.5) / (df + 0.5))
+        score += idf * (frequency * 2.2) / (frequency + 1.2 * (0.25 + 0.75 * length / 120.0))
+    return score
+
+
+def _sentence_spans(text: str) -> list[tuple[int, int]]:
+    spans: list[tuple[int, int]] = []
+    for match in _SENTENCE.finditer(text):
+        start, end = match.span()
+        while start < end and text[start].isspace():
+            start += 1
+        while end > start and text[end - 1].isspace():
+            end -= 1
+        if start < end:
+            spans.append((start, end))
+    return spans
+
+
+def _query_windows(text: str, query: str, max_bytes: int) -> tuple[tuple[int, int], ...]:
+    """Choose the widest exact sentence window around the best query/position anchor."""
+
+    terms = _query_terms(query)
+    sentences = _sentence_spans(text)
+    if not sentences:
+        return ()
+    content_cap = max(240, max_bytes - 680)
+    if len(sentences) == 1:
+        if len(text.encode("utf-8")) <= content_cap:
+            return ((sentences[0][0], sentences[0][1]),)
+        return tuple((start, end) for start, end, _ in _query_spans(text, query))
+    scores = [sum(1 for term in terms if term in text[start:end].casefold()) for start, end in sentences]
+    center = max(range(len(sentences)), key=lambda index: scores[index] + index)
+    low = high = center
+    if len(text[sentences[center][0] : sentences[center][1]].encode("utf-8")) > content_cap:
+        return tuple((start, end) for start, end, _ in _query_spans(text, query))
+    while True:
+        grew = False
+        if low > 0 and len(text[sentences[low - 1][0] : sentences[high][1]].encode("utf-8")) <= content_cap:
+            low -= 1
+            grew = True
+        if (
+            high + 1 < len(sentences)
+            and len(text[sentences[low][0] : sentences[high + 1][1]].encode("utf-8")) <= content_cap
+        ):
+            high += 1
+            grew = True
+        if not grew:
+            break
+    return ((sentences[low][0], sentences[high][1]),)
 
 
 def _query_spans(  # noqa: C901 - bounded span selection
