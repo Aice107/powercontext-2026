@@ -39,8 +39,9 @@ INN_APP_ID=<app_id> python3 tools/compliance_check.py
 | [screenshots/06-chat-old-grudge.png](screenshots/06-chat-old-grudge.png) | 第二次同类：**翻旧账**（"前天刚往酒坛里兑了半坛水…"） |
 | [screenshots/07-chat-settle.png](screenshots/07-chat-settle.png) | 打烊：《账本长卷》与判词 |
 
-> 说明：画布右上角显示"未发布"是因为导入后 UI 自动重排了节点坐标，使 draft 与发布版本存在差异；
-> 发布版本确实存在（Dify 数据库 `workflows` 表有对应版本记录），预览与 API 运行都基于该应用。
+> 说明：画布左上角显示"未发布"是编辑器自动保存（含节点坐标/视口）造成的 draft 与发布版差异，
+> 不影响运行：发布版本确实存在（Dify 数据库 `workflows` 表有多个版本记录），预览与 API 运行均基于该应用；
+> 若要做完全一致的取证，导入 DSL 后点一次「发布」即可，draft 与 published 哈希相同。
 
 ## 关于截图/录屏
 
