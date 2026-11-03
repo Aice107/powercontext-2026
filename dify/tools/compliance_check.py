@@ -267,6 +267,41 @@ def c9_powercontext():
     return True, f"记忆召回生效：{line[:80]}…"
 
 
+# ------------------------------------------------------------------ C10
+
+
+def c10_package():
+    """打包完整性：把 dify/ 打成 zip 到临时目录，检查必需项在包内、敏感文件被排除。"""
+    import tempfile
+    import zipfile
+
+    required = [
+        "README.md",
+        "dsl/01_inn_chatflow.yml",
+        "dsl/README.md",
+        "backend/app/main.py",
+        "backend/requirements.txt",
+        "db/01_schema.sql",
+        "db/init.sh",
+        "deploy/bootstrap.sh",
+        "tools/compliance_check.py",
+    ]
+    with tempfile.TemporaryDirectory() as tmp:
+        subprocess.run(["bash", "tools/package.sh", tmp], cwd=ROOT, capture_output=True, timeout=180, check=False)
+        zips = list(Path(tmp).glob("*.zip"))
+        if not zips:
+            return False, "打包脚本没有产出 zip"
+        zf = zipfile.ZipFile(zips[0])
+        names = set(zf.namelist())
+        missing = [r for r in required if r not in names]
+        leaks = [n for n in names if n.endswith((".env", ".local.env")) or "/.venv/" in n or "__pycache__" in n]
+        if missing:
+            return False, f"包内缺必需文件：{missing[:4]}"
+        if leaks:
+            return False, f"包内含敏感/临时文件：{leaks[:4]}"
+        return True, f"zip 内 {len(names)} 个文件，必需项齐全、无 .env/.venv 泄漏"
+
+
 # ------------------------------------------------------------------ C5
 
 
@@ -366,6 +401,7 @@ def main() -> int:
     check("C3", "seekdb 检索生效", c3_hybrid_retrieval)
     check("C4", "Dify 应用可运行", c4_app_runs)
     check("C9", "PowerContext 记忆生效", c9_powercontext)
+    check("C10", "打包完整性", c10_package)
     check("C5", "运行说明完整", c5_readme)
     check("C6", "验证样例完整", c6_samples)
     check("C7", "无真实凭证", c7_no_secrets)

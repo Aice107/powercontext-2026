@@ -20,9 +20,14 @@ if [ -f "$PC_ENV" ]; then
     ss -lnt 2>/dev/null | grep -q ":8090 " || break
     sleep 1
   done
-  rm -f "$PC_DIR"/pc.db "$PC_DIR"/pc.db-* 2>/dev/null
-  ( cd "$PC_DIR" && PATH="$HOME/.local/bin:$PATH" nohup powercontext server run \
-      --host 127.0.0.1 --port 8090 --env-file "$PC_ENV" > pc.log 2>&1 & )
+  # 必须连迁移状态目录一起删：只删 pc.db 会让下次启动卡在 recovery_required
+  rm -rf "$PC_DIR"/pc.db "$PC_DIR"/pc.db-*          "$PC_DIR"/pc.db.pc-migration-state "$PC_DIR"/pc.db.pc-migration.lock          "$PC_DIR"/.pc.db.cursor-key "$PC_DIR"/.pc.db.cursor-key.lock 2>/dev/null
+  # setsid + 显式重定向：否则服务会挂在本脚本的进程组里，脚本退出前它一直占着前台
+  ( cd "$PC_DIR" || exit 1
+    PATH="$HOME/.local/bin:$PATH" setsid nohup powercontext server run \
+      --host 127.0.0.1 --port 8090 --env-file "$PC_ENV" \
+      > pc.log 2>&1 < /dev/null &
+    disown 2>/dev/null || true )
   for i in $(seq 1 20); do
     curl -sf -m 2 http://127.0.0.1:8090/health/ready >/dev/null 2>&1 && break
     sleep 2
