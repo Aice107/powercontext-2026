@@ -246,3 +246,35 @@ dify/
 
 - 台词、传闻、演示账本数据均为本项目原创，未复用第三方文本；
 - 未复用公开工作流/代码；Dify、seekdb、插件均为官方发布版本，按各自许可证使用。
+
+---
+
+## 10. 提交材料对照（赛题 §4）
+
+| 赛题要求 | 本仓库对应 | 说明 |
+| --- | --- | --- |
+| §4.1 Dify DSL + 用途/导入顺序 + 版本 | [dsl/01_inn_chatflow.yml](dsl/01_inn_chatflow.yml)、[dsl/README.md](dsl/README.md) | 单文件；1.17.0 导出；重导入已验证 |
+| §4.1 重新绑定知识库/工具/服务地址 | [dsl/README.md](dsl/README.md) | 三处 HTTP 节点地址 + 六个模型节点 |
+| §4.2 作品创意/玩法/体验/分工 | §1、§2 | |
+| §4.2 运行环境与版本 | §3 | Dify 1.17.0 / seekdb 1.4.0.0 / Python 3.12 / 插件 0.0.73 |
+| §4.2 完整步骤与应用入口 | §4 | |
+| §4.2 外部服务、网络、资源、限制 | §7、§7.2 | |
+| §4.3 验证样例 + 实际结果 + 证据 | [samples/](samples/)、[evidence/](evidence/) | S1–S7，日志为原始输出 |
+| §4.4 使用 seekdb 部署 Dify（若适用） | §7.1 | **本作品不适用**，已如实声明 |
+| §4.4 知识库/外部数据 | [db/](db/)、[db/init.sh](db/init.sh) | 数据全部为本项目原创，含初始化脚本 |
+| §4.4 预置记忆/互动状态 | [db/04_seed_demo.sql](db/04_seed_demo.sql)、§11 | 演示玩家 `p_demo01` |
+| §4.4 现成插件 | §3 版本表 | `langgenius/openai_api_compatible:0.0.73`，Marketplace |
+| §4.4 自定义插件 / 自定义后端 | `backend/` | 自定义后端已附源码与启动说明；未使用自定义插件 |
+
+## 11. 标识与数据关联（赛题 §4.4 "用户/角色/会话标识如何与工作流关联"）
+
+| 标识 | 产生方式 | 写入位置 | 在 DSL 里的位置 |
+| --- | --- | --- | --- |
+| `player_id` | 玩家在 Start 节点填写；留空时后端按 `sys.conversation_id` 生成稳定 ID | `inn_player.player_id` | Start 节点变量，经 HTTP 节点透传 |
+| `conversation_id` | Dify 系统变量 `sys.conversation_id` | 账本行的 `session_id` | 三个 HTTP 节点的 params/body |
+| `event_id` | seekdb 自增主键 | `inn_ledger.id` | 记账响应块 `EVENT=` |
+| 角色 | 固定单一 NPC「柳三娘」 | `inn_line.npc` | 各 LLM 节点的 system prompt |
+| 记忆边界 | 一玩家一份账本（`WHERE player_id=?` 强制过滤） | 全部查询 | 无跨玩家读取 |
+
+演示数据：执行 `bash db/init.sh` 后，`p_demo01` 会被预置为"住了 3 天、仇值 62（T3 报复）、7 条旧账"的状态，
+评审可直接用这个 ID 体验"翻旧账"与"逐客"，无需自己刷数据。
