@@ -26,7 +26,11 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
+import os as _os
+
 from . import db, embedding, pc, rules
+
+LINES_ENABLED = _os.getenv("INN_LINES_ENABLED", "true").lower() not in {"0", "false", "no"}
 
 app = FastAPI(title="inn-api", version="0.1.0", description="记仇客栈 seekdb 数据层")
 
@@ -347,7 +351,9 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
     if format == "block":
         sim = ";".join(f"{x['text']}({x['severity']}级,{x['days_ago']}天前)" for x in similar) or "无"
         tier_now = _tier(after)
-        if body.severity < 0:
+        if not LINES_ENABLED:
+            anchor = []
+        elif body.severity < 0:
             # 善举：用"和解"专用句，而不是按档位借冷淡句
             anchor = db.query(
                 "SELECT text FROM inn_line WHERE tone='kind' ORDER BY id DESC LIMIT 2"
@@ -358,7 +364,7 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
                 (tier_now,),
             )
         lines_txt = "；".join(r["text"] for r in anchor) or "无"
-        return _block([
+        rows = [
             ("EVENT", str(event_id)),
             ("TYPE", action_type),
             ("SEV", str(body.severity)),
@@ -367,8 +373,10 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
             ("GRUDGE", str(after)),
             ("TIER", str(_tier(after))),
             ("SIM", sim),
-            ("LINES", lines_txt[:300]),
-        ])
+        ]
+        if LINES_ENABLED:
+            rows.append(("LINES", lines_txt[:300]))
+        return _block(rows)
 
     return {
         "recorded": True,

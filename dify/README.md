@@ -230,8 +230,16 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 
 本作品**没有**用 seekdb 承载 Dify 自身的元数据库：Dify 用 PostgreSQL/MySQL 部署，seekdb 只承担应用数据与检索。
 若要把 seekdb 作为 Dify 数据库（赛题允许并需要额外提供适配说明），Dify 1.17.0 的 `DB_TYPE` 已原生支持
-`seekdb` / `oceanbase`（`api/configs/middleware/__init__.py`），改 `DB_TYPE=seekdb` 并指向 seekdb 实例即可验证——
-这属于可选扩展，未包含在本提交的验证范围内，故不在此声明已完成。
+`seekdb` / `oceanbase`，**无需改代码**。我们做过可行性实测（独立库 `dify_meta` + 独立端口 5005）：
+
+| 检查 | 结果 |
+| --- | --- |
+| `DB_TYPE=seekdb flask upgrade-db` | 成功，建表 143 张 |
+| `/health` | `ok`（1.17.0） |
+| `/console/api/setup` | `not_started`（连通且读到空库） |
+
+证据：[evidence/logs/dify-on-seekdb.md](evidence/logs/dify-on-seekdb.md)。
+本作品主线仍用 MySQL 承载 Dify 元数据库、seekdb 承担应用数据——这条路线作为可选扩展记录，未纳入主线验证范围。
 
 ### 7.1.1 性能实测（20 轮连打）
 
@@ -273,6 +281,17 @@ dify/
 ```
 
 ---
+
+## 8.2 tools/ 里有两类脚本（请勿混淆）
+
+| 类别 | 文件 | 用途 | 评审是否需要 |
+| --- | --- | --- | --- |
+| **交付类** | `db/init.sh`、`backend/run.sh`、`deploy/bootstrap.sh` | 初始化数据、启动 inn-api、一键起依赖 | 需要，步骤见 §4 |
+| **开发自检类** | `compliance_check.py`、`periodic_check.sh`、`run_loadtest.py`、`package.sh`、`reset-demo.sh`、`seed_embeddings.py` | 合规自检、压测、打包、重置演示数据 | 可选，用于复核 |
+| **本机开发态** | `start-local.sh`、`watchdog.sh`、`capture.mjs`、`record.mjs` | 作者机器上的进程看护与截图/录屏 | **不需要**，路径与本机绑定 |
+
+> `start-local.sh` / `watchdog.sh` / `capture.mjs` / `record.mjs` 依赖作者机器的
+> `~/dify`（Dify 部署）与 `~/dify-shot`（chromium），仅用于生产素材，不属于运行说明的一部分。
 
 ## 8.3 打包与自检脚本
 

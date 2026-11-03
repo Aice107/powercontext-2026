@@ -9,8 +9,17 @@
 - 理由：赛题 §2.2 允许"为应用提供数据存储、查询与检索能力"，并要求使用 seekdb 部署 Dify 时额外提供适配分支与部署配置；
   20 分赛题的重心是"可运行 + 好玩 + 技术结合有效"，改造 Dify 元数据库会引入上游差异和复现风险。
 - 已如实声明：README §7.1 写明了这个取舍，不宣称未做的事。
-- 补充：Dify 1.17.0 的 `DB_TYPE` 已原生支持 `seekdb`（`api/configs/middleware/__init__.py`），
-  想走那条路线的评审可以只改 `DB_TYPE=seekdb` + 连接参数验证，无需改代码。
+- **已实测**：Dify 1.17.0 的 `DB_TYPE` 原生支持 `seekdb`（`api/configs/middleware/__init__.py`）。
+  我们用一份独立库 `dify_meta` 跑了一次迁移 + 起了一个独立端口（5005）的 API 实例：
+
+  | 检查 | 结果 |
+  | --- | --- |
+  | `DB_TYPE=seekdb flask upgrade-db` | `Database migration successful!`，建表 **143** 张 |
+  | `/health` | `{"status":"ok","version":"1.17.0"}` |
+  | `/console/api/setup` | `{"step":"not_started"}`（说明连通并读到空库） |
+
+  证据：`evidence/logs/dify-on-seekdb.md`。也就是说，若要走赛题 §4.4 第 1 行那条路线，**不需要改代码**，
+  改 `DB_TYPE=seekdb` + 连接参数即可；本作品没走这条路是为了让主线复现更稳（见上文），不是做不到。
 
 ## Q2 为什么 embedding 用哈希向量，而不是 bge / OpenAI embedding？
 

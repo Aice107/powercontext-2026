@@ -16,6 +16,7 @@
 | S9 | PowerContext 记忆 | [logs/S9_pc_memory.log](logs/S9_pc_memory.log)、[logs/S9_pc_scope.txt](logs/S9_pc_scope.txt)、[logs/S9_pc_search.json](logs/S9_pc_search.json) | Scope 建档 + 印象写入 + 召回进 prompt |
 | S10 | 和解线 | [logs/S10_kindness.log](logs/S10_kindness.log) | 善举 -24 仇值，T3 → T1 |
 | 体验路径 | [logs/demo-path-3min.log](logs/demo-path-3min.log) | README §1.4 的四步：记账+翻旧账 → 逐客 → 长卷 → 求原谅 |
+| seekdb 作 Dify 元库（可行性） | [logs/dify-on-seekdb.md](logs/dify-on-seekdb.md) | 迁移 143 表 + 独立实例 /health、/setup 实测 |
 | 压测 | [logs/run-loadtest.md](logs/run-loadtest.md) | 20 轮连打：20/20 成功、p50 5.6s、p95 9.0s、仇值 12→100→76 |
 | DSL | 可重导入 | [../dsl/01_inn_chatflow.yml](../dsl/01_inn_chatflow.yml) | 1.17.0 重导入 `status=completed` |
 
