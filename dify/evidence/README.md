@@ -25,6 +25,23 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 INN_APP_ID=<app_id> python3 tools/compliance_check.py
 ```
 
+## 界面截图（screenshots/）
+
+由无头 Chromium 自动抓取（`tools/capture.mjs`），非手工拼图：
+
+| 文件 | 内容 |
+| --- | --- |
+| [screenshots/01-signin.png](screenshots/01-signin.png) | Dify 登录页（1.17.0） |
+| [screenshots/02-app-list.png](screenshots/02-app-list.png) | 工作区应用列表：《记仇客栈》 |
+| [screenshots/03-canvas.png](screenshots/03-canvas.png) | 编排画布：19 个节点与分支 |
+| [screenshots/04-chat-open.png](screenshots/04-chat-open.png) | 应用预览抽屉：开场白与四个建议问题 |
+| [screenshots/05-chat-prank.png](screenshots/05-chat-prank.png) | 第一次恶作剧：记账批注 |
+| [screenshots/06-chat-old-grudge.png](screenshots/06-chat-old-grudge.png) | 第二次同类：**翻旧账**（"前天刚往酒坛里兑了半坛水…"） |
+| [screenshots/07-chat-settle.png](screenshots/07-chat-settle.png) | 打烊：《账本长卷》与判词 |
+
+> 说明：画布右上角显示"未发布"是因为导入后 UI 自动重排了节点坐标，使 draft 与发布版本存在差异；
+> 发布版本确实存在（Dify 数据库 `workflows` 表有对应版本记录），预览与 API 运行都基于该应用。
+
 ## 关于截图/录屏
 
 `screenshots/` 与 `recordings/` 预留给评审端录屏（浏览器窗口），本仓库提交的文本日志已能独立复现结论：

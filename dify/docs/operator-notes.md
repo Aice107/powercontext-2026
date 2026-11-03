@@ -64,3 +64,28 @@ INN_APP_ID=<app_id> python3 dify/tools/compliance_check.py               # 8 项
    ```
 3. **不要用 `pkill -f "某个字符串"` 杀进程**：命令行里含有同一字符串时会杀掉自己（踩过两次）。
    杀端口占用用 `ss -lntp | awk '/:PORT /{print $NF}'` 取 pid；杀 seekdb 用 `pkill -x seekdb`。
+
+## 6. 界面截图怎么生成（无需人工点）
+
+本机没有装浏览器自动化依赖，做法是「手动下 Chromium + Playwright 驱动」：
+
+```bash
+# 一次性准备
+cd ~/dify-shot
+npm i playwright --registry=https://registry.npmmirror.com
+curl -sSL -o chromium.zip \
+  https://cdn.npmmirror.com/binaries/playwright/builds/chromium/1148/chromium-linux.zip
+unzip -q chromium.zip -d chromium          # 得到 chromium/chrome-linux/chrome
+
+# 每次抓图（Dify 需已登录过一次、应用已发布）
+cd ~/dify-shot
+PLAYWRIGHT_MODULE=/home/ice/dify-shot/node_modules/playwright/index.mjs \
+  node /home/ice/dify-project/dify/tools/capture.mjs <app_id> \
+  /home/ice/dify-project/dify/evidence/screenshots
+```
+
+要点：
+- **必须用 `http://localhost:3000`**，`127.0.0.1` 会被 Next dev 的跨域策略挡掉静态资源（页面卡在 spinner）；
+- 开发模式有一个设计标注浮层（`styles-module__toolbar`），脚本用 CSS 隐藏；
+- 对话截图走画布右上角的「预览」抽屉（`/chat/<id>` 路由在 dev 下编译极慢，会超时）；
+- `playwright install chromium` 会额外下载 headless-shell（npmmirror 没有），所以直接下 `chromium-linux.zip` 并用 `executablePath` 指定。
