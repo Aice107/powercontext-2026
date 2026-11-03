@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from itertools import chain
@@ -56,6 +57,9 @@ class _PreparedContextEntry:
     citation: dict[str, object]
     content: str
     truncated: bool
+    start: int | None = None
+    end: int | None = None
+    fragment: PreparedContextFragment | None = None
 
 
 @dataclass(frozen=True)
@@ -93,6 +97,16 @@ class PreparedContextOmissions:
 
 
 @dataclass(frozen=True)
+class PreparedContextFragment:
+    """One exact query-selected UTF-8 substring of a Memory entry body."""
+
+    address: MemoryEntryAddress
+    start: int
+    end: int
+    text: str
+
+
+@dataclass(frozen=True)
 class PreparedContextBuild:
     """Final public context and the exact origins selected to produce it.
 
@@ -106,6 +120,7 @@ class PreparedContextBuild:
     origins: tuple[PreparedContextOrigin, ...]
     omissions: PreparedContextOmissions = PreparedContextOmissions()
     code_origins: tuple[CodeEvidenceRef, ...] = ()
+    fragments: tuple[PreparedContextFragment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -235,7 +250,7 @@ class PreparedContextBuilder:
         if sum(len(candidates.hits) for candidates in experience_candidates) > self.experience_candidate_limit:
             raise PreparedContextInvariantError("experience-candidate-limit")
 
-        content, origins, omissions = self._select_entries(
+        content, origins, omissions, fragments = self._select_entries(
             request=request,
             current_scope_id=current_scope_id,
             memory_candidates=memory_candidates,
@@ -254,6 +269,7 @@ class PreparedContextBuilder:
             context=PreparedContext(status="ready", content=content, content_bytes=content_bytes),
             origins=origins,
             omissions=omissions,
+            fragments=fragments,
         )
 
     def probe_budget(
@@ -277,7 +293,7 @@ class PreparedContextBuilder:
         counters because both go through :meth:`_select_entries`.
         """
 
-        content, origins, omissions = self._select_entries(
+        content, origins, omissions, _ = self._select_entries(
             request=request,
             current_scope_id=current_scope_id,
             memory_candidates=memory_candidates,
@@ -303,7 +319,12 @@ class PreparedContextBuilder:
         topic_memory_hits: Sequence[TopicMemorySearchHit],
         experience_candidates: Sequence[PreparedExperienceCandidates],
         profile_candidates: Sequence[PreparedProfileCandidate],
-    ) -> tuple[str | None, tuple[PreparedContextOrigin, ...], PreparedContextOmissions]:
+    ) -> tuple[
+        str | None,
+        tuple[PreparedContextOrigin, ...],
+        PreparedContextOmissions,
+        tuple[PreparedContextFragment, ...],
+    ]:
         """Run one complete pure selection pass and render it.
 
         Returns ``(content, origins, omissions)``; ``content`` is ``None`` exactly when nothing
@@ -332,7 +353,12 @@ class PreparedContextBuilder:
                 for candidates in memory_candidates
             )
         )
-        topic_memory_entries = self._topic_memory_entries(topic_memory_hits)
+        if request.evidence_selection:
+            memory_entries = self._evidence_entries(memory_entries, request.query, current_scope_id)
+            topic_memory_entries = ()
+            experience_entries = ()
+        else:
+            topic_memory_entries = self._topic_memory_entries(topic_memory_hits)
         experience_entries = _interleave_groups(
             tuple(
                 self._experience_entries(
@@ -344,8 +370,9 @@ class PreparedContextBuilder:
         )[: self.experience_entry_limit]
         entries, omissions = self._fit_entries(request, memory_entries, topic_memory_entries, experience_entries)
         if not entries:
-            return None, (), omissions
-        return _render(entries), tuple(entry.origin for entry in entries), omissions
+            return None, (), omissions, ()
+        fragments = tuple(entry.fragment for entry in entries if entry.fragment is not None)
+        return _render(entries), tuple(entry.origin for entry in entries), omissions, fragments
 
     def _select_text(
         self,
@@ -429,9 +456,9 @@ class PreparedContextBuilder:
             dropped_no_fitting_truncation=dropped_no_fitting_truncation,
         )
         if not included:
-            return None, (), omissions
+            return None, (), omissions, ()
         content = render_context_text(included, assembly)
-        return content, tuple(origins), omissions
+        return content, tuple(origins), omissions, ()
 
     def _profile_entries(self, candidates: Sequence[PreparedProfileCandidate]) -> tuple[_PreparedContextEntry, ...]:
         entries = []
@@ -447,6 +474,47 @@ class PreparedContextBuilder:
                 )
             )
         return tuple(entries)
+
+    def _evidence_entries(
+        self,
+        entries: Sequence[_PreparedContextEntry],
+        query: str,
+        current_scope_id: str | None,
+    ) -> tuple[_PreparedContextEntry, ...]:
+        selected: list[_PreparedContextEntry] = []
+        for entry in entries:
+            if entry.kind != "memory":
+                continue
+            if isinstance(entry.origin, MemoryEntryAddress):
+                address = entry.origin
+            elif isinstance(entry.origin, MemoryCitation) and current_scope_id is not None:
+                address = MemoryEntryAddress(
+                    memory=ArtifactAddress(scope_id=current_scope_id, artifact=entry.origin.memory_ref),
+                    entry_id=entry.origin.entry_id,
+                    entry_version_id=entry.origin.entry_version_id,
+                )
+            else:
+                continue
+            for start, end, text in _query_spans(entry.content, query):
+                fragment = PreparedContextFragment(address=address, start=start, end=end, text=text)
+                selected.append(
+                    _PreparedContextEntry(
+                        origin=address,
+                        kind="memory",
+                        citation={
+                            "scope_id": address.memory.scope_id,
+                            "memory_ref": address.memory.artifact.model_dump(mode="json"),
+                            "entry_id": address.entry_id,
+                            "entry_version_id": address.entry_version_id,
+                        },
+                        content=text,
+                        truncated=False,
+                        start=start,
+                        end=end,
+                        fragment=fragment,
+                    )
+                )
+        return tuple(selected)
 
     def _memory_entries(
         self,
@@ -589,6 +657,9 @@ class PreparedContextBuilder:
                 citation=candidate.citation,
                 text=candidate.content,
                 max_bytes=request.max_bytes,
+                start=candidate.start,
+                end=candidate.end,
+                fragment=candidate.fragment,
             )
             if fit.entry is None:
                 dropped_below_min_bytes += int(fit.dropped_below_min_bytes)
@@ -613,6 +684,9 @@ class PreparedContextBuilder:
         citation: dict[str, object],
         text: str,
         max_bytes: int,
+        start: int | None = None,
+        end: int | None = None,
+        fragment: PreparedContextFragment | None = None,
     ) -> _EntryFit:
         """Fit one entry into the remaining budget, reporting why it was dropped if it was.
 
@@ -629,6 +703,9 @@ class PreparedContextBuilder:
             citation=citation,
             content=text if source_bytes <= entry_budget else _truncate_utf8(text, entry_budget),
             truncated=source_bytes > entry_budget,
+            start=start,
+            end=end,
+            fragment=fragment,
         )
         if _rendered_bytes((*entries, candidate)) <= max_bytes:
             return _EntryFit(entry=candidate)
@@ -646,6 +723,9 @@ class PreparedContextBuilder:
                 citation=citation,
                 content=_truncate_utf8(text, byte_budget),
                 truncated=True,
+                start=start,
+                end=end,
+                fragment=fragment,
             )
             if len(candidate.content.encode("utf-8")) < _MIN_TRUNCATED_CONTENT_BYTES:
                 lower = byte_budget + 1
@@ -717,11 +797,62 @@ def _render_entry(entry: _PreparedContextEntry) -> dict[str, object]:
     }
     if entry.kind != "memory":
         rendered["kind"] = entry.kind
+    if entry.start is not None and entry.end is not None:
+        rendered["start"] = entry.start
+        rendered["end"] = entry.end
     return rendered
 
 
 def _rendered_bytes(entries: Sequence[_PreparedContextEntry]) -> int:
     return len(_render(entries).encode("utf-8"))
+
+
+_QUERY_TERM = re.compile(r"[a-z0-9]+|[\u4e00-\u9fff]")
+_SENTENCE = re.compile(r"[^.!?\u3002\uff01\uff1f\n]+[.!?\u3002\uff01\uff1f]?")
+
+
+def _query_terms(query: str) -> set[str]:
+    return set(_QUERY_TERM.findall(query.casefold()))
+
+
+def _query_spans(  # noqa: C901 - bounded span selection
+    text: str, query: str, *, limit: int = 3, max_span_bytes: int = 320
+) -> tuple[tuple[int, int, str], ...]:
+    terms = _query_terms(query)
+    candidates: list[tuple[float, int, int]] = []
+    for match in _SENTENCE.finditer(text):
+        start, end = match.span()
+        while start < end and text[start].isspace():
+            start += 1
+        while end > start and text[end - 1].isspace():
+            end -= 1
+        if start >= end:
+            continue
+        sentence = text[start:end]
+        folded = sentence.casefold()
+        score = sum(1 for term in terms if term in folded)
+        if len(sentence.encode("utf-8")) > max_span_bytes:
+            first = min((folded.find(term) for term in terms if folded.find(term) >= 0), default=0)
+            anchor = start + max(0, first)
+            start = max(start, anchor - max_span_bytes // 4)
+            while end > anchor and len(text[start:end].encode("utf-8")) > max_span_bytes:
+                end -= 1
+        candidates.append((float(score), start, end))
+    if not candidates:
+        return ()
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+    chosen: list[tuple[int, int, str]] = []
+    covered_until = -1
+    for score, start, end in candidates:
+        if end <= covered_until:
+            continue
+        if score <= 0 and chosen:
+            break
+        chosen.append((start, end, text[start:end]))
+        covered_until = end
+        if len(chosen) >= limit:
+            break
+    return tuple(chosen)
 
 
 def _truncate_utf8(text: str, byte_budget: int) -> str:
