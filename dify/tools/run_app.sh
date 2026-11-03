@@ -30,7 +30,7 @@ for line in open('/tmp/_run.sse'):
     except Exception: continue
     ev=d.get('event'); dd=d.get('data',{})
     if ev=='node_finished' and dd.get('node_type')=='http-request':
-        seen.append(("HTTP:"+str(dd.get('title')), str((dd.get('outputs') or {}).get('body'))[:200]))
+        seen.append(("HTTP:"+str(dd.get('title')), str((dd.get('outputs') or {}).get('body'))[:600]))
     if ev=='node_finished' and dd.get('node_type')=='llm':
         seen.append(("LLM:"+str(dd.get('title')), str((dd.get('outputs') or {}).get('text'))))
     if ev=='workflow_finished' and dd.get('status')!='succeeded':

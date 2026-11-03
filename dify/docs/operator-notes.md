@@ -88,6 +88,12 @@ cd dify && python3 tools/run_loadtest.py 20          # 20 轮连打，报告写 
 注意：压测期间若 seekdb 被 OOM 杀掉，会出现"部分轮次 partial-succeeded"（走兜底话术，不写库），
 看门狗会在 90 秒内拉起；异常轮次不影响主结论，但写进报告前建议先确认 `healthz` 为 ok。
 
+## 4.9 自检会写数据
+
+`compliance_check.py` 的 C3/C4/C9 会真的写账本（否则无法验证检索与记忆）。为了让**演示玩家**保持初始状态
+（`p_demo01` 仇值 62、7 条旧账），自检统一使用 `p_check` / `p_check_pc` 两个专用玩家；
+C3 会先造一条旧账再查相似事件，所以单独跑也能通过。
+
 ## 5. 已知环境问题
 
 1. **内存紧张**：本机 9.3GB + 3.8GB swap，swap 常年接近打满；Dify web dev 编译、seekdb 启动都会把内存推到临界，

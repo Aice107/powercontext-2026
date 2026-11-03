@@ -169,12 +169,25 @@ def c2_seekdb_data():
 
 
 def c3_hybrid_retrieval():
+    # 先造一条"旧账"，再查相似事件：自检必须自带前置数据，不依赖演示玩家
+    http_json(
+        f"{API}/inn/ledger",
+        {
+            "player_id": "p_check",
+            "conversation_id": "chk_hybrid",
+            "action_text": "往酒坛里兑了半坛井水",
+            "action_type": "drink",
+            "severity": 2,
+            "scene": "后厨",
+        },
+    )
     payload = {
-        "player_id": "p_demo01",
+        "player_id": "p_check",
         "conversation_id": "chk_hybrid",
-        "action_text": "往酒坛里兑水",
+        "action_text": "又往酒坛里兑水",
         "action_type": "drink",
         "severity": 1,
+        "scene": "后厨",
     }
     st, d = http_json(f"{API}/inn/ledger", payload)
     if st != 200 or not d.get("similar"):
@@ -194,7 +207,7 @@ def c3_hybrid_retrieval():
 def c4_app_runs():
     if not APP_ID:
         return False, "未设置 INN_APP_ID，跳过运行检查"
-    payload = {"inputs": {"player_id": "p_demo01"}, "files": [], "query": "往酒坛里兑半坛水"}
+    payload = {"inputs": {"player_id": "p_check"}, "files": [], "query": "往酒坛里兑半坛水"}
     req = urllib.request.Request(
         f"{DIFY}/console/api/apps/{APP_ID}/advanced-chat/workflows/draft/run",
         data=json.dumps(payload).encode(),
@@ -243,10 +256,10 @@ def c9_powercontext():
         urllib.request.urlopen(f"{os.getenv('PC_BASE_URL', 'http://127.0.0.1:8090')}/health/ready", timeout=5)
     except Exception as exc:  # noqa: BLE001
         return False, f"PC 未就绪：{exc}"
-    payload = {"player_id": "p_demo01", "action_text": "在醋坛子里洗手", "action_type": "hygiene",
+    payload = {"player_id": "p_check_pc", "action_text": "在醋坛子里洗手", "action_type": "hygiene",
                "severity": 1, "scene": "后厨"}
     http_json(f"{API}/inn/ledger", payload)
-    with urllib.request.urlopen(f"{API}/inn/session?player_id=p_demo01&format=block", timeout=10) as r:
+    with urllib.request.urlopen(f"{API}/inn/session?player_id=p_check_pc&format=block", timeout=10) as r:
         block = r.read().decode()
     if "MEMORY=无" in block:
         return False, "记忆写入后仍召回为空"

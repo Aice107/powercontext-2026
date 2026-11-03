@@ -251,6 +251,11 @@ def session(
             ("EVENTS", str(int(player.get("total_events", 0)))),
             ("RECENT", recent),
             ("MEMORY", _memory_block(player_id, player.get("nickname") or nickname) or "无"),
+            ("LINES", "；".join(
+                r["text"] for r in db.query(
+                    "SELECT text FROM inn_line WHERE tier=%s ORDER BY id DESC LIMIT 2", (_tier(grudge),)
+                )
+            )[:300] or "无"),
         ])
     return {
         "player_id": player_id,
