@@ -11,13 +11,30 @@ mkdir -p "$D/.run"
 
 log() { echo "[$(date '+%H:%M:%S')] $*" >> "$LOG"; }
 
+# 只认"本项目的" seekdb（按 base-dir 判断）：本机还有 obtest_* 的实例占着别的端口
+mine_running() {
+  for p in $(pgrep -x seekdb 2>/dev/null); do
+    if tr '\0' ' ' < "/proc/$p/cmdline" 2>/dev/null | grep -q "$D/.seekdb"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# 单实例保护：两个看门狗同时拉 seekdb 会抢同一 datadir
+exec 9>"$D/.run/watchdog.lock"
+if ! flock -n 9; then
+  echo "另一个 watchdog 已在运行，退出" >&2
+  exit 1
+fi
+
 boot_guard=0   # 上次拉起 seekdb 的时间戳，90 秒内不再重复拉起
 
 while true; do
   now=$(date +%s)
 
   # --- seekdb
-  if ! pgrep -x seekdb >/dev/null 2>&1; then
+  if ! mine_running; then
     if [ $((now - boot_guard)) -gt 90 ]; then
       log "seekdb not running -> start"
       nohup "$SEEKDB_BIN" --base-dir "$D/.seekdb" --port 2891 --nodaemon \

@@ -52,6 +52,21 @@ INN_APP_ID=<app_id> bash dify/tools/collect_evidence.sh                  # 重�
 INN_APP_ID=<app_id> python3 dify/tools/compliance_check.py               # 8 项合规自检
 ```
 
+## 4.5 本机有多个 seekdb 实例（重要）
+
+这台机器上除了本项目的 `~/.seekdb` 实例，还有 `obtest_bench`（2881）、`obtest_al`（3051）等其它实例。
+所以**任何"看 seekdb 在不在"的判断都必须限定本项目**：
+
+```bash
+# 正确：按 base-dir 判断
+for p in $(pgrep -x seekdb); do
+  tr '\0' ' ' < /proc/$p/cmdline | grep -q "dify-project/.seekdb" && echo mine=$p
+done
+# 错误：pgrep -x seekdb 会把别人的实例当自己人，导致永不重启
+```
+
+`tools/watchdog.sh` 已按 base-dir 判断，并且用 `flock` 保证单实例（两个看门狗会抢同一 datadir）。
+
 ## 5. 已知环境问题
 
 1. **内存紧张**：本机 9.3GB + 3.8GB swap，swap 常年接近打满；Dify web dev 编译、seekdb 启动都会把内存推到临界，
