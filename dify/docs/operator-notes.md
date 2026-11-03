@@ -94,6 +94,16 @@ cd dify && python3 tools/run_loadtest.py 20          # 20 轮连打，报告写 
 （`p_demo01` 仇值 62、7 条旧账），自检统一使用 `p_check` / `p_check_pc` 两个专用玩家；
 C3 会先造一条旧账再查相似事件，所以单独跑也能通过。
 
+## 4.95 重置与打包
+
+```bash
+bash dify/tools/reset-demo.sh     # seekdb 重建 + PowerContext 记忆清空（两者必须一起做，否则记忆与账本会打架）
+bash dify/tools/package.sh        # 产物在 ../dist/：zip + MANIFEST.sha256
+```
+
+注意：清 PC 记忆要**按端口杀进程**（`ss -lntp | grep :8090`），因为 `powercontext` exec 后命令行变成
+`powercontext serve`，按 `server run` 字样匹配不到。
+
 ## 5. 已知环境问题
 
 1. **内存紧张**：本机 9.3GB + 3.8GB swap，swap 常年接近打满；Dify web dev 编译、seekdb 启动都会把内存推到临界，
