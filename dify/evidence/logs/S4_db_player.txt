@@ -1,0 +1,1 @@
+ERROR 1146 (42S02) at line 1: Table 'inn.inn_player' doesn't exist

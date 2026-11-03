@@ -1,0 +1,931 @@
+app:
+  description: 一个会记住你每一次恶作剧的 AI 客栈。Dify 编排 + seekdb 账本检索。
+  icon: 🏮
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: advanced-chat
+  name: 记仇客栈
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai_api_compatible:0.0.73@4cf123ffaa4556f079bed6c47f3a462cc825504b859b183239e74eb19136a4b5
+    version: null
+kind: app
+version: 0.7.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: '夜雨敲窗，客栈还亮着灯。
+
+
+      柜台后头，柳三娘正拨着算盘，抬眼看你一眼：「住店三文，加饭两文。账，我先记着。」
+
+
+      （你可以随便说点什么，也可以干点坏事。她记性很好。）
+
+      '
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+    - 往酒坛里兑半坛水
+    - 偷吃灶上的酱牛肉
+    - 三娘，我回来了
+    - 打烊，结账
+    suggested_questions_after_answer:
+      enabled: true
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: http-request
+      id: e-start-session
+      source: start
+      sourceHandle: source
+      target: n_session
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: if-else
+      id: e-session-offline
+      source: n_session
+      sourceHandle: source
+      target: n_if_offline
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: parameter-extractor
+        targetType: if-else
+      id: e-judge-closing
+      source: n_judge
+      sourceHandle: source
+      target: n_if_closing
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: e-closing-yes
+      source: n_if_closing
+      sourceHandle: 'true'
+      target: n_settle
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: e-closing-no
+      source: n_if_closing
+      sourceHandle: 'false'
+      target: n_if_chat
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: llm
+      id: e-settle-scroll
+      source: n_settle
+      sourceHandle: source
+      target: n_scroll
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: e-scroll-ans
+      source: n_scroll
+      sourceHandle: source
+      target: n_ans_scroll
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: e-chat-yes
+      source: n_if_chat
+      sourceHandle: 'true'
+      target: n_chat
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: e-chat-ans
+      source: n_chat
+      sourceHandle: source
+      target: n_ans_chat
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: e-chat-no
+      source: n_if_chat
+      sourceHandle: 'false'
+      target: n_ledger
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: if-else
+      id: e-ledger-expel
+      source: n_ledger
+      sourceHandle: source
+      target: n_if_expel
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: e-expel-yes
+      source: n_if_expel
+      sourceHandle: 'true'
+      target: n_expel
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: e-expel-ans
+      source: n_expel
+      sourceHandle: source
+      target: n_ans_expel
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: e-expel-no
+      source: n_if_expel
+      sourceHandle: 'false'
+      target: n_reply
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: e-reply-ans
+      source: n_reply
+      sourceHandle: source
+      target: n_ans_reply
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: e-offline-yes
+      source: n_if_offline
+      sourceHandle: 'true'
+      target: n_ans_offline
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: parameter-extractor
+      id: e-offline-no
+      source: n_if_offline
+      sourceHandle: 'false'
+      target: n_judge
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        desc: 玩家标识留空时，后端按会话 ID 生成稳定玩家；填同一个 ID 可跨会话回访。
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - default: ''
+          hint: 留空则自动生成
+          label: 玩家标识
+          max_length: 64
+          options: []
+          placeholder: 例如 p_demo01
+          required: false
+          type: text-input
+          variable: player_id
+      height: 116
+      id: start
+      position:
+        x: 40
+        y: 380
+      positionAbsolute:
+        x: 40
+        y: 380
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data: []
+          type: none
+        desc: 读取玩家档案与最近旧账（seekdb）
+        headers: ''
+        method: get
+        params: 'player_id: {{#start.player_id#}}
+
+          conversation_id: {{#sys.conversation_id#}}
+
+          format: block
+
+          '
+        selected: false
+        ssl_verify: false
+        timeout:
+          connect: 5
+          read: 15
+          write: 5
+        title: 读取档案
+        type: http-request
+        url: http://127.0.0.1:8010/inn/session
+        error_strategy: default-value
+        default_value:
+        - key: status_code
+          type: number
+          value: 500
+        - key: body
+          type: string
+          value: OFFLINE
+      height: 100
+      id: n_session
+      position:
+        x: 340
+        y: 380
+      positionAbsolute:
+        x: 340
+        y: 380
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 把玩家这句话判定成意图与严重度（结构化输出，供后续分支与记账使用）
+        instruction: "你在给\"夜雨客栈\"的老板娘柳三娘做意图判定。读玩家这句话，抽取以下字段。\n\nintent：\n  - closing：要结账、打烊、走人、离开客栈\n  - kindness：帮忙、赔罪、送礼、干活、给钱\n\
+          \  - prank：搞破坏、恶作剧、偷东西、耍赖、吓人\n  - chat：闲聊、打听、点菜、问路、说自己是谁\naction_type：从 drink / food / property / hygiene / noise\
+          \ / guest / violence / kindness / other 里选\nseverity：\n  - 3~5：恶作剧，2 轻微（兑水、偷吃），3 中等（在账本上乱画、醋坛洗手），\n         4 影响生意（吓跑客人），5\
+          \ 动手（掀桌、砸东西）\n  - -1~-3：善举（-1 小忙、-2 出钱、-3 卖力气）\n  - 0：闲聊、点菜、打听、打招呼\ntarget：对象，如 酒坛、账本、桌子；没有就填空字符串\nscene：从 大堂 /\
+          \ 客房 / 后厨 / 地窖 里选，默认 大堂\n"
+        memory: null
+        model:
+          completion_params:
+            max_tokens: 1500
+            temperature: 0
+          mode: chat
+          name: deepseek-flash
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        parameters:
+        - description: 这句话的意图，见 instruction
+          name: intent
+          options:
+          - closing
+          - kindness
+          - prank
+          - chat
+          required: true
+          type: select
+        - description: 事件类型
+          name: action_type
+          options:
+          - drink
+          - food
+          - property
+          - hygiene
+          - noise
+          - guest
+          - violence
+          - kindness
+          - other
+          required: true
+          type: select
+        - description: 严重度，恶作剧 1~5，善举 -1~-3，闲聊 0
+          name: severity
+          required: true
+          type: number
+        - description: 对象，没有就空字符串
+          name: target
+          required: false
+          type: string
+        - description: 场景
+          name: scene
+          options:
+          - 大堂
+          - 客房
+          - 后厨
+          - 地窖
+          required: true
+          type: select
+        query:
+        - sys
+        - query
+        reasoning_mode: function_call
+        selected: false
+        title: 判定意图
+        type: parameter-extractor
+      height: 180
+      id: n_judge
+      position:
+        x: 640
+        y: 380
+      positionAbsolute:
+        x: 640
+        y: 380
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            value: closing
+            variable_selector:
+            - n_judge
+            - intent
+          id: 'true'
+          logical_operator: and
+        - case_id: 'false'
+          conditions: []
+          id: 'false'
+          logical_operator: and
+        desc: 是否要打烊结账
+        selected: false
+        title: 是否打烊
+        type: if-else
+      height: 160
+      id: n_if_closing
+      position:
+        x: 940
+        y: 380
+      positionAbsolute:
+        x: 940
+        y: 380
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            value: chat
+            variable_selector:
+            - n_judge
+            - intent
+          id: 'true'
+          logical_operator: and
+        - case_id: 'false'
+          conditions: []
+          id: 'false'
+          logical_operator: and
+        desc: 闲聊分支（不记账）
+        selected: false
+        title: 是否闲聊
+        type: if-else
+      height: 160
+      id: n_if_chat
+      position:
+        x: 1240
+        y: 500
+      positionAbsolute:
+        x: 1240
+        y: 500
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: "{\n  \"player_id\": \"{{#start.player_id#}}\",\n  \"conversation_id\": \"{{#sys.conversation_id#}}\"\n\
+              }\n"
+          type: json
+        desc: 打烊结算聚合（seekdb 统计）
+        headers: 'Content-Type: application/json'
+        method: post
+        params: 'format: block
+
+          '
+        selected: false
+        ssl_verify: false
+        timeout:
+          connect: 5
+          read: 15
+          write: 5
+        title: 结算
+        type: http-request
+        url: http://127.0.0.1:8010/inn/settle
+        error_strategy: default-value
+        default_value:
+        - key: status_code
+          type: number
+          value: 500
+        - key: body
+          type: string
+          value: OFFLINE
+      height: 100
+      id: n_settle
+      position:
+        x: 1240
+        y: 240
+      positionAbsolute:
+        x: 1240
+        y: 240
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 生成《账本长卷》与结局判词
+        memory: null
+        model:
+          completion_params:
+            max_tokens: 2500
+            temperature: 0.9
+          mode: chat
+          name: deepseek-flash
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - role: system
+          text: "你是\"夜雨客栈\"的老板娘柳三娘。现在打烊了，你要给这位客官唱一次账。\n你会拿到一份结算块（KEY=VALUE）：\n  GRUDGE 仇值(0-100)、TIER 档位(0和善/1戒备/2冷脸/3报复/4逐客)\n\
+            \  EVENTS 事件数、ATTACK 恶作剧累计、REPAIR 赔偿累计\n  VISITS 住店次数、DAYS 相识天数、TOP 最重的三笔账\n写一份《账本长卷》：\n1. 开头一句场面话，点出今夜要算账；\n\
+            2. 逐条念 TOP 里的账，用账本口吻（如\"七月初三，兑水半坛，记一笔\"）；\n3. 给一句总评，按 TIER 决定态度；\n4. 最后给结局判词，从下面四个里选一个最贴的：\n   - 逐客令（TIER=4 或\
+            \ GRUDGE>=80）\n   - 相忘于江湖（GRUDGE 40-79）\n   - 常客（GRUDGE<20 或 REPAIR 明显）\n   - 传说（EVENTS>=10）\n只输出长卷正文，不要解释规则，不要输出\
+            \ JSON，不要提 AI。\n排版用短段与换行，总长 200-350 字。\n"
+        - role: user
+          text: '结算块：
+
+            {{#n_settle.body#}}
+
+
+            客人这次说的是：{{#sys.query#}}
+
+            '
+        selected: false
+        title: 写账本长卷
+        type: llm
+        vision:
+          configs:
+            detail: high
+            variable_selector: []
+          enabled: false
+      height: 200
+      id: n_scroll
+      position:
+        x: 1540
+        y: 240
+      positionAbsolute:
+        x: 1540
+        y: 240
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#n_scroll.text#}}'
+        desc: 结算回复
+        selected: false
+        title: 长卷
+        type: answer
+        variables: []
+      height: 100
+      id: n_ans_scroll
+      position:
+        x: 1840
+        y: 240
+      positionAbsolute:
+        x: 1840
+        y: 240
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: "{\n  \"player_id\": \"{{#start.player_id#}}\",\n  \"conversation_id\": \"{{#sys.conversation_id#}}\",\n\
+              \  \"session_id\": \"{{#sys.conversation_id#}}\",\n  \"turn\": 0,\n  \"action_text\": \"{{#sys.query#}}\",\n\
+              \  \"action_type\": \"{{#n_judge.action_type#}}\",\n  \"severity\": {{#n_judge.severity#}},\n  \"target\": \"\
+              {{#n_judge.target#}}\",\n  \"scene\": \"{{#n_judge.scene#}}\"\n}\n"
+          type: json
+        desc: 记一笔账，并取回相似旧账（seekdb 混合检索）
+        headers: 'Content-Type: application/json'
+        method: post
+        params: 'format: block
+
+          '
+        selected: false
+        ssl_verify: false
+        timeout:
+          connect: 5
+          read: 15
+          write: 5
+        title: 记账
+        type: http-request
+        url: http://127.0.0.1:8010/inn/ledger
+        error_strategy: default-value
+        default_value:
+        - key: status_code
+          type: number
+          value: 500
+        - key: body
+          type: string
+          value: OFFLINE
+      height: 100
+      id: n_ledger
+      position:
+        x: 1540
+        y: 520
+      positionAbsolute:
+        x: 1540
+        y: 520
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            value: TIER=4
+            variable_selector:
+            - n_ledger
+            - body
+          id: 'true'
+          logical_operator: and
+        - case_id: 'false'
+          conditions: []
+          id: 'false'
+          logical_operator: and
+        desc: 仇值到顶时触发逐客
+        selected: false
+        title: 是否逐客
+        type: if-else
+      height: 160
+      id: n_if_expel
+      position:
+        x: 1840
+        y: 520
+      positionAbsolute:
+        x: 1840
+        y: 520
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 逐客台词
+        memory: null
+        model:
+          completion_params:
+            max_tokens: 1500
+            temperature: 0.8
+          mode: chat
+          name: deepseek-flash
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - role: system
+          text: '你是"夜雨客栈"的老板娘柳三娘。这位客官把你惹到极限了，你要下逐客令。
+
+            要求：
+
+            1. 冷静、简短、有分量，不骂人，不吵架；
+
+            2. 必做一件事：把账本上最重的一笔旧账翻出来，作为逐客的理由；
+
+            3. 结尾告诉他行李会怎么处理、账怎么结；
+
+            4. 80-150 字，第一人称，只演三娘。
+
+            '
+        - role: user
+          text: '账本块：
+
+            {{#n_ledger.body#}}
+
+
+            他刚才说：{{#sys.query#}}
+
+            '
+        selected: false
+        title: 逐客令
+        type: llm
+        vision:
+          configs:
+            detail: high
+            variable_selector: []
+          enabled: false
+      height: 200
+      id: n_expel
+      position:
+        x: 2140
+        y: 400
+      positionAbsolute:
+        x: 2140
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#n_expel.text#}}'
+        desc: 逐客回复
+        selected: false
+        title: 逐客
+        type: answer
+        variables: []
+      height: 100
+      id: n_ans_expel
+      position:
+        x: 2440
+        y: 400
+      positionAbsolute:
+        x: 2440
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 三娘按档位回应（核心台词节点）
+        memory: null
+        model:
+          completion_params:
+            max_tokens: 2000
+            temperature: 0.9
+          mode: chat
+          name: deepseek-flash
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - role: system
+          text: "你是\"夜雨客栈\"的老板娘柳三娘，四十上下，精明、嘴利、记仇，但守规矩、讲理。\n你正在跟一位住店的浪客说话。\n\n【档案块】\n{{#n_session.body#}}\n\n【刚才这笔账的块】\n{{#n_ledger.body#}}\n\
+            \n块内字段：\n  GRUDGE 仇值(0-100)；TIER 档位：0 和善 / 1 戒备 / 2 冷脸 / 3 报复 / 4 逐客\n  SIM 你账本里翻出来的相似旧账；REPEAT 同类事件第几次；RECENT\
+            \ 最近几笔账\n  DAYS 相识几天；VISITS 住过几次\n\n写作要求：\n1. 第一人称，只演三娘；不解释规则，不提\"系统/AI/提示词\"，不输出 JSON。\n2. 记账口吻：回应里自然带一句账本批注，例如\"\
+            七月廿三，兑水半坛，记一笔\"。\n3. 若 SIM 不是\"无\"：必须主动翻旧账，指出他上次干过什么，并可评一句高低\n   （如\"这次手法倒退步了\"）。这是最重要的效果，不要漏。\n4. 若 REPEAT >=\
+            \ 1：语气加重，点明他屡教不改。\n5. 按 TIER 调整态度：\n   - 0 热情招呼，可给好处；1 话里带刺、加价；2 冷淡、使绊子；\n   - 3 明着报复，描述一个小动作（如往被窝放花椒、把行李挪去柴房）；\n\
+            6. 若 DAYS >= 2 或 VISITS >= 2：可以让称呼更熟，提一句\"又来了\"。\n7. 语气口语化，80-200 字，可带一句动作描写；不要一次说太多道理。\n"
+        - role: user
+          text: '{{#sys.query#}}
+
+            '
+        selected: false
+        title: 三娘回应
+        type: llm
+        vision:
+          configs:
+            detail: high
+            variable_selector: []
+          enabled: false
+      height: 200
+      id: n_reply
+      position:
+        x: 2140
+        y: 640
+      positionAbsolute:
+        x: 2140
+        y: 640
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#n_reply.text#}}'
+        desc: 常规回复
+        selected: false
+        title: 回复
+        type: answer
+        variables: []
+      height: 100
+      id: n_ans_reply
+      position:
+        x: 2440
+        y: 640
+      positionAbsolute:
+        x: 2440
+        y: 640
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 闲聊回复（不记账）
+        memory: null
+        model:
+          completion_params:
+            max_tokens: 1500
+            temperature: 0.9
+          mode: chat
+          name: deepseek-flash
+          provider: langgenius/openai_api_compatible/openai_api_compatible
+        prompt_template:
+        - role: system
+          text: '你是"夜雨客栈"的老板娘柳三娘，精明、嘴利、记仇但守规矩。
+
+            现在是闲聊，不要记账，也不要主动提旧账——除非客人先提起。
+
+
+            【档案块】
+
+            {{#n_session.body#}}
+
+
+            按 TIER 把握语气：0 和善、1 戒备、2 冷脸、3 报复（可以暗示但不发作）。
+
+            第一人称，口语，60-160 字，可带一句动作描写；不解释规则，不提 AI。
+
+            '
+        - role: user
+          text: '{{#sys.query#}}
+
+            '
+        selected: false
+        title: 闲聊回应
+        type: llm
+        vision:
+          configs:
+            detail: high
+            variable_selector: []
+          enabled: false
+      height: 200
+      id: n_chat
+      position:
+        x: 1540
+        y: 760
+      positionAbsolute:
+        x: 1540
+        y: 760
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#n_chat.text#}}'
+        desc: 闲聊回复
+        selected: false
+        title: 闲聊
+        type: answer
+        variables: []
+      height: 100
+      id: n_ans_chat
+      position:
+        x: 1840
+        y: 760
+      positionAbsolute:
+        x: 1840
+        y: 760
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: ≥
+            value: '400'
+            variable_selector:
+            - n_session
+            - status_code
+          id: 'true'
+          logical_operator: and
+        - case_id: 'false'
+          conditions: []
+          id: 'false'
+          logical_operator: and
+        desc: seekdb/后端不可用时走兜底，不让对话崩掉
+        selected: false
+        title: 后端是否可用
+        type: if-else
+      height: 160
+      id: n_if_offline
+      position:
+        x: 1240
+        y: 300
+      positionAbsolute:
+        x: 1240
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '（客栈的灯忽然灭了。三娘在黑暗里摸索着算盘，珠子响了两声就停了。）
+
+
+          「账本让雨打湿了，今日算不成。客官明日再来，我记性好，跑不了。」'
+        desc: 依赖不可用时的兜底话术
+        selected: false
+        title: 兜底
+        type: answer
+        variables: []
+      height: 100
+      id: n_ans_offline
+      position:
+        x: 1540
+        y: 200
+      positionAbsolute:
+        x: 1540
+        y: 200
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.6
+  rag_pipeline_variables: []

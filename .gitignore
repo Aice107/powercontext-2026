@@ -1,0 +1,8 @@
+# 本地运行产物（不提交）
+.seekdb/
+.run/
+dify/backend/.venv/
+dify/backend/.env
+dify/evidence/logs/*.sse
+__pycache__/
+*.pyc

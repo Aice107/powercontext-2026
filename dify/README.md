@@ -1,0 +1,248 @@
+# 记仇客栈 · Grudge Inn
+
+> 赛题：Dify × OceanBase ｜ Just for Fun——用 Dify 做一个好玩的智能应用
+> 技术选型：**Dify（必选）+ seekdb**（seekdb 承担应用数据存储与混合检索）
+> 开发基线：`oceanbase/powercontext` 分支 `2026-competition-ecosystem`，资产位于 `dify/`
+
+一个会记住你每一次恶作剧的 AI 客栈：老板娘柳三娘把每一笔劣迹记在账本上，
+下次见面她会翻出来，一条条念给你听。
+
+---
+
+## 1. 作品创意与玩法
+
+### 1.1 创意
+
+赛题举例"一个会记住玩家恶作剧的 NPC"。本作品把它做成三层可验证的机制：
+
+| 层 | 玩家感知 | 实现 |
+| --- | --- | --- |
+| 记得住 | 新开会话她仍然认得你 | seekdb 账本按玩家持久化，跨会话读取 |
+| 算得清 | 仇值 0→100 分五档，态度肉眼可见地变 | 每次事件累加仇值，档位决定语气与报复方式 |
+| 翻得出 | 她会主动复述"上次你也是这么干的" | seekdb 单条 SQL：结构化过滤 + 向量相似 + 全文命中 |
+
+### 1.2 玩法
+
+1. **入店**：应用给四个建议问题（兑水、偷吃酱牛肉、回访、打烊），也可以自由输入；
+2. **搞事**：任何"恶作剧/善举/闲聊/打烊"都由 Dify 判定成结构化事件（类型、严重度、对象、场景）；
+3. **记账**：事件写入 seekdb 账本，仇值按 `严重度×6 + 屡教不改加成` 累加（上限 100）；
+4. **回应**：三娘按档位回应，并在回应里带一句账本批注；同类事件第二次起会"翻旧账"；
+5. **逐客**：仇值触顶（TIER=4）时走独立分支，她下逐客令并引用最重的那笔旧账；
+6. **打烊**：输入"打烊/结账"生成《账本长卷》（逐条念账 + 总评 + 结局判词）。
+
+### 1.3 档位
+
+| 仇值 | 档位 | 态度 | 行为 |
+| ---: | --- | --- | --- |
+| 0–19 | T0 和善 | 热情招呼，可给好处 | 正常做生意 |
+| 20–39 | T1 戒备 | 话里带刺、加价 | 提醒你她记着 |
+| 40–59 | T2 冷脸 | 冷淡、使绊子 | 端汤多放半勺盐 |
+| 60–79 | T3 报复 | 明着报复 | 被窝放花椒、行李挪柴房 |
+| 80–100 | T4 逐客 | 下逐客令 | 触发独立分支 |
+
+### 1.4 体验方式（3 分钟）
+
+打开应用 → 直接问"往酒坛里兑半坛水" → 看她记账 → 再来一次"又往酒坛里兑水" → 看她翻旧账 →
+输入"打烊，结账" → 拿到《账本长卷》。想体验高仇值：玩家标识填 `p_demo01`（预置仇值 62）。
+
+---
+
+## 2. 技术架构与分工
+
+```
+玩家 ──► Dify Chatflow（编排：判定 / 分支 / 提示词 / 输出）
+             │
+             ├── HTTP 节点 ──► inn-api（FastAPI，只做存储与检索）
+             │                    │
+             │                    └── MySQL 协议 ──► seekdb（账本 / 传闻 / 台词库）
+             │
+             └── LLM 节点 ──► DeepSeek（OpenAI-API-compatible 插件）
+```
+
+| 组成 | 在本项目中的职责 | 不负责 |
+| --- | --- | --- |
+| **Dify** | 输入处理、意图与严重度判定、档位分支（打烊/闲聊/逐客）、提示词组装、输出呈现、异常兜底 | 不持久化、不写 SQL |
+| **inn-api** | 落库、混合检索、聚合统计、玩家标识解析、参数校验 | 不判定"是否恶作剧"、不算档位、不生成台词 |
+| **seekdb** | 应用数据层：事件事实、仇值、向量索引、全文索引、台词库 | 不承载 Dify 元数据库（见 §7.2） |
+
+**一句话分工：seekdb 记"事"，Dify 决定"怎么回应"。**
+
+### 2.1 seekdb 在应用里的四处实际作用
+
+| 作用 | 表 | 能力 | 证据 |
+| --- | --- | --- | --- |
+| 事件持久化 | `inn_ledger` | 结构化 + `VECTOR(1024)` | `evidence/logs/S2_db_ledger.txt` |
+| 翻旧账 | `inn_ledger` | 向量相似 + 全文命中 + 玩家过滤，**单条 SQL** | `evidence/logs/S3_sql_hybrid.txt` |
+| 台词检索 | `inn_line` | ngram 全文索引（中文分词） | `inn_line` 41 条 |
+| 结算聚合 | `inn_ledger` | `COUNT/SUM/MAX` 聚合 | `evidence/logs/S6_settle.log` |
+
+---
+
+## 3. 运行环境
+
+| 组件 | 版本 | 说明 |
+| --- | --- | --- |
+| Dify | **1.17.0**（自部署，docker compose 或源码） | DSL 由该版本导出；导入需同大版本 |
+| seekdb | **1.4.0.0**（OceanBase seekdb，MySQL 协议） | 端口默认 2891 |
+| Python | 3.12 | inn-api 运行时 |
+| inn-api 依赖 | fastapi 0.115.6 / uvicorn 0.34.0 / pymysql 1.1.1 / pydantic 2.10.4 | `backend/requirements.txt` |
+| 模型插件 | `langgenius/openai_api_compatible:0.0.73`（Dify Marketplace） | DSL 的 `dependencies` 已声明 |
+| LLM | DeepSeek `deepseek-flash`（或任意 OpenAI 兼容端点） | 需要 **function calling** 能力（判定节点用） |
+| Embedding | 默认**不依赖外部服务** | `EMBEDDING_MODE=hash`（字符 n-gram 哈希向量，1024 维）；可切 `api` 模式接任意 OpenAI 兼容 embedding |
+| Rerank | 未使用 | — |
+
+> **为什么默认不用外部 Embedding**：本项目要保证"评审无需作者本地服务即可复现"，且运行环境无 GPU。
+> 哈希向量对 10–40 字的短句足够区分语义簇；若评审希望用真 embedding，
+> 设 `EMBEDDING_MODE=api` + `EMBEDDING_BASE_URL/API_KEY/MODEL`，并把 `EMBEDDING_DIM` 与建表维度对齐（改 `db/01_schema.sql` 后重建表）。
+
+---
+
+## 4. 部署步骤
+
+### 4.1 起 seekdb
+
+```bash
+# 方式一：官方二进制（示例）
+./seekdb --base-dir /path/to/seekdb_data --port 2891 --nodaemon \
+  --parameter memory_budget=2G --parameter log_disk_size=2G
+
+# 方式二：镜像 oceanbase/seekdb（Dify 官方 compose 已收录该镜像）
+```
+
+### 4.2 初始化数据
+
+```bash
+cd dify
+SEEKDB_HOST=127.0.0.1 SEEKDB_PORT=2891 bash db/init.sh
+```
+
+输出应包含：`inn_player 1 / inn_ledger 7 / inn_rumor 2 / inn_line 41`。
+
+### 4.3 起 inn-api
+
+```bash
+cd dify/backend
+cp .env.example .env          # 按需改 seekdb 地址
+uv venv .venv --python 3.12
+uv pip install -r requirements.txt
+bash run.sh                   # 监听 0.0.0.0:8010
+curl -s http://127.0.0.1:8010/healthz
+```
+
+`healthz` 应返回 `{"status":"ok","seekdb":true,...}`。
+
+### 4.4 导入 DSL
+
+1. Dify 控制台 → 应用 → **导入 DSL** → 选择 `dsl/01_inn_chatflow.yml`；
+2. 若提示缺少插件：先在 **设置 → 插件** 安装 `langgenius/openai_api_compatible`（Marketplace），再重新导入；
+3. 导入后**重新绑定**（因为地址因部署环境而异）：
+   - 「读取档案」「记账」「结算」三个 HTTP 节点：把 `http://127.0.0.1:8010` 改成你实际部署地址；
+   - 五个 LLM 节点 + 一个参数提取节点：选择你已配置的模型（本项目用 `deepseek-flash`）；
+   - 如 inn-api 不在本机，Dify 容器需能访问该地址（Docker 部署时用宿主 IP 或 `host.docker.internal`）。
+4. 点击右上角**发布**。
+
+### 4.5 应用入口
+
+- Dify 控制台 → 应用《记仇客栈》→ **预览/运行**；
+- 或调用应用 API：`POST /v1/chat-messages`（需在应用的「访问 API」里创建 Key）。
+
+---
+
+## 5. 配置示例（占位值）
+
+```dotenv
+# backend/.env
+SEEKDB_HOST=127.0.0.1
+SEEKDB_PORT=2891
+SEEKDB_USER=root
+SEEKDB_PASSWORD=<REPLACE_ME>
+SEEKDB_DATABASE=inn
+EMBEDDING_MODE=hash
+EMBEDDING_DIM=1024
+INN_API_PORT=8010
+```
+
+> 仓库内**不含任何真实 API Key**。模型 Key 请在 Dify 界面「模型供应商」中填写，不要写进 DSL 或本仓库。
+
+---
+
+## 6. 验证样例
+
+| 编号 | 验证点 | 文件 |
+| --- | --- | --- |
+| S1 | 首次入店、空账本 | [samples/S1_first_visit.md](samples/S1_first_visit.md) |
+| S2 | 单次恶作剧记账 | [samples/S2_prank_ledger.md](samples/S2_prank_ledger.md) |
+| S3 | 翻旧账（混合检索生效） | [samples/S3_old_grudge.md](samples/S3_old_grudge.md) |
+| S4 | 跨会话记忆 | [samples/S4_cross_session.md](samples/S4_cross_session.md) |
+| S5 | 逐客（条件分支） | [samples/S5_expel.md](samples/S5_expel.md) |
+| S6 | 打烊结算 | [samples/S6_settle.md](samples/S6_settle.md) |
+| S7 | 依赖不可用兜底 | [samples/S7_degraded.md](samples/S7_degraded.md) |
+
+一键复跑并重新生成证据（需要 Dify 登录态 cookie 与 app_id，见 `tools/run_app.sh`）：
+
+```bash
+INN_APP_ID=<app_id> bash tools/collect_evidence.sh
+```
+
+实际运行输出见 [evidence/logs/](evidence/logs/)，证据索引见 [evidence/README.md](evidence/README.md)。
+
+---
+
+## 7. 已知限制
+
+1. **没有代码沙箱**：部署环境非 root，`dify-sandbox` 无法运行，因此 **DSL 中不使用 Code 节点**；
+   判定用「参数提取器」节点，分支用「IF/ELSE」，检索用「HTTP 节点」完成。
+2. **档位映射在后端**：`grudge → tier` 是纯函数（`backend/app/rules.py`），Dify 依据 tier 做分支与提示词选择；
+   若评审要求"档位判定也在 Dify"，可把 backend 返回的 `TIER` 换成在 Dify 里用 IF/ELSE 逐档比较（当前实现选择了更省 token 的方案）。
+3. **玩家标识两条路径**：显式填写 `player_id` 时跨会话记忆生效；留空时按会话 ID 生成稳定 ID（只在本会话内一致）。
+4. **embedding 是哈希向量**：不追求语义泛化，只在短句层面做相似度排序；换成真 embedding 需要重建表（维度一致）。
+5. **单机 demo**：inn-api 无鉴权、无并发保护，仅用于赛题演示；生产环境需要加鉴权与限流。
+6. **打烊结算走 LLM**：判词由模型生成，措辞有随机性，但数值与账目来自 seekdb，不会编造事件。
+
+### 7.1 Dify 部署数据库说明（赛题 §4.4 第 1 行）
+
+本作品**没有**用 seekdb 承载 Dify 自身的元数据库：Dify 用 PostgreSQL/MySQL 部署，seekdb 只承担应用数据与检索。
+若要把 seekdb 作为 Dify 数据库（赛题允许并需要额外提供适配说明），Dify 1.17.0 的 `DB_TYPE` 已原生支持
+`seekdb` / `oceanbase`（`api/configs/middleware/__init__.py`），改 `DB_TYPE=seekdb` 并指向 seekdb 实例即可验证——
+这属于可选扩展，未包含在本提交的验证范围内，故不在此声明已完成。
+
+### 7.2 网络与资源
+
+- Dify 进程需能访问：inn-api（默认 8010）、模型 API（如 `api.deepseek.com`）、插件 Marketplace；
+- inn-api 需能访问 seekdb（2891）；
+- 资源：seekdb 建议 ≥2GB 内存预算；Dify 自身建议 ≥4GB；本机复验环境为 8GB/4 核。
+
+---
+
+## 8. 目录结构
+
+```
+dify/
+├── README.md                 # 本文件（运行说明）
+├── dsl/
+│   ├── 01_inn_chatflow.yml   # 主应用 DSL（可直接导入）
+│   └── README.md             # 导入顺序与重绑定清单
+├── backend/                  # inn-api（FastAPI + seekdb）
+│   ├── app/{main,db,embedding,rules}.py
+│   ├── requirements.txt
+│   ├── .env.example
+│   └── run.sh
+├── db/                       # 建表与 seed
+│   ├── 01_schema.sql
+│   ├── 02_seed_lines.sql
+│   ├── 04_seed_demo.sql
+│   └── init.sh
+├── deploy/
+│   └── bootstrap.sh          # 一键：建库 → seed → 起 inn-api → 自检
+├── samples/                  # S1–S7 验证样例
+├── evidence/                 # 运行证据（日志 + 索引）
+├── docs/                     # 设计与进度日志
+└── tools/                    # 自检 / 取证 / 看门狗
+```
+
+---
+
+## 9. 第三方素材与许可
+
+- 台词、传闻、演示账本数据均为本项目原创，未复用第三方文本；
+- 未复用公开工作流/代码；Dify、seekdb、插件均为官方发布版本，按各自许可证使用。
