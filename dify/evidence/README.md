@@ -43,6 +43,21 @@ INN_APP_ID=<app_id> python3 tools/compliance_check.py
 > 不影响运行：发布版本确实存在（Dify 数据库 `workflows` 表有多个版本记录），预览与 API 运行均基于该应用；
 > 若要做完全一致的取证，导入 DSL 后点一次「发布」即可，draft 与 published 哈希相同。
 
+## 演示视频（recordings/）
+
+| 文件 | 内容 | 说明 |
+| --- | --- | --- |
+| [recordings/demo-inn.webm](recordings/demo-inn.webm) | 登录 → 画布 → 预览抽屉三轮对话（兑水 / 再兑水 / 打烊长卷） | 无头 Chromium 屏幕录制，约 1 分 50 秒，6.3 MB |
+
+```bash
+# 重新录制
+PLAYWRIGHT_MODULE=/home/ice/dify-shot/node_modules/playwright/index.mjs \
+  node tools/record.mjs <app_id> evidence/recordings
+```
+
+> Playwright 自带的 ffmpeg 只编了 libvpx，没有 x264，所以产物是 webm（Chrome/Firefox/Edge 可直接播放）；
+> 需要 mp4 时用系统 ffmpeg 转一次即可：`ffmpeg -i demo-inn.webm -c:v libx264 -pix_fmt yuv420p demo-inn.mp4`。
+
 ## 关于截图/录屏
 
 `screenshots/` 与 `recordings/` 预留给评审端录屏（浏览器窗口），本仓库提交的文本日志已能独立复现结论：
