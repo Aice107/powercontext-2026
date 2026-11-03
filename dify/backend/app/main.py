@@ -26,7 +26,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
-from . import db, embedding, rules
+from . import db, embedding, pc, rules
 
 app = FastAPI(title="inn-api", version="0.1.0", description="记仇客栈 seekdb 数据层")
 
@@ -169,6 +169,32 @@ def _resolve_pid(player_id: str, conversation_id: str = "") -> str:
         return "p_" + hashlib.sha1(cid.encode("utf-8")).hexdigest()[:10]
     return "p_" + secrets.token_hex(4)
 
+
+def _pc_scope(player_id: str, nickname: str = "浪客") -> str | None:
+    """取或建玩家的 PowerContext Scope（PC 未启用时返回 None）。"""
+    if not pc.enabled():
+        return None
+    row = db.one("SELECT scope_id FROM inn_pc_scope WHERE player_id=%s", (player_id,))
+    if row and row.get("scope_id"):
+        return str(row["scope_id"])
+    scope_id = pc.create_scope(player_id, nickname)
+    if scope_id:
+        db.execute(
+            "INSERT INTO inn_pc_scope (player_id, scope_id) VALUES (%s,%s) "
+            "ON DUPLICATE KEY UPDATE scope_id=VALUES(scope_id)",
+            (player_id, scope_id),
+        )
+    return scope_id
+
+
+def _memory_block(player_id: str, nickname: str = "浪客", query: str = "三娘对这个客人的印象") -> str:
+    """召回"印象"类记忆，拼成一行供 prompt 使用；无 PC 时返回空串。"""
+    scope_id = _pc_scope(player_id, nickname)
+    if not scope_id:
+        return ""
+    hits = pc.search(scope_id, query, limit=3)
+    return "；".join(h.strip() for h in hits if h.strip())[:400]
+
 def _tier(grudge: int) -> int:
     return rules.tier_of(grudge)
 
@@ -196,6 +222,7 @@ def healthz() -> dict:
         "seekdb": ok,
         "database": os.getenv("SEEKDB_DATABASE", "inn"),
         "schema_version": SCHEMA_VERSION,
+        "powercontext": bool(pc.enabled()),
         "embedding_mode": embedding.MODE,
         "embedding_dim": embedding.DIM,
     }
@@ -223,6 +250,7 @@ def session(
             ("DAYS", str(int(player.get("days_known", 1)))),
             ("EVENTS", str(int(player.get("total_events", 0)))),
             ("RECENT", recent),
+            ("MEMORY", _memory_block(player_id, player.get("nickname") or nickname) or "无"),
         ])
     return {
         "player_id": player_id,
@@ -235,6 +263,7 @@ def session(
         "recent_events": events,
         # PowerContext Scope 约定：一个玩家一个 Scope，前缀固定，便于评审核对
         "scope_hint": f"inn:player:{player_id}",
+        "memory": _memory_block(player_id, player.get("nickname") or nickname) or None,
     }
 
 
@@ -288,6 +317,21 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
             WHERE player_id=%s""",
         (after, body.player_id),
     )
+
+    # PowerContext：把"事件"提炼成"对这个人的印象"（只写摘要，不写对话原文）
+    scope_id = _pc_scope(body.player_id, player.get("nickname") or "浪客")
+    if scope_id:
+        tier_word = {0: "和善", 1: "戒备", 2: "冷脸", 3: "报复", 4: "逐客"}[_tier(after)]
+        kind = "task-outcome" if body.severity < 0 else "current-state"
+        pc.remember(
+            scope_id,
+            kind,
+            (
+                f"柳三娘对{player.get('nickname') or '浪客'}（{body.player_id}）的印象：{tier_word}。"
+                f"最近一次在{body.scene}{body.action_text}（{action_type}，{body.severity}级，第{repeat + 1}次），"
+                f"仇值 {after}。"
+            )[:800],
+        )
 
     similar = _hybrid_similar(body.player_id, event_id, body.action_text)
     total_events = int((db.one("SELECT total_events FROM inn_player WHERE player_id=%s", (body.player_id,)) or {}).get("total_events", 0))

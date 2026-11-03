@@ -11,6 +11,8 @@
 | S5 | 逐客分支 | [logs/S5_expel.log](logs/S5_expel.log)、[logs/S5_nodes.txt](logs/S5_nodes.txt)、[logs/S5_last_run.sse](logs/S5_last_run.sse) | 节点序列含 `是否逐客 case=true` |
 | S6 | 打烊结算 | [logs/S6_settle.log](logs/S6_settle.log) | 《账本长卷》全文 |
 | S7 | 降级兜底 | [logs/S7_degraded.log](logs/S7_degraded.log) | 后端不可用时的兜底话术 |
+| S8 | 档位梯度 | [logs/S8_tier_gradient.log](logs/S8_tier_gradient.log) | 同一句话在 T1/T2/T3 三种仇值下的态度差异 |
+| S9 | PowerContext 记忆 | [logs/S9_pc_memory.log](logs/S9_pc_memory.log)、[logs/S9_pc_scope.txt](logs/S9_pc_scope.txt)、[logs/S9_pc_search.json](logs/S9_pc_search.json) | Scope 建档 + 印象写入 + 召回进 prompt |
 | DSL | 可重导入 | [../dsl/01_inn_chatflow.yml](../dsl/01_inn_chatflow.yml) | 1.17.0 重导入 `status=completed` |
 
 ## 证据是怎么产生的

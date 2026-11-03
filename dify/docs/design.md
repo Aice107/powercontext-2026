@@ -66,7 +66,14 @@ RECENT=掀了半张桌子(5级,1天前);吓跑了两个住店的客人(4级,1天
 Dify 侧用模板拼一句"地窖里都在传……"，`POST /inn/rumor`；后端按 `severity < 4` 直接拒绝，
 所以传闻表只保留"值得传"的事。打烊结算块里的 `RUMORS` 字段会被长卷引用。
 
-## 6. 异常处理
+## 6. PowerContext 记忆层（可选）
+
+- Scope：一玩家一个，`idempotency_key=inn:player:<player_id>`，映射表 `inn_pc_scope`；
+- 写入：`POST /v1/memory/remember`，kind 按事件性质选 `current-state` / `task-outcome`，文本 ≤800 字；
+- 召回：`POST /v1/memory/search`（mode=auto），取前 3 条拼成 `MEMORY=` 行塞进档案块；
+- 降级：`PC_BASE_URL` 未配置 → 直接跳过；调用超时 3 秒 → 记 warning 日志，主链路不受影响。
+
+## 7. 异常处理
 
 - HTTP 节点设置 `error_strategy: default-value`（status_code=500, body=OFFLINE）；
 - 入口分支「后端是否可用」按 `status_code ≥ 400` 短路到兜底话术；

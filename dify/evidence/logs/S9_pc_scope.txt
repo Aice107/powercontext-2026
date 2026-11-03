@@ -1,0 +1,2 @@
+player_id	scope_id
+p_demo01	scp_6brbqdr29bkhzqpn2vx584ycg0

@@ -87,3 +87,12 @@ CREATE TABLE inn_daily (
   summary    VARCHAR(512) NOT NULL DEFAULT '',
   PRIMARY KEY (player_id, day)
 ) COMMENT '日报';
+
+-- PowerContext 记忆归属：一玩家一 Scope（可选层，PC 未启用时此表为空）
+DROP TABLE IF EXISTS inn_pc_scope;
+CREATE TABLE inn_pc_scope (
+  player_id  VARCHAR(64) NOT NULL,
+  scope_id   VARCHAR(128) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (player_id)
+) COMMENT '玩家与 PowerContext Scope 的映射';

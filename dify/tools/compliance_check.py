@@ -221,6 +221,28 @@ def c4_app_runs():
     return True, f"workflow succeeded，回答 {len(text)} 字"
 
 
+# ------------------------------------------------------------------ C9（可选层）
+
+
+def c9_powercontext():
+    st, d = http_json(f"{API}/healthz")
+    if not d.get("powercontext"):
+        return True, "未启用 PowerContext（赛题只需 seekdb，允许）"
+    try:
+        urllib.request.urlopen(f"{os.getenv('PC_BASE_URL', 'http://127.0.0.1:8090')}/health/ready", timeout=5)
+    except Exception as exc:  # noqa: BLE001
+        return False, f"PC 未就绪：{exc}"
+    payload = {"player_id": "p_demo01", "action_text": "在醋坛子里洗手", "action_type": "hygiene",
+               "severity": 1, "scene": "后厨"}
+    http_json(f"{API}/inn/ledger", payload)
+    with urllib.request.urlopen(f"{API}/inn/session?player_id=p_demo01&format=block", timeout=10) as r:
+        block = r.read().decode()
+    if "MEMORY=无" in block:
+        return False, "记忆写入后仍召回为空"
+    line = [ln for ln in block.splitlines() if ln.startswith("MEMORY=")][0]
+    return True, f"记忆召回生效：{line[:80]}…"
+
+
 # ------------------------------------------------------------------ C5
 
 
@@ -319,6 +341,7 @@ def main() -> int:
     check("C2", "seekdb 承载数据", c2_seekdb_data)
     check("C3", "seekdb 检索生效", c3_hybrid_retrieval)
     check("C4", "Dify 应用可运行", c4_app_runs)
+    check("C9", "PowerContext 记忆生效", c9_powercontext)
     check("C5", "运行说明完整", c5_readme)
     check("C6", "验证样例完整", c6_samples)
     check("C7", "无真实凭证", c7_no_secrets)

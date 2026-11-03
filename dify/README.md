@@ -62,10 +62,11 @@
 | 组成 | 在本项目中的职责 | 不负责 |
 | --- | --- | --- |
 | **Dify** | 输入处理、意图与严重度判定、档位分支（打烊/闲聊/逐客）、提示词组装、输出呈现、异常兜底 | 不持久化、不写 SQL |
-| **inn-api** | 落库、混合检索、聚合统计、玩家标识解析、参数校验 | 不判定"是否恶作剧"、不算档位、不生成台词 |
-| **seekdb** | 应用数据层：事件事实、仇值、向量索引、全文索引、台词库 | 不承载 Dify 元数据库（见 §7.2） |
+| **inn-api** | 落库、混合检索、聚合统计、玩家标识解析、参数校验；转发 PowerContext 记忆读写 | 不判定"是否恶作剧"、不算档位、不生成台词 |
+| **seekdb** | 应用数据层：事件事实、仇值、向量索引、全文索引、台词库 | 不承载 Dify 元数据库（见 §7.1） |
+| **PowerContext**（可选层） | 记住"这个人"：对角色的印象、关系摘要，跨会话召回后注入 prompt | 不存事件明细与数值（避免与 seekdb 双写冲突） |
 
-**一句话分工：seekdb 记"事"，Dify 决定"怎么回应"。**
+**一句话分工：seekdb 记"事"，PowerContext 记"人"，Dify 决定"怎么回应"。**
 
 ### 2.1 seekdb 在应用里的四处实际作用
 
@@ -75,6 +76,16 @@
 | 翻旧账 | `inn_ledger` | 向量相似 + 全文命中 + 玩家过滤，**单条 SQL** | `evidence/logs/S3_sql_hybrid.txt` |
 | 台词检索 | `inn_line` | ngram 全文索引（中文分词） | `inn_line` 41 条 |
 | 结算聚合 | `inn_ledger` | `COUNT/SUM/MAX` 聚合 | `evidence/logs/S6_settle.log` |
+
+### 2.2 PowerContext 在应用里的作用（可选层）
+
+| 环节 | 调用 | 内容 |
+| --- | --- | --- |
+| 建档 | `POST /v1/scopes`（幂等键 `inn:player:<player_id>`） | 一玩家一个 Scope，映射存 `inn_pc_scope` |
+| 写记忆 | `POST /v1/memory/remember` | 每次记账后写一句"三娘对某人的印象：档位 + 最近一次行为 + 仇值" |
+| 召回 | `POST /v1/memory/search` | 进店时召回印象，拼进上下文块 `MEMORY=` 行，随档案块进入 prompt |
+
+未配置 `PC_BASE_URL` 时整层跳过，应用仍可运行（赛题只要求 seekdb 或 PowerContext 之一）。
 
 ---
 
@@ -88,6 +99,7 @@
 | inn-api 依赖 | fastapi 0.115.6 / uvicorn 0.34.0 / pymysql 1.1.1 / pydantic 2.10.4 | `backend/requirements.txt` |
 | 模型插件 | `langgenius/openai_api_compatible:0.0.73`（Dify Marketplace） | DSL 的 `dependencies` 已声明 |
 | LLM | DeepSeek `deepseek-flash`（或任意 OpenAI 兼容端点） | 需要 **function calling** 能力（判定节点用） |
+| PowerContext Server（可选） | 1.4.1（sqlite 后端即可） | 不启动也能跑；启用后提供"印象"记忆 |
 | Embedding | 默认**不依赖外部服务** | `EMBEDDING_MODE=hash`（字符 n-gram 哈希向量，1024 维）；可切 `api` 模式接任意 OpenAI 兼容 embedding |
 | Rerank | 未使用 | — |
 
@@ -177,6 +189,8 @@ INN_API_PORT=8010
 | S5 | 逐客（条件分支） | [samples/S5_expel.md](samples/S5_expel.md) |
 | S6 | 打烊结算 | [samples/S6_settle.md](samples/S6_settle.md) |
 | S7 | 依赖不可用兜底 | [samples/S7_degraded.md](samples/S7_degraded.md) |
+| S8 | 档位梯度（T1/T2/T3 对比） | [samples/S8_tier_gradient.md](samples/S8_tier_gradient.md) |
+| S9 | PowerContext 记忆 | [samples/S9_pc_memory.md](samples/S9_pc_memory.md) |
 
 一键复跑并重新生成证据（需要 Dify 登录态 cookie 与 app_id，见 `tools/run_app.sh`）：
 
@@ -194,10 +208,11 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
    判定用「参数提取器」节点，分支用「IF/ELSE」，检索用「HTTP 节点」完成。
 2. **档位映射在后端**：`grudge → tier` 是纯函数（`backend/app/rules.py`），Dify 依据 tier 做分支与提示词选择；
    若评审要求"档位判定也在 Dify"，可把 backend 返回的 `TIER` 换成在 Dify 里用 IF/ELSE 逐档比较（当前实现选择了更省 token 的方案）。
-3. **玩家标识两条路径**：显式填写 `player_id` 时跨会话记忆生效；留空时按会话 ID 生成稳定 ID（只在本会话内一致）。
-4. **embedding 是哈希向量**：不追求语义泛化，只在短句层面做相似度排序；换成真 embedding 需要重建表（维度一致）。
-5. **单机 demo**：inn-api 无鉴权、无并发保护，仅用于赛题演示；生产环境需要加鉴权与限流。
-6. **打烊结算走 LLM**：判词由模型生成，措辞有随机性，但数值与账目来自 seekdb，不会编造事件。
+3. **PowerContext 是可选的**：`PC_BASE_URL` 为空时自动跳过记忆层；启用时若 PC 挂掉，记账与回应仍走 seekdb（3 秒超时后静默降级）。
+4. **玩家标识两条路径**：显式填写 `player_id` 时跨会话记忆生效；留空时按会话 ID 生成稳定 ID（只在本会话内一致）。
+5. **embedding 是哈希向量**：不追求语义泛化，只在短句层面做相似度排序；换成真 embedding 需要重建表（维度一致）。
+6. **单机 demo**：inn-api 无鉴权、无并发保护，仅用于赛题演示；生产环境需要加鉴权与限流。
+7. **打烊结算走 LLM**：判词由模型生成，措辞有随机性，但数值与账目来自 seekdb，不会编造事件。
 
 ### 7.1 Dify 部署数据库说明（赛题 §4.4 第 1 行）
 

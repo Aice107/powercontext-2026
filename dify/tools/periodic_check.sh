@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 echo "===== 巡检 $(date '+%Y-%m-%d %H:%M:%S') ====="
 
 # 1. 依赖端口
-for pair in "seekdb:2881" "inn-api:8010" "dify-api:5001" "dify-web:3000"; do
+for pair in "seekdb:2891" "inn-api:8010" "dify-api:5001" "dify-web:3000"; do
   name="${pair%%:*}"; port="${pair##*:}"
   if ss -lnt 2>/dev/null | grep -q ":${port} "; then
     printf '  [up]   %-9s :%s\n' "$name" "$port"

@@ -23,3 +23,20 @@ INSERT INTO inn_ledger (player_id, session_id, turn, action_text, action_type, s
 INSERT INTO inn_rumor (player_id, source_event_id, rumor_text, spread, scene, created_at) VALUES
 ('p_demo01', 6, '地窖里都在传，那位姓陈的客官把住店的都吓跑了，一夜之间没人敢上楼。', 3, '地窖', DATE_SUB(NOW(), INTERVAL 1 DAY)),
 ('p_demo01', 7, '大堂的桌子被掀了半张，小二说那人跟三娘瞪了半宿的眼。', 2, '大堂', DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+-- ---------------------------------------------------------------
+-- 档位梯度演示：同一句话在不同仇值下的态度差异（S8 用）
+-- p_tier1 仇值 28（T1 戒备）／p_tier2 仇值 48（T2 冷脸）
+DELETE FROM inn_ledger WHERE player_id IN ('p_tier1','p_tier2');
+DELETE FROM inn_player WHERE player_id IN ('p_tier1','p_tier2');
+
+INSERT INTO inn_player (player_id, nickname, grudge, visits, total_events, days_known, last_session_id, created_at, last_seen)
+VALUES ('p_tier1', '白小乙', 28, 2, 2, 2, '', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+       ('p_tier2', '赵九',   48, 3, 3, 2, '', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+INSERT INTO inn_ledger (player_id, session_id, turn, action_text, action_type, severity, target, scene, grudge_after, created_at) VALUES
+('p_tier1','conv_t1', 3, '往酒坛里兑了半壶水',  'drink',    2, '酒坛', '后厨', 14, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('p_tier1','conv_t1', 6, '半夜在屋顶学猫叫',    'noise',    2, '屋顶', '客房', 28, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('p_tier2','conv_t2', 2, '偷吃了灶上的酱牛肉',  'food',     2, '酱牛肉','后厨', 14, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('p_tier2','conv_t2', 5, '在她账本上画了只乌龟','property', 3, '账本', '大堂', 35, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('p_tier2','conv_t2', 9, '把客人的酒换成了醋',  'drink',    2, '酒壶', '大堂', 48, DATE_SUB(NOW(), INTERVAL 1 DAY));
