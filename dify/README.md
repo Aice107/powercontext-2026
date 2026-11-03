@@ -191,6 +191,7 @@ INN_API_PORT=8010
 | S7 | 依赖不可用兜底 | [samples/S7_degraded.md](samples/S7_degraded.md) |
 | S8 | 档位梯度（T1/T2/T3 对比） | [samples/S8_tier_gradient.md](samples/S8_tier_gradient.md) |
 | S9 | PowerContext 记忆 | [samples/S9_pc_memory.md](samples/S9_pc_memory.md) |
+| S10 | 和解线（善举降仇值） | [samples/S10_kindness.md](samples/S10_kindness.md) |
 
 一键复跑并重新生成证据（需要 Dify 登录态 cookie 与 app_id，见 `tools/run_app.sh`）：
 
