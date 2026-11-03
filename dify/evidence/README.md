@@ -9,6 +9,7 @@
 | S3 | 翻旧账 | [logs/S3_old_grudge.log](logs/S3_old_grudge.log)、[logs/S3_sql_hybrid.txt](logs/S3_sql_hybrid.txt) | 混合检索命中 + EXPLAIN |
 | S4 | 跨会话记忆 | [logs/S4_cross_session.log](logs/S4_cross_session.log)、[logs/S4_db_player.txt](logs/S4_db_player.txt) | 档案块与库内数值一致 |
 | S5 | 逐客分支 | [logs/S5_expel.log](logs/S5_expel.log)、[logs/S5_nodes.txt](logs/S5_nodes.txt)、[logs/S5_last_run.sse](logs/S5_last_run.sse) | 节点序列含 `是否逐客 case=true` |
+| S5b | 求原谅 | [logs/S5_forgive.log](logs/S5_forgive.log) | 满仇值做善举不走逐客，100 → 76 |
 | S6 | 打烊结算 | [logs/S6_settle.log](logs/S6_settle.log) | 《账本长卷》全文 |
 | S7 | 降级兜底 | [logs/S7_degraded.log](logs/S7_degraded.log) | 后端不可用时的兜底话术 |
 | S8 | 档位梯度 | [logs/S8_tier_gradient.log](logs/S8_tier_gradient.log) | 同一句话在 T1/T2/T3 三种仇值下的态度差异 |

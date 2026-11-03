@@ -347,10 +347,16 @@ def ledger_write(body: LedgerIn, format: str = Query("json", max_length=16)):
     if format == "block":
         sim = ";".join(f"{x['text']}({x['severity']}级,{x['days_ago']}天前)" for x in similar) or "无"
         tier_now = _tier(after)
-        anchor = db.query(
-            "SELECT text FROM inn_line WHERE tier=%s ORDER BY id DESC LIMIT 2",
-            (tier_now,),
-        )
+        if body.severity < 0:
+            # 善举：用"和解"专用句，而不是按档位借冷淡句
+            anchor = db.query(
+                "SELECT text FROM inn_line WHERE tone='kind' ORDER BY id DESC LIMIT 2"
+            )
+        else:
+            anchor = db.query(
+                "SELECT text FROM inn_line WHERE tier=%s ORDER BY id DESC LIMIT 2",
+                (tier_now,),
+            )
         lines_txt = "；".join(r["text"] for r in anchor) or "无"
         return _block([
             ("EVENT", str(event_id)),

@@ -265,6 +265,11 @@ dify/
 
 ---
 
+## 8.4 提交前检查清单
+
+对照赛题 §4.1–§4.4 的逐项核对表（含每项指向的文件）见
+[docs/submission-checklist.md](docs/submission-checklist.md)。
+
 ## 8.5 评审 FAQ
 
 常见疑问（为什么不拿 seekdb 当 Dify 数据库、为什么 embedding 用哈希、为什么没有 Code 节点、
