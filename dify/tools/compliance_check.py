@@ -33,7 +33,18 @@ ROOT = Path(__file__).resolve().parents[1]          # dify/
 API = os.getenv("INN_API", "http://127.0.0.1:8010")
 DIFY = os.getenv("DIFY_BASE", "http://127.0.0.1:5001")
 COOKIE = os.getenv("DIFY_COOKIE", "/home/ice/dify/run/cookies.txt")
-APP_ID = os.getenv("INN_APP_ID", "")
+def _local_env() -> dict[str, str]:
+    f = Path(__file__).resolve().parent / ".local.env"
+    out: dict[str, str] = {}
+    if f.is_file():
+        for line in f.read_text().splitlines():
+            if "=" in line and not line.strip().startswith("#"):
+                k, v = line.split("=", 1)
+                out[k.strip()] = v.strip()
+    return out
+
+
+APP_ID = os.getenv("INN_APP_ID") or _local_env().get("INN_APP_ID", "")
 DSL = ROOT / "dsl" / "01_inn_chatflow.yml"
 
 results: list[tuple[str, bool, str]] = []

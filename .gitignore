@@ -6,3 +6,6 @@ dify/backend/.env
 dify/evidence/logs/*.sse
 __pycache__/
 *.pyc
+
+# 本机开发态配置
+dify/tools/.local.env

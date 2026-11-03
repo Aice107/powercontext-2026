@@ -43,6 +43,18 @@ curl -s ... -X POST http://127.0.0.1:5001/console/api/apps/<app_id>/workflows/pu
 
 **改完 DSL 一定要发布**，draft 跑通不代表发布版本也更新。
 
+## 3.5 机器重启后怎么恢复（一条命令）
+
+本机重启会把所有进程清掉（2026-11-03 22:25 发生过一次）。恢复顺序已固化：
+
+```bash
+bash dify/tools/start-local.sh
+```
+
+它依次做：Dify 栈（MySQL/Redis/daemon/API/worker/Web）→ PowerContext → 看门狗（seekdb+inn-api）
+→ 等待 2891/8010 就绪 → 重新登录 Dify 并刷新 cookie → 打印状态。
+应用 ID 存在 `dify/tools/.local.env`（已 gitignore），不再依赖 `/tmp`。
+
 ## 4. 快捷命令
 
 ```bash

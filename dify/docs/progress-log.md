@@ -52,3 +52,17 @@
 - [PASS] **C6 验证样例完整** — 9 个样例，必需要素齐全
 - [PASS] **C7 无真实凭证** — 未发现 sk- 形式的真实凭证
 - [PASS] **C8 证据索引有效** — 索引 25 条，全部存在
+
+## 合规自检 2026-11-03 22:25
+
+通过 4/9
+
+- [FAIL] **C1 DSL 可重导入** — 异常：<urlopen error [Errno 111] Connection refused>
+- [FAIL] **C2 seekdb 承载数据** — 异常：ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:2891' (111)
+- [FAIL] **C3 seekdb 检索生效** — 异常：<urlopen error [Errno 111] Connection refused>
+- [FAIL] **C4 Dify 应用可运行** — 未设置 INN_APP_ID，跳过运行检查
+- [FAIL] **C9 PowerContext 记忆生效** — 异常：<urlopen error [Errno 111] Connection refused>
+- [PASS] **C5 运行说明完整** — 六项要素齐全（9708 字）
+- [PASS] **C6 验证样例完整** — 10 个样例，必需要素齐全
+- [PASS] **C7 无真实凭证** — 未发现 sk- 形式的真实凭证
+- [PASS] **C8 证据索引有效** — 索引 27 条，全部存在

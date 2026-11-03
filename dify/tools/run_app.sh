@@ -4,6 +4,8 @@
 set -euo pipefail
 Q="${1:?query required}"
 PID="${2:-p_demo01}"
+# 本机开发态配置（gitignored）：INN_APP_ID 等
+[ -f "$(dirname "$0")/.local.env" ] && set -a && . "$(dirname "$0")/.local.env" && set +a
 APP="${3:-${INN_APP_ID:-}}"
 COOKIE="${DIFY_COOKIE:-/home/ice/dify/run/cookies.txt}"
 BASE="${DIFY_BASE:-http://127.0.0.1:5001}"
