@@ -637,6 +637,11 @@ workflow:
             variable_selector:
             - n_ledger
             - body
+          - comparison_operator: not contains
+            value: SEV=-
+            variable_selector:
+            - n_ledger
+            - body
           id: 'true'
           logical_operator: and
         - case_id: 'false'

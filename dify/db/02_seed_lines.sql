@@ -61,3 +61,15 @@ INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨'
 INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',4,'t4','行李我让伙计收拾齐整搁在门房，一样不少。');
 INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',4,'t4','柴房不必去了，您连柴房也住不得。');
 INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',4,'t4','账按双倍结，柜上现银，今日天黑前出门。');
+
+-- 善举/和解专用（对账时的别扭原谅）
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',0,'kind','我这屋顶，你还真修上去了？行了，喝口热的，别忙着走。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',0,'kind','账我不催你，你也别老惦记那点旧事。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',0,'kind','锅里有汤，自己盛。别客气，客气我反而不习惯。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',0,'kind','你这个人，坏是坏，倒还有点良心。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','客房',1,'kind','屋顶修得还行吧…这回算你有心。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'kind','赔的钱我收了，账上抹一笔，别的事另说。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后厨',1,'kind','帮我把这筐菜择了，择完再说你的账。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'kind','伸手不打笑脸人，你今儿这副样子，我倒不好开口。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','后院',1,'kind','柴你也劈了，水你也挑了，我还能说什么。');
+INSERT INTO inn_line (npc, scene, tier, tone, text) VALUES ('柳三娘','大堂',1,'kind','一句软话就想抵三笔旧账？…行吧，先记着。');
