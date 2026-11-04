@@ -171,6 +171,31 @@ curl -s http://127.0.0.1:8010/healthz
 
 ---
 
+### 4.6 5 分钟快速验证（环境已就绪时）
+
+```bash
+# 1) 数据
+bash db/init.sh                     # → inn_player 3 / inn_ledger 12 / inn_line 60
+# 2) 后端
+cd backend && bash run.sh &          # :8010
+curl -s localhost:8010/healthz       # → {"status":"ok","seekdb":true,...}
+# 3) Dify：导入 dsl/01_inn_chatflow.yml → 绑四个 HTTP 节点地址 + 六个模型节点 → 发布
+```
+
+在应用预览里依次发送，逐条对照：
+
+| 发什么 | 应看到 |
+| --- | --- |
+| `往酒坛里兑半坛水` | 记账批注 + 翻旧账（"三天前你就兑过一回井水…"） |
+| `又往酒坛里兑水` | 再记一笔，仇值 76 → 92，**逐客令** |
+| `打烊，结账` | 《账本长卷》：逐条念账 + 判词 |
+
+核对数据侧：
+```bash
+curl -s 'localhost:8010/inn/session?player_id=p_demo01&format=block'   # 看 GRUDGE / RECENT / MEMORY / LINES
+mysql -h127.0.0.1 -P2891 -uroot -e "SELECT action_text,severity FROM inn.inn_ledger WHERE player_id='p_demo01' ORDER BY id DESC LIMIT 3"
+```
+
 ## 5. 配置示例（占位值）
 
 ```dotenv
