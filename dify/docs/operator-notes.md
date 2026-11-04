@@ -61,7 +61,7 @@ bash dify/tools/start-local.sh
 INN_APP_ID=<app_id> bash dify/tools/run_app.sh "往酒坛里兑水" p_demo01   # 跑一轮并打印节点输出
 bash dify/db/init.sh                                                     # 重置演示数据
 INN_APP_ID=<app_id> bash dify/tools/collect_evidence.sh                  # 重生成 evidence/logs
-INN_APP_ID=<app_id> python3 dify/tools/compliance_check.py               # 8 项合规自检
+INN_APP_ID=<app_id> python3 dify/tools/compliance_check.py               # 10 项合规自检（加 --json 输出结构化结果）
 ```
 
 ## 4.5 本机有多个 seekdb 实例（重要）

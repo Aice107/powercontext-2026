@@ -23,7 +23,7 @@
 | 事件持久化 | 每次恶作剧/善举 | `S2_db_ledger.txt` |
 | 向量 + 全文混合检索 | 每次记账后 | `S3_old_grudge.log`、`S3_sql_hybrid.txt` |
 | 聚合统计 | 打烊结算 | `S6_settle.log` |
-| 台词库检索 | 需要语气锚点时（可选） | `inn_line` 41 条 |
+| 台词库检索（语气锚点） | 每次记账后按档位取两句 | `inn_line` 60 条（含 10 条和解句） |
 
 ## 3. PowerContext 承担记忆（可选层）
 

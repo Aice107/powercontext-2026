@@ -318,6 +318,11 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 `docs/progress-log.md` 是按时间线整理的项目进展（每个阶段做了什么、怎么验证的）；
 `docs/progress-log.raw.md` 是逐次自检的机器输出（append-only）。
 
+## 8.36 自检项说明
+
+10 项自检分别在验什么、怎么手工复核、失败意味着什么，见
+[docs/verification.md](docs/verification.md)。
+
 ## 8.4 提交前检查清单
 
 对照赛题 §4.1–§4.4 的逐项核对表（含每项指向的文件）见
@@ -357,7 +362,7 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 | 标识 | 产生方式 | 写入位置 | 在 DSL 里的位置 |
 | --- | --- | --- | --- |
 | `player_id` | 玩家在 Start 节点填写；留空时后端按 `sys.conversation_id` 生成稳定 ID | `inn_player.player_id` | Start 节点变量，经 HTTP 节点透传 |
-| `conversation_id` | Dify 系统变量 `sys.conversation_id` | 账本行的 `session_id` | 三个 HTTP 节点的 params/body |
+| `conversation_id` | Dify 系统变量 `sys.conversation_id` | 账本行的 `session_id` | 四个 HTTP 节点的 params/body |
 | `event_id` | seekdb 自增主键 | `inn_ledger.id` | 记账响应块 `EVENT=` |
 | 角色 | 固定单一 NPC「柳三娘」 | `inn_line.npc` | 各 LLM 节点的 system prompt |
 | 记忆边界 | 一玩家一份账本（`WHERE player_id=?` 强制过滤） | 全部查询 | 无跨玩家读取 |
