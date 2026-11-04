@@ -188,10 +188,11 @@ def c2_seekdb_data():
 
 def c3_hybrid_retrieval():
     # 先造一条"旧账"，再查相似事件：自检必须自带前置数据，不依赖演示玩家
+    pid_c3 = "p_check_" + time.strftime("%Y%m%d%H")
     http_json(
         f"{API}/inn/ledger",
         {
-            "player_id": "p_check",
+            "player_id": pid_c3,
             "conversation_id": "chk_hybrid",
             "action_text": "往酒坛里兑了半坛井水",
             "action_type": "drink",
@@ -200,7 +201,7 @@ def c3_hybrid_retrieval():
         },
     )
     payload = {
-        "player_id": "p_check",
+        "player_id": pid_c3,
         "conversation_id": "chk_hybrid",
         "action_text": "又往酒坛里兑水",
         "action_type": "drink",
@@ -225,7 +226,7 @@ def c3_hybrid_retrieval():
 def c4_app_runs():
     if not APP_ID:
         return False, "未设置 INN_APP_ID，跳过运行检查"
-    payload = {"inputs": {"player_id": "p_check"}, "files": [], "query": "往酒坛里兑半坛水"}
+    payload = {"inputs": {"player_id": "p_check_" + time.strftime("%Y%m%d%H")}, "files": [], "query": "往酒坛里兑半坛水"}
     req = urllib.request.Request(
         f"{DIFY}/console/api/apps/{APP_ID}/advanced-chat/workflows/draft/run",
         data=json.dumps(payload).encode(),
