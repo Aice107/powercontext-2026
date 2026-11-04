@@ -1,8 +1,8 @@
 # step: env-check
 # command: bash /home/ice/dify-project/minimax/scripts/bootstrap.sh --check
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T16:02:07+0800
-# duration_ms: 4246.33
+# started_at: 2026-11-04T18:54:32+0800
+# duration_ms: 3377.59
 # exit_code: 0
 #
 python=3.12.14

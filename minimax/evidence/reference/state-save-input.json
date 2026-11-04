@@ -2,12 +2,12 @@
   "schema": "sdd-task-state/v1",
   "task_id": "taskhub-due-before",
   "status": "implemented",
-  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
-  "context_sha256": "9c7d292d922e83808a1b64457700c21295df171b75d2fc1558cb150c3c7c6e9b",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-final/workspace",
+  "context_sha256": "f1d9d2862db604a10de4d71020dd4f5cda7281ecfa1c18975dd5b58f2d30d3a9",
   "done": [
     "导入 specs v1 并生成不含 SPEC-API-013 的上下文",
     "更新规格到 v2 并重新导入（仅 spec 文件重建索引）",
-    "以 replay 模式生成并应用代码补丁",
+    "以 minimax 模式生成并应用代码补丁",
     "运行修改前目标测试与回归测试并记录退出码",
     "运行修改后目标测试与回归测试并记录退出码"
   ],
@@ -38,6 +38,6 @@
     }
   ],
   "next_step": "评审复跑；若规格变化则重新导入并重新生成上下文",
-  "saved_at": "2026-11-04T08:02:17.897856+00:00",
-  "saved_at_ns": 1793779337897869276
+  "saved_at": "2026-11-04T10:55:55.288058+00:00",
+  "saved_at_ns": 1793789755288068972
 }

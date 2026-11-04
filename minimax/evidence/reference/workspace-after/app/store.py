@@ -112,8 +112,6 @@ def list_tasks(
         where.append("assignee = ?")
         params.append(assignee)
     if due_before is not None:
-        # due_before is canonicalised by validation.parse_date, so the text
-        # comparison is a correct inclusive (<=) date comparison in SQLite.
         where.append("due_date IS NOT NULL AND due_date <= ?")
         params.append(due_before)
     clause = (" WHERE " + " AND ".join(where)) if where else ""

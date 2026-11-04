@@ -1,9 +1,9 @@
 # SDD development context
 
 - Task ID: `taskhub-due-before`
-- Workspace: `/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace`
-- Context SHA-256: `1705372f386965d202e9f62b3e4fde7adca94548420f192593cf2a2b47b142be`
-- Generated at: 2026-11-04T16:02:24+0800
+- Workspace: `/home/ice/dify-project/minimax/.runtime/demo-final/workspace`
+- Context SHA-256: `592fbad69ea2b88c52a762a2be642ae09fa9c5bb879738873dfcf7d020cf57ee`
+- Generated at: 2026-11-04T18:56:02+0800
 
 ## Task
 
@@ -560,9 +560,9 @@ def test_create_validation_errors_use_json_error_shape(client):
 
 ## 4. Current progress
 
-- Resumed from PowerContext: `2026-11-04T08:02:17.897856+00:00`
+- Resumed from PowerContext: `2026-11-04T10:55:55.288058+00:00`
 - Status: `implemented`
-- Done: 导入 specs v1 并生成不含 SPEC-API-013 的上下文; 更新规格到 v2 并重新导入（仅 spec 文件重建索引）; 以 replay 模式生成并应用代码补丁; 运行修改前目标测试与回归测试并记录退出码; 运行修改后目标测试与回归测试并记录退出码
+- Done: 导入 specs v1 并生成不含 SPEC-API-013 的上下文; 更新规格到 v2 并重新导入（仅 spec 文件重建索引）; 以 minimax 模式生成并应用代码补丁; 运行修改前目标测试与回归测试并记录退出码; 运行修改后目标测试与回归测试并记录退出码
 - Todo: 评审按 README 从干净环境复跑; 如后续规格再变更，重新导入并更新任务状态
 - Verifications: before-target: exit=1 (5 failed); before-regression: exit=0 (12 passed); after-target: exit=0 (5 passed); after-regression: exit=0 (12 passed)
 - Next step: 评审复跑；若规格变化则重新导入并重新生成上下文

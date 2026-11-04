@@ -216,7 +216,7 @@ Markdown 渲染把 specs/code/tests/progress 分成四节，每条都带 `path:s
 
 ### 7.1 调用
 
-- 默认 OpenAI 兼容：`POST {MINIMAX_BASE_URL}/chat/completions`，`model=MINIMAX_MODEL`（默认 `MiniMax-M2.1`），`temperature=0.1`。
+- 默认 OpenAI 兼容：`POST {MINIMAX_BASE_URL}/chat/completions`，`model=MINIMAX_MODEL`（默认 `MiniMax-M3`），`temperature=0.1`。参考运行使用 `https://api.minimaxi.com/v1`；国际 Key 可改用 `https://api.minimax.io/v1`。
 - 可切换原生：`MINIMAX_API_STYLE=native` → `POST {MINIMAX_BASE_URL}/text/chatcompletion_v2`。
 - 凭据只从 `MINIMAX_API_KEY` 读取，不写入仓库、不写入日志、不写入 PowerContext。
 - 请求记录：`task_id`、`model`、`endpoint`、`context_sha256`、`prompt_sha256`、`started_at`、`latency_ms`、`usage`。

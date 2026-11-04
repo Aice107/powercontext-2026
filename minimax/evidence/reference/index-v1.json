@@ -1,11 +1,11 @@
 {
-  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-final/workspace",
   "files": 10,
   "indexed": 10,
   "skipped": 0,
   "chunks": 65,
   "terms": 1874,
-  "elapsed_ms": 127.81,
+  "elapsed_ms": 120.54,
   "sources": [
     {
       "path": "README.md",

@@ -1,8 +1,8 @@
 # step: db-stats
-# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log db-stats
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log db-stats
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T16:02:24+0800
-# duration_ms: 88.18
+# started_at: 2026-11-04T18:56:02+0800
+# duration_ms: 97.67
 # exit_code: 0
 #
 {

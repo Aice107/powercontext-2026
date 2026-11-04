@@ -1,10 +1,10 @@
 # step: seekdb-status
 # command: bash /home/ice/dify-project/minimax/scripts/seekdb_server.sh status
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T16:02:15+0800
-# duration_ms: 53.37
+# started_at: 2026-11-04T18:54:38+0800
+# duration_ms: 46.68
 # exit_code: 0
 #
 seekdb: up on 127.0.0.1:2893
-pid: 57034
+pid: 143384
 

@@ -113,3 +113,12 @@
 - 阻塞：`MINIMAX_API_KEY` 连续第 3 次未配置，第 2 项仍为 BLOCKED；未伪造 MiniMax 记录。
 - 下一小时：继续检查 `minimax/.env` / `MINIMAX_API_KEY`；一旦出现立即执行 `bash scripts/run_final.sh` 并复核六项。
 - 备注：其余五项与 clean-room 复现均已稳定，不需要再改代码。
+
+## 2026-11-04 18:56 真实 MiniMax 跑通，六项全 PASS
+
+- 配置真实 `MINIMAX_API_KEY`（只写入本机 `.env`，权限 600，不提交）。
+- 端点/模型：`https://api.minimaxi.com/v1/chat/completions` + `MiniMax-M3`；`MINIMAX_MAX_TOKENS=8192`。
+- `bash scripts/run_final.sh` 完成 live 调用 → 补丁应用 → 目标/回归测试 → PowerContext 重启读取 → 验收。
+- 结果：`evidence/reference/acceptance.json` **6/6 PASS**；dev-record `mode=minimax`、`applied=true`，usage/延迟/patch SHA 完整。
+- 补丁应用器新增上下文匹配，修复 LLM diff 行号偏移；仍只允许 `app/`。
+- 当前参考证据：`evidence/reference/`。

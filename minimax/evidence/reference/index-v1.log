@@ -1,18 +1,18 @@
 # step: index-v1
-# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T16:02:15+0800
-# duration_ms: 226.83
+# started_at: 2026-11-04T18:54:39+0800
+# duration_ms: 210.26
 # exit_code: 0
 #
 {
-  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-final/workspace",
   "files": 10,
   "indexed": 10,
   "skipped": 0,
   "chunks": 65,
   "terms": 1874,
-  "elapsed_ms": 127.81,
+  "elapsed_ms": 120.54,
   "sources": [
     {
       "path": "README.md",

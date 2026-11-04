@@ -1,14 +1,14 @@
 # step: assert-v1
-# command: /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.json --forbid-spec SPEC-API-013 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-reference-v2/assert-v1.json
+# command: /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-final/context-v1.json --forbid-spec SPEC-API-013 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-final/assert-v1.json
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T16:02:15+0800
-# duration_ms: 34.14
+# started_at: 2026-11-04T18:54:39+0800
+# duration_ms: 29.77
 # exit_code: 0
 #
 {
-  "context": "/home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.json",
+  "context": "/home/ice/dify-project/minimax/evidence/run-final/context-v1.json",
   "task_id": "taskhub-due-before",
-  "context_sha256": "b6800bfc4c1fa31e5944da985cde31f5681b6de5c314a717d2f4ba676fba8b55",
+  "context_sha256": "38fc3772bc94a2071c3f752d33e4f52c2509818f5ad6a9e760f590ba3ed3f552",
   "specs": [
     "SPEC-API-001",
     "SPEC-API-002",

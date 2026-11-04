@@ -31,11 +31,15 @@ def create_app(db_path: str | Path | None = None, *, seed: bool = True) -> Flask
         status = request.args.get("status")
         priority = request.args.get("priority")
         assignee = request.args.get("assignee")
+        due_before = request.args.get("due_before")
         if status is not None:
             status = parse_status(status)
         if priority is not None:
             priority = parse_priority(priority)
-        due_before = parse_date(request.args.get("due_before"), "due_before")
+        if due_before is not None:
+            due_before = parse_date(due_before, "due_before")
+            if due_before is None:
+                raise ValidationError("due_before must be a valid YYYY-MM-DD date", "due_before")
         limit = parse_int(request.args.get("limit"), "limit", 50, 1, 100)
         offset = parse_int(request.args.get("offset"), "offset", 0, 0, 1_000_000)
         with closing(connection()) as conn:

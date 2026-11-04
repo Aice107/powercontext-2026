@@ -1,111 +1,111 @@
 
 ## env-check
 $ bash /home/ice/dify-project/minimax/scripts/bootstrap.sh --check
-exit_code=0 duration_ms=4246.33 log=env-check.log
+exit_code=0 duration_ms=3377.59 log=env-check.log
 
 ## seekdb-reset
 $ bash /home/ice/dify-project/minimax/scripts/seekdb_server.sh reset
-exit_code=0 duration_ms=3214.68 log=seekdb-reset.log
+exit_code=0 duration_ms=3218.3 log=seekdb-reset.log
 
 ## seekdb-status
 $ bash /home/ice/dify-project/minimax/scripts/seekdb_server.sh status
-exit_code=0 duration_ms=53.37 log=seekdb-status.txt
+exit_code=0 duration_ms=46.68 log=seekdb-status.txt
 
 ## db-version
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log db-version
-exit_code=0 duration_ms=274.16 log=db-version.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log db-version
+exit_code=0 duration_ms=254.93 log=db-version.log
 stdout=db-version.txt
 
 ## pc-start
 $ bash /home/ice/dify-project/minimax/scripts/pc_server.sh start
-exit_code=0 duration_ms=21.89 log=pc-start.log
+exit_code=0 duration_ms=12.03 log=pc-start.log
 
 ## pc-status-before
 $ bash /home/ice/dify-project/minimax/scripts/pc_server.sh status
-exit_code=0 duration_ms=15.02 log=pc-status-before.txt
+exit_code=0 duration_ms=17.16 log=pc-status-before.txt
 
 ## index-v1
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace
-exit_code=0 duration_ms=226.83 log=index-v1.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace
+exit_code=0 duration_ms=210.26 log=index-v1.log
 stdout=index-v1.json
 
 ## context-v1
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --out /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.json --md /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.md
-exit_code=0 duration_ms=115.38 log=context-v1.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --out /home/ice/dify-project/minimax/evidence/run-final/context-v1.json --md /home/ice/dify-project/minimax/evidence/run-final/context-v1.md
+exit_code=0 duration_ms=130.57 log=context-v1.log
 
 ## assert-v1
-$ /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.json --forbid-spec SPEC-API-013 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-reference-v2/assert-v1.json
-exit_code=0 duration_ms=34.14 log=assert-v1.log
+$ /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-final/context-v1.json --forbid-spec SPEC-API-013 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-final/assert-v1.json
+exit_code=0 duration_ms=29.77 log=assert-v1.log
 
 ## spec-update
-$ patch -p1 -d /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace -i /home/ice/dify-project/minimax/patches/0002-spec-due-before.patch
-exit_code=0 duration_ms=4.93 log=spec-update.log
+$ patch -p1 -d /home/ice/dify-project/minimax/.runtime/demo-final/workspace -i /home/ice/dify-project/minimax/patches/0002-spec-due-before.patch
+exit_code=0 duration_ms=2.63 log=spec-update.log
 
 ## index-v2
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace
-exit_code=0 duration_ms=129.19 log=index-v2.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace
+exit_code=0 duration_ms=129.1 log=index-v2.log
 stdout=index-v2.json
 
 ## context-v2
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --out /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v2.json --md /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v2.md
-exit_code=0 duration_ms=91.63 log=context-v2.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --out /home/ice/dify-project/minimax/evidence/run-final/context-v2.json --md /home/ice/dify-project/minimax/evidence/run-final/context-v2.md
+exit_code=0 duration_ms=95.08 log=context-v2.log
 
 ## assert-v2
-$ /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v2.json --require-spec SPEC-API-013 --require-text 包含截止当天 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-reference-v2/assert-v2.json
-exit_code=0 duration_ms=28.72 log=assert-v2.log
+$ /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-final/context-v2.json --require-spec SPEC-API-013 --require-text 包含截止当天 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-final/assert-v2.json
+exit_code=0 duration_ms=31.89 log=assert-v2.log
 
 ## before-target
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --target tests/test_due_before.py --log /home/ice/dify-project/minimax/evidence/run-reference-v2/before-target.log --label before-target
-exit_code=0 duration_ms=511.26 log=before-target.cli.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --target tests/test_due_before.py --log /home/ice/dify-project/minimax/evidence/run-final/before-target.log --label before-target
+exit_code=0 duration_ms=396.53 log=before-target.cli.log
 stdout=before-target.result.json
 
 ## before-regression
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --target tests/test_tasks_regression.py --log /home/ice/dify-project/minimax/evidence/run-reference-v2/before-regression.log --label before-regression
-exit_code=0 duration_ms=427.36 log=before-regression.cli.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --target tests/test_tasks_regression.py --log /home/ice/dify-project/minimax/evidence/run-final/before-regression.log --label before-regression
+exit_code=0 duration_ms=404.61 log=before-regression.cli.log
 stdout=before-regression.result.json
 
 ## minimax
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log minimax --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --context /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v2.json --patch-out /home/ice/dify-project/minimax/evidence/run-reference-v2/minimax/applied.patch --evidence-dir /home/ice/dify-project/minimax/evidence/run-reference-v2/minimax --patch-file /home/ice/dify-project/minimax/patches/0001-due-before-filter.patch
-exit_code=0 duration_ms=79.94 log=minimax.cli.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log minimax --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --context /home/ice/dify-project/minimax/evidence/run-final/context-v2.json --patch-out /home/ice/dify-project/minimax/evidence/run-final/minimax/applied.patch --evidence-dir /home/ice/dify-project/minimax/evidence/run-final/minimax
+exit_code=0 duration_ms=73817.85 log=minimax.cli.log
 stdout=minimax.result.json
 
 ## after-target
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --target tests/test_due_before.py --log /home/ice/dify-project/minimax/evidence/run-reference-v2/after-target.log --label after-target
-exit_code=0 duration_ms=368.47 log=after-target.cli.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --target tests/test_due_before.py --log /home/ice/dify-project/minimax/evidence/run-final/after-target.log --label after-target
+exit_code=0 duration_ms=376.99 log=after-target.cli.log
 stdout=after-target.result.json
 
 ## after-regression
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --target tests/test_tasks_regression.py --log /home/ice/dify-project/minimax/evidence/run-reference-v2/after-regression.log --label after-regression
-exit_code=0 duration_ms=388.57 log=after-regression.cli.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --target tests/test_tasks_regression.py --log /home/ice/dify-project/minimax/evidence/run-final/after-regression.log --label after-regression
+exit_code=0 duration_ms=406.39 log=after-regression.cli.log
 stdout=after-regression.result.json
 
 ## state-save
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log state-save --state-file /home/ice/dify-project/minimax/evidence/run-reference-v2/state-save-input.json --reason demo before restart
-exit_code=0 duration_ms=289.37 log=state-save.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log state-save --state-file /home/ice/dify-project/minimax/evidence/run-final/state-save-input.json --reason demo before restart
+exit_code=0 duration_ms=109.67 log=state-save.log
 stdout=state-save.json
 
 ## pc-restart
 $ bash /home/ice/dify-project/minimax/scripts/pc_server.sh restart
-exit_code=0 duration_ms=6089.84 log=pc-restart.log
+exit_code=0 duration_ms=7098.44 log=pc-restart.log
 
 ## pc-after-restart
 $ bash /home/ice/dify-project/minimax/scripts/pc_server.sh status
-exit_code=0 duration_ms=15.49 log=pc-after-restart.txt
+exit_code=0 duration_ms=15.89 log=pc-after-restart.txt
 
 ## state-load
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log state-load --task-id taskhub-due-before
-exit_code=0 duration_ms=92.77 log=state-load.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log state-load --task-id taskhub-due-before
+exit_code=0 duration_ms=100.6 log=state-load.log
 stdout=state-after-restart.json
 
 ## resume-context
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --resume --out /home/ice/dify-project/minimax/evidence/run-reference-v2/resume-context.json --md /home/ice/dify-project/minimax/evidence/run-reference-v2/resume-context.md
-exit_code=0 duration_ms=117.45 log=resume-context.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-final/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --resume --out /home/ice/dify-project/minimax/evidence/run-final/resume-context.json --md /home/ice/dify-project/minimax/evidence/run-final/resume-context.md
+exit_code=0 duration_ms=158.07 log=resume-context.log
 
 ## db-stats
-$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log db-stats
-exit_code=0 duration_ms=88.18 log=db-stats.log
+$ /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-final/db-queries.log db-stats
+exit_code=0 duration_ms=97.67 log=db-stats.log
 stdout=db-stats.json
 
 ## acceptance
-$ /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/verify_acceptance.py --run-dir /home/ice/dify-project/minimax/evidence/run-reference-v2 --out /home/ice/dify-project/minimax/evidence/run-reference-v2/acceptance.json
-exit_code=1 duration_ms=34.79 log=acceptance.log
+$ /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/verify_acceptance.py --run-dir /home/ice/dify-project/minimax/evidence/run-final --out /home/ice/dify-project/minimax/evidence/run-final/acceptance.json
+exit_code=0 duration_ms=37.58 log=acceptance.log

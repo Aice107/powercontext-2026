@@ -1,6 +1,6 @@
 diff -ruN -x __pycache__ -x '*.pyc' a/api.py b/api.py
 --- a/api.py	2026-11-04 13:57:45.660600917 +0800
-+++ b/api.py	2026-11-04 16:02:17.122762480 +0800
++++ b/api.py	2026-11-04 18:55:54.486363928 +0800
 @@ -9,7 +9,7 @@
  from flask import Flask, jsonify, request
  
@@ -10,15 +10,23 @@ diff -ruN -x __pycache__ -x '*.pyc' a/api.py b/api.py
  
  
  def create_app(db_path: str | Path | None = None, *, seed: bool = True) -> Flask:
-@@ -35,6 +35,7 @@
+@@ -31,10 +31,15 @@
+         status = request.args.get("status")
+         priority = request.args.get("priority")
+         assignee = request.args.get("assignee")
++        due_before = request.args.get("due_before")
+         if status is not None:
              status = parse_status(status)
          if priority is not None:
              priority = parse_priority(priority)
-+        due_before = parse_date(request.args.get("due_before"), "due_before")
++        if due_before is not None:
++            due_before = parse_date(due_before, "due_before")
++            if due_before is None:
++                raise ValidationError("due_before must be a valid YYYY-MM-DD date", "due_before")
          limit = parse_int(request.args.get("limit"), "limit", 50, 1, 100)
          offset = parse_int(request.args.get("offset"), "offset", 0, 0, 1_000_000)
          with closing(connection()) as conn:
-@@ -43,6 +44,7 @@
+@@ -43,6 +48,7 @@
                  status=status,
                  priority=priority,
                  assignee=assignee,
@@ -28,7 +36,7 @@ diff -ruN -x __pycache__ -x '*.pyc' a/api.py b/api.py
              )
 diff -ruN -x __pycache__ -x '*.pyc' a/store.py b/store.py
 --- a/store.py	2026-11-04 13:57:36.504444026 +0800
-+++ b/store.py	2026-11-04 16:02:17.122779572 +0800
++++ b/store.py	2026-11-04 18:55:54.486640654 +0800
 @@ -96,6 +96,7 @@
      status: str | None = None,
      priority: str | None = None,
@@ -37,13 +45,11 @@ diff -ruN -x __pycache__ -x '*.pyc' a/store.py b/store.py
      limit: int = 50,
      offset: int = 0,
  ) -> dict[str, Any]:
-@@ -110,6 +111,11 @@
+@@ -110,6 +111,9 @@
      if assignee is not None:
          where.append("assignee = ?")
          params.append(assignee)
 +    if due_before is not None:
-+        # due_before is canonicalised by validation.parse_date, so the text
-+        # comparison is a correct inclusive (<=) date comparison in SQLite.
 +        where.append("due_date IS NOT NULL AND due_date <= ?")
 +        params.append(due_before)
      clause = (" WHERE " + " AND ".join(where)) if where else ""

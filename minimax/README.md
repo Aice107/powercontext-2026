@@ -13,6 +13,9 @@
 
 ## 1. 5 分钟快速验证（无需 MiniMax Key）
 
+> 当前提交的 `evidence/reference/` 已是一次真实 MiniMax 运行（6/6 PASS，model=`MiniMax-M3`）。
+> 下面的 replay 命令用于无 Key 环境复现其余五项，不会产生第 2 项的真实记录。
+
 ```bash
 cd minimax
 
@@ -43,7 +46,7 @@ bash scripts/pc_server.sh start
 | seekdb | OceanBase seekdb 1.4.0.0；由 `pylibseekdb==1.4.0.post2` 包内的 `seekdb` 二进制启动 |
 | PyMySQL | 1.x（通过 MySQL 协议访问 seekdb） |
 | PowerContext | 1.4.1（`powercontext[cli,server]`，SQLite 后端） |
-| MiniMax | OpenAI 兼容 / 原生 v2 协议，模型默认 `MiniMax-M2.1` |
+| MiniMax | OpenAI 兼容 / 原生 v2 协议，参考运行模型 `MiniMax-M3` |
 
 `scripts/bootstrap.sh` 会检查 Python、Flask、PyMySQL、`pylibseekdb` 与 `powercontext`。如果 PowerContext CLI 缺失，执行：
 
@@ -133,9 +136,10 @@ MiniMax 配置项：
 | 变量 | 默认 | 说明 |
 |---|---|---|
 | `MINIMAX_API_KEY` | 无 | 必填；只从环境/`.env` 读取，不写入仓库或日志 |
-| `MINIMAX_BASE_URL` | `https://api.minimax.io/v1` | API 基地址 |
-| `MINIMAX_MODEL` | `MiniMax-M2.1` | 模型名 |
+| `MINIMAX_BASE_URL` | `https://api.minimaxi.com/v1` | API 基地址；国际 Key 可改用 `https://api.minimax.io/v1` |
+| `MINIMAX_MODEL` | `MiniMax-M3` | 模型名；也可用 `MiniMax-M1`、`MiniMax-Text-01` |
 | `MINIMAX_API_STYLE` | `openai` | `openai`（`/chat/completions`）或 `native`（`/text/chatcompletion_v2`） |
+| `MINIMAX_MAX_TOKENS` | `8192` | 单次生成上限；M3 8192 可完成 diff |
 | `MINIMAX_GROUP_ID` | 无 | 可选；native v2 端点的 GroupId |
 | `MINIMAX_TIMEOUT` | `120` | 秒 |
 
@@ -196,7 +200,7 @@ minimax/
 
 ## 9. 已知限制
 
-- 第 2 项需要真实 `MINIMAX_API_KEY`；仓库中不包含任何凭据。没有 Key 时只能跑 `replay`，且第 2 项保持 FAIL。
+- 复跑第 2 项需要真实 `MINIMAX_API_KEY`；仓库不包含任何凭据。当前 `evidence/reference/` 已包含一次 live `MiniMax-M3` 记录；没有 Key 时只能跑 `replay`，第 2 项会保持 FAIL。
 - 上下文模块不恢复完整 Agent 会话，只复用任务状态（题面 §2.4 允许）。
 - 检索采用词项 + BM25，不依赖向量模型；中文用 2-gram 与领域同义词扩展。
 - TaskHub 是为可复现验证提供的最小业务工程，不是完整生产服务；它包含真实 HTTP 接口、SQLite 持久化与 17 条测试。

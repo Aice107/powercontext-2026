@@ -156,4 +156,4 @@ rm -rf .runtime/demo-* && cp -a demo/baseline .runtime/manual-workspace
 | `code-diff.patch` | 修改前后代码差异 |
 | `acceptance.json` | 六项机器核验 |
 
-`evidence/reference/` 保存一份可审阅的参考运行；正式提交前用 `--mode minimax` 的运行替换。
+`evidence/reference/` 保存一次可审阅的 **live MiniMax** 参考运行（`MiniMax-M3`，6/6 PASS）；`--mode replay` 仅用于无 Key 的离线复现，第 2 项会标记 FAIL。

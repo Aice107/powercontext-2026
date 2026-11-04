@@ -1,6 +1,6 @@
 {
-  "mode": "replay",
-  "minimax_live": false,
+  "mode": "minimax",
+  "minimax_live": true,
   "minimax_exit_code": 0,
   "note": "replay is not evidence of MiniMax participation"
 }
