@@ -443,7 +443,7 @@ def c6_samples():
 # ------------------------------------------------------------------ C7
 
 
-SECRET_RE = re.compile(r"sk-[A-Za-z0-9]{16,}")
+SECRET_RE = re.compile(r"(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})")
 
 
 def c7_no_secrets():

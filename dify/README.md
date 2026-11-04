@@ -414,3 +414,14 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 
 演示数据：执行 `bash db/init.sh` 后，`p_demo01` 会被预置为"住了 3 天、仇值 62（T3 报复）、7 条旧账"的状态，
 评审可直接用这个 ID 体验"翻旧账"与"逐客"，无需自己刷数据。
+
+---
+
+## 16. 提交信息
+
+| 项 | 值 |
+| --- | --- |
+| 仓库 | `https://github.com/Aice107/dify-2026-competition`（私有） |
+| 分支 | `2026-competition-ecosystem` |
+| 本文件对应的提交 | 见仓库该分支 HEAD（提交信息：`docs(dify): 集中整理已知问题与取舍 + C11 增加 HTTP 节点数校验`） |
+| 资产目录 | `dify/` |
