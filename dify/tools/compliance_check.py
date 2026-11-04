@@ -58,13 +58,31 @@ def check(cid: str, name: str, fn):
     results.append((f"{cid} {name}", ok, detail))
 
 
+def _refresh_login() -> bool:
+    """Dify 控制台令牌 60 分钟过期：命中 401 时调 tools/dify-login.sh 重新登录一次。"""
+    script = Path(__file__).resolve().parent / "dify-login.sh"
+    if not script.is_file():
+        return False
+    r = subprocess.run(["bash", str(script)], capture_output=True, text=True, timeout=60)
+    return r.returncode == 0
+
+
 def http_json(url: str, data: dict | None = None, headers: dict | None = None):
     body = json.dumps(data).encode() if data is not None else None
     req = urllib.request.Request(url, data=body, headers=headers or {})
     if body:
         req.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return resp.status, json.loads(resp.read().decode() or "{}")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.status, json.loads(resp.read().decode() or "{}")
+    except urllib.error.HTTPError as exc:
+        if exc.code != 401 or not _refresh_login():
+            raise
+        req.remove_header("Cookie")
+        req.add_header("Cookie", cookie_header())
+        req.add_header("X-CSRF-Token", csrf_token())
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.status, json.loads(resp.read().decode() or "{}")
 
 
 def cookie_header() -> str:
@@ -220,7 +238,26 @@ def c4_app_runs():
     answer = []
     status = None
     final_answer = ""
-    with urllib.request.urlopen(req, timeout=180) as resp:
+
+    def _open():
+        req = urllib.request.Request(
+            f"{DIFY}/console/api/apps/{APP_ID}/advanced-chat/workflows/draft/run",
+            data=json.dumps(payload).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Cookie": cookie_header(),
+                "X-CSRF-Token": csrf_token(),
+            },
+        )
+        return urllib.request.urlopen(req, timeout=180)
+
+    try:
+        resp = _open()
+    except urllib.error.HTTPError as exc:
+        if exc.code != 401 or not _refresh_login():
+            raise
+        resp = _open()
+    with resp:
         for raw in resp:
             line = raw.decode("utf-8", "ignore").strip()
             if not line.startswith("data:"):

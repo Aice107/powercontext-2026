@@ -11,6 +11,8 @@ COOKIE="${DIFY_COOKIE:-/home/ice/dify/run/cookies.txt}"
 BASE="${DIFY_BASE:-http://127.0.0.1:5001}"
 [ -z "$APP" ] && { echo "app_id required (env INN_APP_ID)"; exit 1; }
 
+# 令牌 60 分钟过期：先刷一次登录，避免 401
+bash "$(dirname "$0")/dify-login.sh" >/dev/null 2>&1 || true
 CSRF=$(awk '$6=="csrf_token"{print $7}' "$COOKIE")
 python3 - "$Q" "$PID" > /tmp/_run_payload.json <<'PY'
 import json,sys

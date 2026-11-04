@@ -5,6 +5,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 echo "===== 巡检 $(date '+%Y-%m-%d %H:%M:%S') ====="
+bash "$(dirname "$0")/dify-login.sh" >/dev/null 2>&1 || echo "  [warn] Dify 登录刷新失败（若 Dify 未启动属正常）"
 
 # 1. 依赖端口
 for pair in "seekdb:2891" "inn-api:8010" "dify-api:5001" "dify-web:3000"; do

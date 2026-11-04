@@ -116,6 +116,16 @@ OceanBase 侧是异步回收，`drop database` 返回后库仍在，而且会**�
 子进程会一直持有锁文件，之后任何新看门狗都会误判"已有实例在跑"，表现为"seekdb 明明挂了却没人拉起"。
 现在两处启动都加了 `9>&-`。
 
+## 4.98 登录态会自动续
+
+Dify 控制台令牌 60 分钟过期，过期后自检/取证脚本全部 401。现在：
+
+- `tools/dify-login.sh`：手动刷新（写 `~/dify/run/cookies.txt`）；
+- `compliance_check.py`：遇 401 自动调用它并重试一次；
+- `periodic_check.sh` / `run_app.sh`：启动前先刷一次。
+
+验证方式：把 cookie 文件里的 `access_token` 删掉再跑自检，仍应 10/10（已实测）。
+
 ## 5. 已知环境问题
 
 1. **内存紧张**：本机 9.3GB + 3.8GB swap，swap 常年接近打满；Dify web dev 编译、seekdb 启动都会把内存推到临界，
