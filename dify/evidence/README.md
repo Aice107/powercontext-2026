@@ -8,7 +8,7 @@
 | S2 | 记账 | [logs/S2_prank.log](logs/S2_prank.log)、[logs/S2_db_ledger.txt](logs/S2_db_ledger.txt) | 记账块 + seekdb 行 |
 | S3 | 翻旧账 | [logs/S3_old_grudge.log](logs/S3_old_grudge.log)、[logs/S3_sql_hybrid.txt](logs/S3_sql_hybrid.txt) | 混合检索命中 + EXPLAIN |
 | S4 | 跨会话记忆 | [logs/S4_cross_session.log](logs/S4_cross_session.log)、[logs/S4_db_player.txt](logs/S4_db_player.txt) | 档案块与库内数值一致 |
-| S7b | PC 不可用降级 | [logs/S7b_pc_down.log](logs/S7b_pc_down.log) | PC 停 → `MEMORY=无` 仍应答；PC 起 → 记忆回来 |
+| S7b | PC 不可用降级 | [logs/S7b_pc_down.log](logs/S7b_pc_down.log)、[logs/S7b_pc_warnings.txt](logs/S7b_pc_warnings.txt) | PC 停 → `MEMORY=无` 仍应答；PC 起 → 记忆回来；含 inn-api 降级 warning 与同期 200 日志 |
 | S5 | 逐客分支 | [logs/S5_expel.log](logs/S5_expel.log)、[logs/S5_expel_nodes.txt](logs/S5_expel_nodes.txt)、[logs/S5_expel_run.sse](logs/S5_expel_run.sse) | 节点序列含 `是否逐客 case=true → 逐客令` |
 | S5b | 求原谅 | [logs/S5_forgive.log](logs/S5_forgive.log)、[logs/S5_forgive_nodes.txt](logs/S5_forgive_nodes.txt) | 同样满仇值，`是否逐客 case=false → 三娘回应` |
 | S6 | 打烊结算 | [logs/S6_settle.log](logs/S6_settle.log) | 《账本长卷》全文 |

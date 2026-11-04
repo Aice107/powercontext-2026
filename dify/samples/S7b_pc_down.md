@@ -20,7 +20,7 @@
 
 ## 证据
 - `evidence/logs/S7b_pc_down.log`（两阶段对照）
-- inn-api 日志里的 `powercontext ... failed` warning
+- `evidence/logs/S7b_pc_warnings.txt`：inn-api 的 `powercontext /v1/scopes failed: Connection refused` warning，以及同期 `POST /inn/ledger 200 OK` 的对照
 
 ## 注意
 PowerContext 的记忆库与 seekdb 账本是**两套存储**：只跑 `db/init.sh` 不会清 PC 记忆，

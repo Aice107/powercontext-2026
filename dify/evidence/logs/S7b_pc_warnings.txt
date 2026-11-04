@@ -1,0 +1,17 @@
+# inn-api 在 PowerContext 不可用时的日志（S7b 佐证）
+
+来源：~/.run/inn-api.log；下面每行对应一次降级（3 秒超时后放弃，主链路继续）
+```
+powercontext /v1/scopes failed: <urlopen error [Errno 111] Connection refused>
+powercontext /v1/scopes failed: <urlopen error [Errno 111] Connection refused>
+powercontext /v1/scopes failed: <urlopen error [Errno 111] Connection refused>
+powercontext /v1/scopes failed: <urlopen error [Errno 111] Connection refused>
+powercontext /v1/scopes failed: <urlopen error [Errno 111] Connection refused>
+```
+
+对照：同一时间段的正常请求仍然 200
+```
+INFO:     127.0.0.1:48650 - "POST /inn/ledger?format=block HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48670 - "POST /inn/ledger HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48686 - "GET /inn/session?player_id=p_check_pc_2026110413&format=block HTTP/1.1" 200 OK
+```
