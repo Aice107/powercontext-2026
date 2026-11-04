@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T12:44:47.141Z",
+  "generatedAt": "2026-11-04T12:53:02.669Z",
   "unit": "ms",
   "runs": [
     {
@@ -91,6 +91,70 @@
         "recallAt10": 1,
         "ndcgAt10": 1,
         "mrrAt10": 1
+      },
+      "corpus": {
+        "docs": 12,
+        "chunks": 20
+      },
+      "errors": 0
+    },
+    {
+      "backend": "webgpu",
+      "dtype": "fp16",
+      "batch": 8,
+      "modelBytes": null,
+      "timings": {
+        "modelLoadColdMs": 2090.7,
+        "modelLoadWarmMs": 1277.9,
+        "embedMsTotal": 20219.7,
+        "ingestMs": 5.4,
+        "refreshMs": 616.6,
+        "ingestTotalMs": 21055.1,
+        "queryEmbedMs": 130.9,
+        "seekdbMs": 6.61,
+        "e2eMs": 143.35
+      },
+      "metrics": {
+        "embedChunksPerSec": 0.99,
+        "batchSize": 8
+      },
+      "quality": {
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "ndcgAt10": 0.9506,
+        "mrrAt10": 0.9464
+      },
+      "corpus": {
+        "docs": 12,
+        "chunks": 20
+      },
+      "errors": 0
+    },
+    {
+      "backend": "webgpu",
+      "dtype": "q8",
+      "batch": 8,
+      "modelBytes": null,
+      "timings": {
+        "modelLoadColdMs": 1853.1,
+        "modelLoadWarmMs": 1168,
+        "embedMsTotal": 19907,
+        "ingestMs": 6.55,
+        "refreshMs": 502.7,
+        "ingestTotalMs": 20627.1,
+        "queryEmbedMs": 117.3,
+        "seekdbMs": 6.42,
+        "e2eMs": 129.75
+      },
+      "metrics": {
+        "embedChunksPerSec": 1,
+        "batchSize": 8
+      },
+      "quality": {
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "ndcgAt10": 0.9506,
+        "mrrAt10": 0.9464
       },
       "corpus": {
         "docs": 12,

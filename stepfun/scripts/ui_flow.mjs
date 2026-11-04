@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // UI 层端到端验证：完全通过界面操作（点击、输入）完成导入与检索，并截图留证。
 import { chromium } from 'playwright-core';
+import { launchOptions } from './lib/browser.mjs';
 import { mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -32,11 +33,7 @@ const SAMPLE = [
   'INT8 动态量化把 bge-small-zh-v1.5 的权重从 90 MB 压到 23 MB，压缩比接近 4 倍。',
 ].join('\n');
 
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: chromiumPath(),
-  args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--enable-features=Vulkan'],
-});
+const browser = await chromium.launch(launchOptions());
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
 const page = await context.newPage();
 page.on('pageerror', (error) => console.log('[pageerror]', error.message));

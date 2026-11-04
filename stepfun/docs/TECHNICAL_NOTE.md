@@ -19,7 +19,7 @@
 - 启动顺序：检测 `navigator.gpu` → 真实 `requestAdapter()` → 得到 adapter 才用 `device:'webgpu'`（`dtype:'fp16'`）；否则 `device:'wasm'`（`dtype:'q8'`）。
 - 二次兜底：WebGPU 初始化或预热推理抛错时，worker 自动以 WASM 重建并回传 `fallback` 原因；界面顶栏常驻徽标显示 `WebGPU/WASM`、量化档位与降级提示。
 - 模型与 ORT 运行时均由同源静态目录提供（`/models`、`/ort`），不依赖 CDN；页面启用 COOP/COEP 以允许 WASM 多线程（SharedArrayBuffer）。
-- 验证：本机无 GPU，实测「探测到 API 但无 adapter → 自动降级 WASM → 全流程可用」；`?backend=wasm|webgpu` 可强制复测。
+- 验证：三种环境均已实测——(a) 无 GPU（`requestAdapter()` 返回空）→ 自动降级 WASM；(b) SwiftShader 软件 Vulkan 适配器 → **WebGPU 路径真实跑通**（INT8 端到端 129.75 ms、Recall@5=1.00）；(c) WebGPU 设备不支持 fp16 → 自动改用同设备 INT8 并提示。`?backend=wasm|webgpu` 可强制复测，界面始终显示当前后端与降级原因。
 
 ## 3. seekdb 使用
 
@@ -45,12 +45,13 @@
 | WASM 多线程（1 → 4 线程，COOP/COEP 开启） | 向量化吞吐 7.41 → 16.41 块/s（2.21x） |
 | 批处理（4 线程下 1 → 8） | 16.41 → 17.60 块/s（+7.3%）；单线程下批处理反而 -20%，故按后端自适应批大小 |
 | 合并索引刷新 | 导入总耗时 9216 → 2521 ms（3.66x） |
-| 模型加载 | 本地同源 + 浏览器缓存：冷 931 ms / 预热 347 ms（INT8） |
+| 模型加载 | 本地同源 + 浏览器缓存：冷 931 ms / 预热 347 ms（INT8, WASM） |
+| WebGPU 路径 | 软件适配器下跑通（端到端 129.75 ms），真实 GPU 预期优于 WASM |
 
 - 端到端口径：查询提交 → 查询向量化 → seekdb 检索 → 结果渲染；实测 INT8 WASM 中位数 16.15 ms（seekdb 检索 6.21 ms）。
 
 ## 5. 边界与限制
 
-- 本机无 GPU：WebGPU 仅验证探测/降级/提示路径，未给出 GPU 加速实测；代码与界面已就绪，需在有 GPU 的 Chrome/Edge 复测。
+- 本机无物理 GPU：WebGPU 通过 SwiftShader 软件适配器验证了路径与正确性（端到端 129.75 ms），吞吐不具备参考价值，需在真实 GPU 复测加速比。
 - 评测语料 12 篇（4251 字）、20 个分块，规模小导致 Recall 饱和；质量结论以 nDCG/MRR 与排序细节为准。
 - Linux 下 seekdb 本地 server 需要 `libaio`；模型文件（约 160 MB）不入库，由脚本下载。

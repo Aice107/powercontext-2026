@@ -4,6 +4,7 @@
 //   2) 索引刷新：每批刷新 vs 合并刷新 的总耗时与可见性
 //   3) 量化：q8 / fp16 / fp32 的模型加载与吞吐（复用 bench 结果）
 import { chromium } from 'playwright-core';
+import { launchOptions } from './lib/browser.mjs';
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -35,11 +36,7 @@ async function loadCorpus() {
   );
 }
 
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: chromiumPath(),
-  args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--enable-features=Vulkan'],
-});
+const browser = await chromium.launch(launchOptions());
 
 const corpus = await loadCorpus();
 const texts = corpus.map((d) => d.text);

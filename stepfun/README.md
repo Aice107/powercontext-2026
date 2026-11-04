@@ -5,6 +5,8 @@
 
 一个可运行的迷你知识库：文档在**浏览器**里被编码成向量（Transformers.js + ONNX Runtime Web，WebGPU 优先、WASM 自动降级，INT8/FP16 量化），向量与原文写入 **seekdb**，查询同样在浏览器里向量化，再由 **seekdb 的 `DBMS_HYBRID_SEARCH`** 一次完成向量 + 全文召回与 RRF 融合排序。
 
+![应用界面](results/screenshot.png)
+
 - 架构设计：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - 一页技术说明：[docs/TECHNICAL_NOTE.md](docs/TECHNICAL_NOTE.md)
 - 合规对照（逐条验收项 → 证据）：[docs/COMPLIANCE.md](docs/COMPLIANCE.md)
@@ -89,7 +91,7 @@ node automation/hourly_check.mjs         # 合规自检（每小时自动执行�
 
 ## 5. 已知限制
 
-- 本机（无 GPU 的无头 Linux）只能验证 WASM 路径；WebGPU 代码路径通过 `?backend=webgpu` 与真实 `requestAdapter()` 探测实现，界面会明确显示降级原因。
+- 本机（无物理 GPU 的无头 Linux）主数据来自 WASM；WebGPU 路径已用 SwiftShader 软件适配器跑通（端到端 129.75 ms，吞吐不具参考价值），真实 GPU 加速比需在目标设备复测。
 - 首次使用需要下载模型（约 160MB）；模型文件不进入 git，由 `npm run fetch-models` 获取。
 - 单机评测语料为 12 篇中文技术文档，规模小，Recall 已接近饱和；量化质量差异主要体现在向量一致性与更大规模语料上（见 RESULTS）。
 - seekdb 以本地 server 模式部署（`scripts/seekdb_server.sh`），Linux 需要 `libaio`；如使用嵌入式模式可设置 `SEEKDB_PATH`。

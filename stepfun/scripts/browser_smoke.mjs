@@ -2,6 +2,7 @@
 // 浏览器端冒烟测试：用真实 Chromium（headless）跑通「导入 → 端侧向量化 → seekdb 写入/刷新 → 混合检索」。
 // 可指定后端：--backend=auto|webgpu|wasm（通过页面上的选择框切换，等价于用户操作）。
 import { chromium } from 'playwright-core';
+import { launchOptions } from './lib/browser.mjs';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -21,14 +22,7 @@ function chromiumPath() {
   return undefined;
 }
 
-const args = [
-  '--no-sandbox',
-  '--enable-unsafe-swiftshader',
-  '--use-angle=swiftshader',
-  '--enable-features=Vulkan',
-];
-
-const browser = await chromium.launch({ headless, executablePath: chromiumPath(), args });
+const browser = await chromium.launch(launchOptions({ headed: !headless }));
 const page = await browser.newPage();
 page.on('console', (msg) => {
   const text = msg.text();

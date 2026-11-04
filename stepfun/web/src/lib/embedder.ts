@@ -86,6 +86,12 @@ export class EmbedderClient {
       this.readyInfo = { ...ready };
       return this.readyInfo;
     } catch (error: any) {
+      // WebGPU 设备可能不支持 fp16 着色器：先在 WebGPU 上改用 INT8，再考虑降级 WASM
+      if (options.device === 'webgpu' && options.dtype === 'fp16' && /fp16/i.test(String(error?.message))) {
+        const ready = await this.once<ReadyInfo>({ type: 'init', ...options, dtype: 'q8' });
+        this.readyInfo = { ...ready, fallback: '当前 WebGPU 设备不支持 FP16，已自动改用 INT8（仍为 WebGPU）' };
+        return this.readyInfo;
+      }
       if (options.device === 'webgpu' && options.allowFallback !== false) {
         const ready = await this.once<ReadyInfo>({
           type: 'init',

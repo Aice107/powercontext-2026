@@ -90,7 +90,7 @@ export default function App() {
           batchSize: batchFromUrl || (detected.backend === 'webgpu' ? 16 : 8),
           threads: threadsFromUrl || undefined,
           localFirst: true,
-          allowFallback: forceBackend !== 'webgpu',
+          allowFallback: true,
         });
         setReady(info);
         setModelProgress(null);

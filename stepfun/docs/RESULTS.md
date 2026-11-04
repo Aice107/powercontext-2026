@@ -76,11 +76,22 @@ INT8 为 ONNX Runtime 动态量化（权重 INT8，激活运行时量化）；SH
 
 | 场景 | 结果 |
 |---|---|
-| 无 GPU 的 headless Chromium | 探测到 `navigator.gpu`，但 `requestAdapter()` 返回空 → 自动降级 WASM，界面徽标显示「WASM · Q8」，并给出降级原因 |
-| 强制 `?backend=wasm` | 全流程可用（本文所有数据） |
-| 强制 `?backend=webgpu` | 初始化失败时按设计回落 WASM 并记录 `fallback` 原因（本机无 GPU，无法给出 WebGPU 实测吞吐） |
+| 无 GPU 的 headless Chromium（默认） | 探测到 `navigator.gpu`，但 `requestAdapter()` 返回空 → 自动降级 WASM，界面徽标显示「WASM · Q8」，并给出降级原因 |
+| 强制 `?backend=wasm` | 全流程可用（本文 §3/§4 所有数据） |
+| WebGPU 路径（SwiftShader 软件 Vulkan 适配器） | 真实走通 WebGPU 执行路径，端到端检索可用（见下表） |
+| WebGPU + FP16（设备不支持 fp16 着色器） | 自动改用同设备 INT8，界面提示原因，流程继续 |
 
-> 说明：本机为无 GPU 的无头环境，WebGPU 只验证了「探测 → 降级 → 提示 → 流程可用」这条路径；WebGPU 的加速效果需要在有 GPU 的 Chrome/Edge 上按 `docs/REPRODUCE.md` 复测，代码路径与界面均已就绪。
+### WebGPU 路径实测（软件适配器，仅证明路径可用）
+
+本机无物理 GPU。通过 Chromium 自带 SwiftShader Vulkan ICD（`vk_swiftshader_icd.json`）暴露一个**软件 WebGPU 适配器**，从而真实执行 `device:'webgpu'` 分支：
+
+| 配置 | 模型加载（首次/预热） | 向量化吞吐 | seekdb 检索 | 端到端查询 | Recall@5 | nDCG@10 |
+|---|---|---|---|---|---|---|
+| WebGPU + INT8（软件适配器） | 1853.1 / 1168.0 ms | 1.00 块/s | 6.42 ms | 129.75 ms | 1.00 | 0.951 |
+| WebGPU + FP16（软件适配器） | 2090.7 / 1277.9 ms | 0.99 块/s | 6.61 ms | 143.35 ms | 1.00 | 0.951 |
+
+⚠️ 该数据来自**软件光栅化**的 SwiftShader，吞吐没有参考价值（比 WASM 慢约 20 倍），只用于证明：WebGPU 设备选择、模型加载、推理、seekdb 写入/检索、界面提示在 WebGPU 后端下全部可用。
+真实 GPU 上预期显著快于 WASM，需按 `docs/REPRODUCE.md` 在目标设备复测后替换本表。
 
 ## 6. 质量评测方法
 

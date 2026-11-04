@@ -4,6 +4,7 @@
 //   results/quality-summary.json           量化前后 Recall@5 / nDCG@10 对比
 //   results/runs/*.json                    通过 /api/metrics 落盘（kind=bench）
 import { chromium } from 'playwright-core';
+import { launchOptions } from './lib/browser.mjs';
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -173,11 +174,7 @@ async function evaluateDtype(browser, dtype, corpus, queries) {
 async function main() {
   const corpus = await loadCorpus();
   const queries = JSON.parse(await readFile(join(ROOT, 'eval', 'queries.json'), 'utf8')).queries;
-  const browser = await chromium.launch({
-    headless: !process.argv.includes('--headed'),
-    executablePath: chromiumPath(),
-    args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--enable-features=Vulkan'],
-  });
+  const browser = await chromium.launch(launchOptions({ headed: process.argv.includes('--headed') }));
 
   const summary = [];
   for (const dtype of dtypes) {

@@ -104,7 +104,8 @@ CREATE TABLE IF NOT EXISTS app_sessions (
 - 探测顺序：
   1. `navigator.gpu` 存在 → `requestAdapter()` 真正拿 adapter（避免仅有 API 但无设备）；
   2. 拿到 adapter → `device: 'webgpu'`，`dtype: 'fp16'`（WebGPU 支持 fp16 算子；不支持时自动回落 q8）；
-  3. 失败 → `device: 'wasm'`，`dtype: 'q8'`（WASM 走 INT8 权重 + 单线程/XNNPACK），并在 UI 顶部常驻徽标 `WASM · INT8`。
+  3. WebGPU 设备不支持 fp16 着色器 → 仍留在 WebGPU，改用 INT8，并提示原因；
+  4. 初始化/预热失败 → `device: 'wasm'`，`dtype: 'q8'`（WASM 走 INT8 权重 + 多线程 XNNPACK），并在 UI 顶部常驻徽标 `WASM · INT8` 与降级原因。
 - 用户也可在设置中强制切换后端（用于对照实验），强制值记录在指标里。
 
 ### 3.2 量化方案

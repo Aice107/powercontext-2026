@@ -37,7 +37,7 @@
 | 检索质量对比 | `eval/queries.json` + `scripts/bench.mjs`（Recall@5、nDCG@10、MRR@10） |
 | 分阶段计时 | 模型加载（冷/热）、文档向量化、写入、刷新、查询向量化、seekdb 检索、端到端 |
 | 首次与后续分开 | `modelLoadColdMs` / `modelLoadWarmMs`；每条查询重复 3 次取中位数 |
-| 降级路径验证 | `?backend=wasm`（实测全流程）/ `?backend=webgpu`（失败回落并提示） |
+| 降级路径验证 | `?backend=wasm`（实测全流程）与 WebGPU 软件适配器（实测全流程）；无 adapter 时自动降级并提示 |
 
 ## 四、提交材料（§4）
 
@@ -53,7 +53,7 @@
 
 ## 五、已知风险（如实记录）
 
-1. **WebGPU 无实测数据**：本机无 GPU，仅验证了探测与降级路径；GPU 加速需在目标设备复测（`?backend=webgpu`）。
+1. **WebGPU 仅有软件适配器数据**：本机无物理 GPU，使用 SwiftShader 软件 Vulkan 适配器跑通了 WebGPU 路径（端到端 129.75 ms、Recall@5=1.00），但吞吐不具参考价值；真实 GPU 加速比需在目标设备复测（`?backend=webgpu`）。
 2. **评测语料规模小**：12 篇/4251 字，Recall 饱和（1.00），量化差异只能在 nDCG 与排序细节上体现。
 3. **seekdb 部署形态**：采用本地 server（脚本启动）；若评测机无 `libaio`，需 `apt install libaio1` 或使用 Docker 镜像。
 4. **模型体积不入库**：约 160 MB 权重由脚本下载，离线评测需预先执行一次 `npm run fetch-models`。
