@@ -421,7 +421,7 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 
 | 项 | 值 |
 | --- | --- |
-| 仓库 | `https://github.com/Aice107/dify-2026-competition`（私有） |
+| 仓库 | `https://github.com/Aice107/powercontext-2026`（分支 `2026-competition-ecosystem`） |
 | 分支 | `2026-competition-ecosystem` |
-| 本文件对应的提交 | 见仓库该分支 HEAD（提交信息：`docs(dify): 集中整理已知问题与取舍 + C11 增加 HTTP 节点数校验`） |
+| 本文件对应的提交 | 见仓库该分支 HEAD；对应本地提交 `08fef9e8` 之后的最新提交 |
 | 资产目录 | `dify/` |
