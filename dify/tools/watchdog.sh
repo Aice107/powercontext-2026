@@ -22,6 +22,8 @@ mine_running() {
 }
 
 # 单实例保护：两个看门狗同时拉 seekdb 会抢同一 datadir
+# 注意：子进程必须 9>&- 关闭这个 fd，否则 uvicorn/seekdb 会一直持有锁，
+# 之后任何新看门狗都会误判"已有实例在跑"。参考 2026-11-04 的踩坑记录。
 exec 9>"$D/.run/watchdog.lock"
 if ! flock -n 9; then
   echo "另一个 watchdog 已在运行，退出" >&2
@@ -39,7 +41,7 @@ while true; do
       log "seekdb not running -> start"
       nohup "$SEEKDB_BIN" --base-dir "$D/.seekdb" --port 2891 --nodaemon \
         --parameter memory_budget=2G --parameter log_disk_size=2G \
-        >> "$D/.seekdb/seekdb.out" 2>&1 &
+        >> "$D/.seekdb/seekdb.out" 2>&1 9>&- &
       disown || true
       boot_guard=$now
     fi
@@ -49,7 +51,7 @@ while true; do
   if ! ss -lnt 2>/dev/null | grep -q ':8010 '; then
     log "inn-api down -> start"
     ( cd "$D/dify/backend" && nohup .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8010 \
-        >> "$D/.run/inn-api.log" 2>&1 & )
+        >> "$D/.run/inn-api.log" 2>&1 9>&- & )
     disown || true
   fi
 

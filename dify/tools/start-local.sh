@@ -16,7 +16,9 @@ say() { printf '[start-local] %s\n' "$*"; }
 # 1. Dify 栈（MySQL/Redis/daemon/API/worker/Web）
 if [ -x "$HOME/dify/start-all.sh" ]; then
   say "Dify 栈"
-  bash "$HOME/dify/start-all.sh" 2>&1 | tail -8
+  # 不要用管道接 tail：start-all 会留下常驻子进程，管道会让 tail 永远等下去
+  bash "$HOME/dify/start-all.sh" > /tmp/start-all.log 2>&1
+  tail -8 /tmp/start-all.log
 else
   say "未找到 ~/dify/start-all.sh（请先完成 Dify 安装）"
 fi

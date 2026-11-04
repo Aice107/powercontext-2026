@@ -104,6 +104,18 @@ bash dify/tools/package.sh        # 产物在 ../dist/：zip + MANIFEST.sha256
 注意：清 PC 记忆要**按端口杀进程**（`ss -lntp | grep :8090`），因为 `powercontext` exec 后命令行变成
 `powercontext serve`，按 `server run` 字样匹配不到。
 
+## 4.97 两个必须记住的坑（2026-11-04 踩过）
+
+**坑 A：这个 seekdb 实例上 `DROP DATABASE` 会卡住。**
+OceanBase 侧是异步回收，`drop database` 返回后库仍在，而且会**阻塞后续所有 DDL**（`CREATE DATABASE` 直接挂起）。
+所以 `tools/verify-seekdb-meta.sh` 改成每次用唯一库名（`dify_meta_<时间戳>`），清理只做 best-effort。
+做元数据库实验后如果发现 DDL 全部卡住，重启 seekdb 即可解除。
+
+**坑 B：`flock` 的 fd 会被子进程继承。**
+看门狗用 `exec 9>lock; flock -n 9` 做单实例，但启动 uvicorn/seekdb 时如果不加 `9>&-`，
+子进程会一直持有锁文件，之后任何新看门狗都会误判"已有实例在跑"，表现为"seekdb 明明挂了却没人拉起"。
+现在两处启动都加了 `9>&-`。
+
 ## 5. 已知环境问题
 
 1. **内存紧张**：本机 9.3GB + 3.8GB swap，swap 常年接近打满；Dify web dev 编译、seekdb 启动都会把内存推到临界，
