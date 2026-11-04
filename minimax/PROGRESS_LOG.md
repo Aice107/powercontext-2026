@@ -92,3 +92,24 @@
 - 进行中：无。
 - 阻塞：`MINIMAX_API_KEY` 仍未配置；第 2 项连续第 2 次 BLOCKED，未伪造记录。
 - 下一小时：继续检查 `minimax/.env` 与 `MINIMAX_API_KEY`；出现后执行 `bash scripts/run_final.sh`。
+## 2026-11-04T17:56:02+0800 自动合规巡检
+
+- 运行证据：`/home/ice/dify-project/minimax/evidence/reference`
+- 总体：**INCOMPLETE**
+- 代码：`1f755454` dirty=False
+
+- [PASS] 1. 能够运行：按脚本完成初始化、导入、上下文、测试与状态读取
+- [BLOCKED] 2. MiniMax 实际参与：MINIMAX_API_KEY 未设置；仅 replay 记录，不计入必做项
+- [PASS] 3. 上下文正确且规格更新生效：v1 不含 SPEC-API-013，v2 含 SPEC-API-013 与‘包含截止当天’，来源可回查
+- [PASS] 4. 数据库实际参与：sources=10 chunks=66 terms=1993 index_v2=1 reindexed/9 skipped
+- [PASS] 5. 状态能够复用：重启 PowerContext 与新进程后读回 done/todo/verifications，并注入 --resume 上下文
+- [PASS] 6. 代码修改有效：修改前目标测试因断言失败，回归通过；修改后目标+回归通过；测试文件未改动
+
+
+## 2026-11-04 17:56 本轮巡检（第 3 次连续阻塞）
+
+- 完成：复核 `evidence/reference`（5 PASS / 1 BLOCKED）；seekdb 2893、PowerContext 8093 均在线；无代码变更。
+- 进行中：无。
+- 阻塞：`MINIMAX_API_KEY` 连续第 3 次未配置，第 2 项仍为 BLOCKED；未伪造 MiniMax 记录。
+- 下一小时：继续检查 `minimax/.env` / `MINIMAX_API_KEY`；一旦出现立即执行 `bash scripts/run_final.sh` 并复核六项。
+- 备注：其余五项与 clean-room 复现均已稳定，不需要再改代码。
