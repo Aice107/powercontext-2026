@@ -18,7 +18,9 @@
   | `/health` | `{"status":"ok","version":"1.17.0"}` |
   | `/console/api/setup` | `{"step":"not_started"}`（说明连通并读到空库） |
 
-  证据：`evidence/logs/dify-on-seekdb.md`。也就是说，若要走赛题 §4.4 第 1 行那条路线，**不需要改代码**，
+  证据：`evidence/logs/dify-on-seekdb.md`；可用 `tools/verify-seekdb-meta.sh` 复跑
+  （注意：本机这个 seekdb 实例上 `DROP DATABASE` 会卡住并阻塞后续 DDL，脚本因此每次用唯一库名、
+  清理只做 best-effort；在干净的评审环境里没有这个限制）。也就是说，若要走赛题 §4.4 第 1 行那条路线，**不需要改代码**，
   改 `DB_TYPE=seekdb` + 连接参数即可；本作品没走这条路是为了让主线复现更稳（见上文），不是做不到。
 
 ## Q2 为什么 embedding 用哈希向量，而不是 bge / OpenAI embedding？

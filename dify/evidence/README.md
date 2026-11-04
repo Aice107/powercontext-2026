@@ -17,6 +17,7 @@
 | S10 | 和解线 | [logs/S10_kindness.log](logs/S10_kindness.log) | 善举 -24 仇值，T3 → T1 |
 | 体验路径 | [logs/demo-path-3min.log](logs/demo-path-3min.log) | README §1.4 的四步：记账+翻旧账 → 逐客 → 长卷 → 求原谅 |
 | seekdb 作 Dify 元库（可行性） | [logs/dify-on-seekdb.md](logs/dify-on-seekdb.md) | 迁移 143 表 + 独立实例 /health、/setup 实测 |
+| 自愈演练 | [logs/selfheal-drill.md](logs/selfheal-drill.md) | 杀 inn-api → 2s 恢复；杀 seekdb → 72s 新进程接管，20 行数据无损 |
 | 压测 | [logs/run-loadtest.md](logs/run-loadtest.md) | 20 轮连打：20/20 成功、p50 5.6s、p95 9.0s、仇值 12→100→76 |
 | DSL | 可重导入 | [../dsl/01_inn_chatflow.yml](../dsl/01_inn_chatflow.yml) | 1.17.0 重导入 `status=completed` |
 

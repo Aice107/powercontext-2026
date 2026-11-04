@@ -246,6 +246,17 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 `evidence/logs/run-loadtest.md`：单轮端到端 **中位数 5.6s / P95 9.0s**（含 2 次 LLM 调用：意图判定 + 回应生成），
 20/20 全部 succeeded；仇值按 12→100→76 走完"升级—触顶—和解"整条曲线；每轮写 1 条账本 + 1 条记忆。
 
+### 7.1.2 依赖自愈（实测）
+
+开发机上的看门狗（`tools/watchdog.sh`，本机开发态脚本）每 15 秒检查一次依赖；做过一次故意破坏的演练：
+
+| 动作 | 结果 |
+| --- | --- |
+| `kill -9` inn-api | **2 秒**后新进程接管 |
+| `kill -9` seekdb | **72 秒**后新进程接管（含 seekdb 启动约 50s），账本 20 行数据无损 |
+
+证据：[evidence/logs/selfheal-drill.md](evidence/logs/selfheal-drill.md)。评审环境不需要这个脚本，它只是说明"依赖挂了不需要人工介入"。
+
 ### 7.2 网络与资源
 
 - Dify 进程需能访问：inn-api（默认 8010）、模型 API（如 `api.deepseek.com`）、插件 Marketplace；
