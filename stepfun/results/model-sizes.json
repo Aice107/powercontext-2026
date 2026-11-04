@@ -1,0 +1,40 @@
+{
+  "modelId": "bge-small-zh-v1.5",
+  "repo": "Xenova/bge-small-zh-v1.5",
+  "source": "https://hf-mirror.com/Xenova/bge-small-zh-v1.5",
+  "measuredAt": "2026-11-04T12:38:00.693Z",
+  "unit": "bytes",
+  "files": {
+    "config.json": 716,
+    "tokenizer.json": 439125,
+    "tokenizer_config.json": 367,
+    "onnx/model.onnx": 94851877,
+    "onnx/model_fp16.onnx": 47497427,
+    "onnx/model_quantized.onnx": 24010842
+  },
+  "runtimeOverheadBytes": 440208,
+  "variants": {
+    "fp32": {
+      "weights": 94851877,
+      "totalWithRuntime": 95292085
+    },
+    "fp16": {
+      "weights": 47497427,
+      "totalWithRuntime": 47937635,
+      "compressionRatio": 1.997
+    },
+    "q8": {
+      "weights": 24010842,
+      "totalWithRuntime": 24451050,
+      "compressionRatio": 3.95
+    }
+  },
+  "sha256": {
+    "config.json": "d4193ead3a810fd694fa8a31d7fc72fbaebc0668b603e398734bf2f6538ff42f",
+    "tokenizer.json": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
+    "tokenizer_config.json": "e6f3b96db926a37d4039995fbf5ad17de158dfb8f6343d607e4dbaad18d75f5a",
+    "onnx/model.onnx": "69a0b846f4f116b5e6aabf9546ea6754d02264f3211a13a1bd69b31b8040749a",
+    "onnx/model_fp16.onnx": "60d0fe5eb8d4e251d4b24dff010a2625c10a013503f0d09f625e8a9b0311315f",
+    "onnx/model_quantized.onnx": "15b717c382bcb518ba457b93ea6850ede7f4f1cd8937454aa06972366cd19bcc"
+  }
+}

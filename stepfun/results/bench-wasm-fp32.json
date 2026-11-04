@@ -1,0 +1,414 @@
+{
+  "kind": "bench",
+  "backend": "wasm",
+  "dtype": "fp32",
+  "kb": "eval_fp32_3zqam",
+  "device": "wasm",
+  "model": "bge-small-zh-v1.5",
+  "dim": 512,
+  "corpus": {
+    "docs": 12,
+    "chunks": 20
+  },
+  "timings": {
+    "modelLoadColdMs": 1413.7,
+    "modelLoadWarmMs": 570.2,
+    "embedMsTotal": 1381.9,
+    "ingestMs": 5.15,
+    "refreshMs": 402.6,
+    "ingestTotalMs": 2025.6,
+    "queryEmbedMs": 5.8,
+    "seekdbMs": 6.38,
+    "e2eMs": 17
+  },
+  "metrics": {
+    "embedChunksPerSec": 14.47,
+    "batchSize": 8
+  },
+  "quality": {
+    "queries": [
+      {
+        "id": "q01",
+        "query": "混合检索如何融合向量和全文",
+        "top5": [
+          "01-hybrid-search",
+          "02-seekdb-js",
+          "07-fulltext-ngram",
+          "11-incremental-refresh",
+          "12-latency-metrics"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q02",
+        "query": "WebGPU 不可用时如何自动降级",
+        "top5": [
+          "04-webgpu-wasm",
+          "09-batching",
+          "10-cross-origin-isolation",
+          "03-transformers-js",
+          "02-seekdb-js"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q03",
+        "query": "INT8 量化后模型体积和压缩比",
+        "top5": [
+          "05-int8-quantization",
+          "12-latency-metrics",
+          "09-batching",
+          "03-transformers-js",
+          "10-cross-origin-isolation"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q04",
+        "query": "HNSW 索引的 m 和 ef_construction 参数",
+        "top5": [
+          "06-hnsw",
+          "02-seekdb-js",
+          "01-hybrid-search",
+          "03-transformers-js",
+          "11-incremental-refresh"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q05",
+        "query": "中文全文检索为什么使用 ngram 分析器",
+        "top5": [
+          "07-fulltext-ngram",
+          "02-seekdb-js",
+          "01-hybrid-search",
+          "03-transformers-js",
+          "12-latency-metrics"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q06",
+        "query": "文档分块大小和重叠应该怎么设置",
+        "top5": [
+          "08-chunking",
+          "09-batching",
+          "11-incremental-refresh",
+          "01-hybrid-search",
+          "12-latency-metrics"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q07",
+        "query": "批处理如何提高向量化吞吐",
+        "top5": [
+          "09-batching",
+          "12-latency-metrics",
+          "05-int8-quantization",
+          "08-chunking",
+          "10-cross-origin-isolation"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q08",
+        "query": "新导入的文档什么时候才能被检索到",
+        "top5": [
+          "11-incremental-refresh",
+          "02-seekdb-js",
+          "12-latency-metrics",
+          "08-chunking",
+          "06-hnsw"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q09",
+        "query": "端到端延迟包含哪些阶段",
+        "top5": [
+          "12-latency-metrics",
+          "09-batching",
+          "06-hnsw",
+          "04-webgpu-wasm",
+          "10-cross-origin-isolation"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q10",
+        "query": "浏览器里怎么运行 ONNX 模型",
+        "top5": [
+          "03-transformers-js",
+          "10-cross-origin-isolation",
+          "04-webgpu-wasm",
+          "12-latency-metrics",
+          "05-int8-quantization"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q11",
+        "query": "seekdb-js 如何创建集合并写入向量",
+        "top5": [
+          "02-seekdb-js",
+          "01-hybrid-search",
+          "06-hnsw",
+          "11-incremental-refresh",
+          "03-transformers-js"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q12",
+        "query": "WASM 多线程需要跨源隔离",
+        "top5": [
+          "10-cross-origin-isolation",
+          "03-transformers-js",
+          "04-webgpu-wasm",
+          "02-seekdb-js",
+          "09-batching"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q13",
+        "query": "RRF 的 rank_constant 起什么作用",
+        "top5": [
+          "01-hybrid-search",
+          "06-hnsw",
+          "02-seekdb-js",
+          "03-transformers-js",
+          "07-fulltext-ngram"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q14",
+        "query": "向量索引刷新后新增内容可检索",
+        "top5": [
+          "11-incremental-refresh",
+          "06-hnsw",
+          "08-chunking",
+          "12-latency-metrics",
+          "02-seekdb-js"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      }
+    ],
+    "recallAt5": 1,
+    "recallAt10": 1,
+    "ndcgAt10": 1,
+    "mrrAt10": 1
+  },
+  "samples": {
+    "imports": 12,
+    "queryRepeats": 3
+  },
+  "errors": [],
+  "at": "2026-11-04T12:44:47.051Z",
+  "qualityDetail": {
+    "queries": [
+      {
+        "id": "q01",
+        "query": "混合检索如何融合向量和全文",
+        "top5": [
+          "01-hybrid-search",
+          "02-seekdb-js",
+          "07-fulltext-ngram",
+          "11-incremental-refresh",
+          "12-latency-metrics"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q02",
+        "query": "WebGPU 不可用时如何自动降级",
+        "top5": [
+          "04-webgpu-wasm",
+          "09-batching",
+          "10-cross-origin-isolation",
+          "03-transformers-js",
+          "02-seekdb-js"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q03",
+        "query": "INT8 量化后模型体积和压缩比",
+        "top5": [
+          "05-int8-quantization",
+          "12-latency-metrics",
+          "09-batching",
+          "03-transformers-js",
+          "10-cross-origin-isolation"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q04",
+        "query": "HNSW 索引的 m 和 ef_construction 参数",
+        "top5": [
+          "06-hnsw",
+          "02-seekdb-js",
+          "01-hybrid-search",
+          "03-transformers-js",
+          "11-incremental-refresh"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q05",
+        "query": "中文全文检索为什么使用 ngram 分析器",
+        "top5": [
+          "07-fulltext-ngram",
+          "02-seekdb-js",
+          "01-hybrid-search",
+          "03-transformers-js",
+          "12-latency-metrics"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q06",
+        "query": "文档分块大小和重叠应该怎么设置",
+        "top5": [
+          "08-chunking",
+          "09-batching",
+          "11-incremental-refresh",
+          "01-hybrid-search",
+          "12-latency-metrics"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q07",
+        "query": "批处理如何提高向量化吞吐",
+        "top5": [
+          "09-batching",
+          "12-latency-metrics",
+          "05-int8-quantization",
+          "08-chunking",
+          "10-cross-origin-isolation"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q08",
+        "query": "新导入的文档什么时候才能被检索到",
+        "top5": [
+          "11-incremental-refresh",
+          "02-seekdb-js",
+          "12-latency-metrics",
+          "08-chunking",
+          "06-hnsw"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q09",
+        "query": "端到端延迟包含哪些阶段",
+        "top5": [
+          "12-latency-metrics",
+          "09-batching",
+          "06-hnsw",
+          "04-webgpu-wasm",
+          "10-cross-origin-isolation"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q10",
+        "query": "浏览器里怎么运行 ONNX 模型",
+        "top5": [
+          "03-transformers-js",
+          "10-cross-origin-isolation",
+          "04-webgpu-wasm",
+          "12-latency-metrics",
+          "05-int8-quantization"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q11",
+        "query": "seekdb-js 如何创建集合并写入向量",
+        "top5": [
+          "02-seekdb-js",
+          "01-hybrid-search",
+          "06-hnsw",
+          "11-incremental-refresh",
+          "03-transformers-js"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q12",
+        "query": "WASM 多线程需要跨源隔离",
+        "top5": [
+          "10-cross-origin-isolation",
+          "03-transformers-js",
+          "04-webgpu-wasm",
+          "02-seekdb-js",
+          "09-batching"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q13",
+        "query": "RRF 的 rank_constant 起什么作用",
+        "top5": [
+          "01-hybrid-search",
+          "06-hnsw",
+          "02-seekdb-js",
+          "03-transformers-js",
+          "07-fulltext-ngram"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      },
+      {
+        "id": "q14",
+        "query": "向量索引刷新后新增内容可检索",
+        "top5": [
+          "11-incremental-refresh",
+          "06-hnsw",
+          "08-chunking",
+          "12-latency-metrics",
+          "02-seekdb-js"
+        ],
+        "hit5": 1,
+        "hit10": 1
+      }
+    ],
+    "recallAt5": 1,
+    "recallAt10": 1,
+    "ndcgAt10": 1,
+    "mrrAt10": 1
+  }
+}

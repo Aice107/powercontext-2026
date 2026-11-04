@@ -1,0 +1,39 @@
+{
+  "name": "stepfun-seekdb-kb",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-local embedding + seekdb hybrid retrieval mini knowledge base (seekdb x StepFun 2026 competition)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "dev:server": "node server/index.mjs",
+    "dev:web": "node scripts/prepare_ort.mjs && vite --config web/vite.config.ts",
+    "build": "node scripts/prepare_ort.mjs && vite build --config web/vite.config.ts",
+    "start": "NODE_ENV=production node server/index.mjs",
+    "fetch-models": "node scripts/fetch_models.mjs",
+    "bench": "node scripts/bench.mjs",
+    "eval": "node scripts/bench.mjs",
+    "hourly": "node automation/hourly_check.mjs",
+    "smoke": "node scripts/browser_smoke.mjs",
+    "prepare:ort": "node scripts/prepare_ort.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.5.2",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "seekdb": "1.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "playwright-core": "^1.49.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

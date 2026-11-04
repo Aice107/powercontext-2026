@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-11-04T12:46:20.866Z",
+  "backend": "wasm",
+  "dtype": "q8",
+  "corpus": {
+    "docs": 12,
+    "chars": 4251
+  },
+  "batching": [
+    {
+      "threads": 1,
+      "batch": 1,
+      "ms": 1620,
+      "chunksPerSec": 7.41,
+      "batches": 12
+    },
+    {
+      "threads": 1,
+      "batch": 8,
+      "ms": 2024.5,
+      "chunksPerSec": 5.93,
+      "batches": 2
+    },
+    {
+      "threads": 4,
+      "batch": 1,
+      "ms": 731.3,
+      "chunksPerSec": 16.41,
+      "batches": 12
+    },
+    {
+      "threads": 4,
+      "batch": 8,
+      "ms": 682,
+      "chunksPerSec": 17.6,
+      "batches": 2
+    }
+  ],
+  "refresh": [
+    {
+      "strategy": "per-import",
+      "totalMs": 9216,
+      "visible": true,
+      "kb": "opt_per-import_41ips"
+    },
+    {
+      "strategy": "merged",
+      "totalMs": 2521,
+      "visible": true,
+      "kb": "opt_merged_41rmu"
+    }
+  ]
+}

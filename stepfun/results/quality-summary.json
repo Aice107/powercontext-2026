@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-11-04T12:44:47.141Z",
+  "unit": "ms",
+  "runs": [
+    {
+      "backend": "wasm",
+      "dtype": "q8",
+      "batch": 8,
+      "modelBytes": null,
+      "timings": {
+        "modelLoadColdMs": 930.9,
+        "modelLoadWarmMs": 346.8,
+        "embedMsTotal": 862.2,
+        "ingestMs": 5.05,
+        "refreshMs": 402.3,
+        "ingestTotalMs": 1470.8,
+        "queryEmbedMs": 5.25,
+        "seekdbMs": 6.21,
+        "e2eMs": 16.15
+      },
+      "metrics": {
+        "embedChunksPerSec": 23.2,
+        "batchSize": 8
+      },
+      "quality": {
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "ndcgAt10": 0.9943,
+        "mrrAt10": 1
+      },
+      "corpus": {
+        "docs": 12,
+        "chunks": 20
+      },
+      "errors": 0
+    },
+    {
+      "backend": "wasm",
+      "dtype": "fp16",
+      "batch": 8,
+      "modelBytes": null,
+      "timings": {
+        "modelLoadColdMs": 1108.5,
+        "modelLoadWarmMs": 523.1,
+        "embedMsTotal": 2236.2,
+        "ingestMs": 9.4,
+        "refreshMs": 703.5,
+        "ingestTotalMs": 3200.4,
+        "queryEmbedMs": 20,
+        "seekdbMs": 6.37,
+        "e2eMs": 31.85
+      },
+      "metrics": {
+        "embedChunksPerSec": 8.94,
+        "batchSize": 8
+      },
+      "quality": {
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "ndcgAt10": 1,
+        "mrrAt10": 1
+      },
+      "corpus": {
+        "docs": 12,
+        "chunks": 20
+      },
+      "errors": 0
+    },
+    {
+      "backend": "wasm",
+      "dtype": "fp32",
+      "batch": 8,
+      "modelBytes": null,
+      "timings": {
+        "modelLoadColdMs": 1413.7,
+        "modelLoadWarmMs": 570.2,
+        "embedMsTotal": 1381.9,
+        "ingestMs": 5.15,
+        "refreshMs": 402.6,
+        "ingestTotalMs": 2025.6,
+        "queryEmbedMs": 5.8,
+        "seekdbMs": 6.38,
+        "e2eMs": 17
+      },
+      "metrics": {
+        "embedChunksPerSec": 14.47,
+        "batchSize": 8
+      },
+      "quality": {
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "ndcgAt10": 1,
+        "mrrAt10": 1
+      },
+      "corpus": {
+        "docs": 12,
+        "chunks": 20
+      },
+      "errors": 0
+    }
+  ]
+}
