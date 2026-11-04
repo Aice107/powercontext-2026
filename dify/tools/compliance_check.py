@@ -293,10 +293,12 @@ def c9_powercontext():
         urllib.request.urlopen(f"{os.getenv('PC_BASE_URL', 'http://127.0.0.1:8090')}/health/ready", timeout=5)
     except Exception as exc:  # noqa: BLE001
         return False, f"PC 未就绪：{exc}"
-    payload = {"player_id": "p_check_pc", "action_text": "在醋坛子里洗手", "action_type": "hygiene",
+    # 自检玩家按小时轮换：否则每轮都往同一个玩家写事件，仇值会涨到 100 让人困惑
+    pid = "p_check_pc_" + time.strftime("%Y%m%d%H")
+    payload = {"player_id": pid, "action_text": "在醋坛子里洗手", "action_type": "hygiene",
                "severity": 1, "scene": "后厨"}
     http_json(f"{API}/inn/ledger", payload)
-    with urllib.request.urlopen(f"{API}/inn/session?player_id=p_check_pc&format=block", timeout=10) as r:
+    with urllib.request.urlopen(f"{API}/inn/session?player_id={pid}&format=block", timeout=10) as r:
         block = r.read().decode()
     if "MEMORY=无" in block:
         return False, "记忆写入后仍召回为空"
@@ -451,7 +453,20 @@ def main() -> int:
         mark = "PASS" if ok else "FAIL"
         lines.append(f"- [{mark}] **{name}** — {detail}")
     report = "\n".join(lines)
-    print(report)
+    if "--json" in sys.argv:
+        import json as _json
+        print(_json.dumps(
+            {
+                "at": now,
+                "passed": passed,
+                "total": len(results),
+                "items": [{"name": n, "ok": ok, "detail": d} for n, ok, d in results],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ))
+    else:
+        print(report)
 
     if "--log" in sys.argv:
         # 自检明细写 raw 文件；progress-log.md 是人工维护的时间线，不被脚本污染

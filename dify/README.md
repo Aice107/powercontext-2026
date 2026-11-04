@@ -1,7 +1,7 @@
 # 记仇客栈 · Grudge Inn
 
 > 赛题：Dify × OceanBase ｜ Just for Fun——用 Dify 做一个好玩的智能应用
-> 技术选型：**Dify（必选）+ seekdb**（seekdb 承担应用数据存储与混合检索）
+> 技术选型：**Dify（必选）+ seekdb**（应用数据与混合检索）+ **PowerContext**（印象记忆，可选层）
 > 开发基线：`oceanbase/powercontext` 分支 `2026-competition-ecosystem`，资产位于 `dify/`
 
 一个会记住你每一次恶作剧的 AI 客栈：老板娘柳三娘把每一笔劣迹记在账本上，
@@ -26,7 +26,7 @@
 1. **入店**：应用给四个建议问题（兑水、偷吃酱牛肉、回访、打烊），也可以自由输入；
 2. **搞事**：任何"恶作剧/善举/闲聊/打烊"都由 Dify 判定成结构化事件（类型、严重度、对象、场景）；
 3. **记账**：事件写入 seekdb 账本，仇值按 `严重度×6 + 屡教不改加成` 累加（上限 100）；
-4. **回应**：三娘按档位回应，并在回应里带一句账本批注；同类事件第二次起会"翻旧账"；
+4. **回应**：三娘按档位回应，并在回应里带一句账本批注；只要账本里有相似旧账，她就会"翻旧账"（同类事件重复时还会点明"屡教不改"）；
 5. **逐客**：仇值触顶（TIER=4）时走独立分支，她下逐客令并引用最重的那笔旧账；
 6. **打烊**：输入"打烊/结账"生成《账本长卷》（逐条念账 + 总评 + 结局判词）；
 7. **求原谅**：仇值满 100 之后继续作恶会被逐客，但做善举（修屋顶/赔钱/劈柴）仍走正常对话，
@@ -85,7 +85,7 @@
 | --- | --- | --- | --- |
 | 事件持久化 | `inn_ledger` | 结构化 + `VECTOR(1024)` | `evidence/logs/S2_db_ledger.txt` |
 | 翻旧账 | `inn_ledger` | 向量相似 + 全文命中 + 玩家过滤，**单条 SQL** | `evidence/logs/S3_sql_hybrid.txt` |
-| 台词检索（语气锚点） | `inn_line` | 按当前档位取两句原话，随记账块 `LINES=` 进 prompt | `inn_line` 50 条（5 档 × 10 个高频道具） |
+| 台词检索（语气锚点） | `inn_line` | 按当前档位（善举按 `tone=kind`）取两句原话，随记账块 `LINES=` 进 prompt | `inn_line` 60 条（5 档 × 10 个高频道具 + 10 条和解句） |
 | 结算聚合 | `inn_ledger` | `COUNT/SUM/MAX` 聚合 | `evidence/logs/S6_settle.log` |
 
 ### 2.2 PowerContext 在应用里的作用（可选层）
@@ -105,7 +105,7 @@
 | 组件 | 版本 | 说明 |
 | --- | --- | --- |
 | Dify | **1.17.0**（自部署，docker compose 或源码） | DSL 由该版本导出；导入需同大版本 |
-| seekdb | **1.4.0.0**（OceanBase seekdb，MySQL 协议） | 端口默认 2891 |
+| seekdb | **1.4.0.0**（OceanBase seekdb，MySQL 协议） | 本文档统一用 **2891**（作者机器上 2881 被别的实例占用；默认端口是 2881，按需改 `SEEKDB_PORT`） |
 | Python | 3.12 | inn-api 运行时 |
 | inn-api 依赖 | fastapi 0.115.6 / uvicorn 0.34.0 / pymysql 1.1.1 / pydantic 2.10.4 | `backend/requirements.txt` |
 | 模型插件 | `langgenius/openai_api_compatible:0.0.73`（Dify Marketplace） | DSL 的 `dependencies` 已声明 |
@@ -139,7 +139,7 @@ cd dify
 SEEKDB_HOST=127.0.0.1 SEEKDB_PORT=2891 bash db/init.sh
 ```
 
-输出应包含：`inn_player 1 / inn_ledger 7 / inn_rumor 2 / inn_line 41`。
+输出应包含：`inn_player 3 / inn_ledger 12 / inn_rumor 2 / inn_line 60`（3 个演示玩家：`p_demo01` / `p_tier1` / `p_tier2`）。
 
 ### 4.3 起 inn-api
 
@@ -159,7 +159,7 @@ curl -s http://127.0.0.1:8010/healthz
 1. Dify 控制台 → 应用 → **导入 DSL** → 选择 `dsl/01_inn_chatflow.yml`；
 2. 若提示缺少插件：先在 **设置 → 插件** 安装 `langgenius/openai_api_compatible`（Marketplace），再重新导入；
 3. 导入后**重新绑定**（因为地址因部署环境而异）：
-   - 「读取档案」「记账」「结算」三个 HTTP 节点：把 `http://127.0.0.1:8010` 改成你实际部署地址；
+   - **四个 HTTP 节点**（读取档案 / 记账 / 生成传闻 / 结算）：把 `http://127.0.0.1:8010` 改成你实际部署地址；
    - 五个 LLM 节点 + 一个参数提取节点：选择你已配置的模型（本项目用 `deepseek-flash`）；
    - 如 inn-api 不在本机，Dify 容器需能访问该地址（Docker 部署时用宿主 IP 或 `host.docker.internal`）。
 4. 点击右上角**发布**。
@@ -197,7 +197,7 @@ INN_API_PORT=8010
 | S2 | 单次恶作剧记账 | [samples/S2_prank_ledger.md](samples/S2_prank_ledger.md) |
 | S3 | 翻旧账（混合检索生效） | [samples/S3_old_grudge.md](samples/S3_old_grudge.md) |
 | S4 | 跨会话记忆 | [samples/S4_cross_session.md](samples/S4_cross_session.md) |
-| S5 | 逐客（条件分支） | [samples/S5_expel.md](samples/S5_expel.md) |
+| S5 | 逐客与求原谅（条件分支） | [samples/S5_expel.md](samples/S5_expel.md) |
 | S6 | 打烊结算 | [samples/S6_settle.md](samples/S6_settle.md) |
 | S7 | 依赖不可用兜底 | [samples/S7_degraded.md](samples/S7_degraded.md) |
 | S8 | 档位梯度（T1/T2/T3 对比） | [samples/S8_tier_gradient.md](samples/S8_tier_gradient.md) |
