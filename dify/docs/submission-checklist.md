@@ -62,7 +62,7 @@
 
 ```bash
 cd dify
-INN_APP_ID=<你的 app_id> python3 tools/compliance_check.py   # 9 项：DSL/数据/检索/运行/PC/文档/样例/凭证/证据
+INN_APP_ID=<你的 app_id> python3 tools/compliance_check.py   # 11 项：DSL/数据/检索/运行/PC/打包/文档一致性/说明/样例/凭证/证据
 ```
 
-当前结果：**9/9 PASS**（最近一次巡检见 `docs/progress-log.md`）。
+当前结果：**11/11 PASS**（明细见 `docs/progress-log.raw.md`，逐项说明见 `docs/verification.md`）。

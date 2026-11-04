@@ -61,7 +61,7 @@ bash dify/tools/start-local.sh
 INN_APP_ID=<app_id> bash dify/tools/run_app.sh "往酒坛里兑水" p_demo01   # 跑一轮并打印节点输出
 bash dify/db/init.sh                                                     # 重置演示数据
 INN_APP_ID=<app_id> bash dify/tools/collect_evidence.sh                  # 重生成 evidence/logs
-INN_APP_ID=<app_id> python3 dify/tools/compliance_check.py               # 10 项合规自检（加 --json 输出结构化结果）
+INN_APP_ID=<app_id> python3 dify/tools/compliance_check.py               # 11 项合规自检（加 --json 输出结构化结果）
 ```
 
 ## 4.5 本机有多个 seekdb 实例（重要）
@@ -124,7 +124,7 @@ Dify 控制台令牌 60 分钟过期，过期后自检/取证脚本全部 401。
 - `compliance_check.py`：遇 401 自动调用它并重试一次；
 - `periodic_check.sh` / `run_app.sh`：启动前先刷一次。
 
-验证方式：把 cookie 文件里的 `access_token` 删掉再跑自检，仍应 10/10（已实测）。
+验证方式：把 cookie 文件里的 `access_token` 删掉再跑自检，仍应全部通过（已实测）。
 
 ## 5. 已知环境问题
 
