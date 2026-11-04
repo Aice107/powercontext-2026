@@ -143,3 +143,23 @@
 - 阻塞：无。
 - 下一小时：复跑 `compliance_check.py --append`，确认 reference 仍为 live 且六项 PASS；除非有新需求，不再改代码。
 - 备注：Key 仅在本地 `.env`（600），已确认提交文件中无 Key。
+## 2026-11-04T19:56:01+0800 自动合规巡检
+
+- 运行证据：`/home/ice/dify-project/minimax/evidence/reference`
+- 总体：**PASS**
+- 代码：`8fc5665f` dirty=True
+
+- [PASS] 1. 能够运行：按脚本完成初始化、导入、上下文、测试与状态读取
+- [PASS] 2. MiniMax 实际参与：live records=1
+- [PASS] 3. 上下文正确且规格更新生效：v1 不含 SPEC-API-013，v2 含 SPEC-API-013 与‘包含截止当天’，来源可回查
+- [PASS] 4. 数据库实际参与：sources=10 chunks=66 terms=1993 index_v2=1 reindexed/9 skipped
+- [PASS] 5. 状态能够复用：重启 PowerContext 与新进程后读回 done/todo/verifications，并注入 --resume 上下文
+- [PASS] 6. 代码修改有效：修改前目标测试因断言失败，回归通过；修改后目标+回归通过；测试文件未改动
+
+
+## 2026-11-04 19:56 本轮巡检（六项全 PASS，等待推送凭据）
+
+- 完成：复核 `evidence/reference`（live MiniMax，6/6 PASS）；seekdb 2893、PowerContext 8093 在线；无代码变更。
+- 进行中：无。
+- 阻塞：本地无 GitHub 推送凭据，`submission` 远端仍为 `2a6475ac`；本地 HEAD 为 `8fc5665f`。
+- 下一小时：复查六项与远端 SHA；若凭据就绪，执行 `git push submission 2026-competition-ecosystem` 并核对 SHA。
