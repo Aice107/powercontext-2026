@@ -341,6 +341,43 @@ def c10_package():
         return True, f"zip 内 {len(names)} 个文件，必需项齐全、无 .env/.venv 泄漏"
 
 
+# ------------------------------------------------------------------ C11
+
+
+def c11_doc_consistency():
+    """文档与实物一致性：README 里写的节点数/台词数/样例数要和实际对得上。"""
+    import yaml
+
+    problems = []
+
+    # 1) 节点数：DSL 实际 vs README 与 dsl/README 里出现的 "N 节点/N 个节点"
+    dsl_nodes = len((yaml.safe_load(DSL.read_text()) or {})["workflow"]["graph"]["nodes"])
+    for f in (ROOT / "README.md", ROOT / "dsl" / "README.md"):
+        text = f.read_text()
+        for m in re.finditer(r"(\d+)\s*(?:个)?节点", text):
+            if int(m.group(1)) != dsl_nodes:
+                problems.append(f"{f.name} 写 {m.group(1)} 个节点，实际 {dsl_nodes}")
+
+    # 2) 台词数：README 里 "`inn_line` N 条" 与库内一致
+    try:
+        real_lines = int(mysql("SELECT COUNT(*) FROM inn_line"))
+        for m in re.finditer(r"`inn_line`\s*(\d+)\s*条", (ROOT / "README.md").read_text()):
+            if int(m.group(1)) != real_lines:
+                problems.append(f"README 写 inn_line {m.group(1)} 条，实际 {real_lines}")
+    except Exception:  # noqa: BLE001
+        pass
+
+    # 3) 样例数：README §6 表格里的 S* 行数 vs samples/ 文件数
+    sample_files = len(list((ROOT / "samples").glob("S*.md")))
+    listed = len(re.findall(r"^\|\s*S\d+\s*\|", (ROOT / "README.md").read_text(), re.MULTILINE))
+    if listed != sample_files:
+        problems.append(f"README 列了 {listed} 组样例，samples/ 有 {sample_files} 个文件")
+
+    if problems:
+        return False, "；".join(problems[:4])
+    return True, f"节点 {dsl_nodes}、样例 {sample_files} 与文档一致"
+
+
 # ------------------------------------------------------------------ C5
 
 
@@ -441,6 +478,7 @@ def main() -> int:
     check("C4", "Dify 应用可运行", c4_app_runs)
     check("C9", "PowerContext 记忆生效", c9_powercontext)
     check("C10", "打包完整性", c10_package)
+    check("C11", "文档与实物一致", c11_doc_consistency)
     check("C5", "运行说明完整", c5_readme)
     check("C6", "验证样例完整", c6_samples)
     check("C7", "无真实凭证", c7_no_secrets)

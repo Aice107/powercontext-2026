@@ -1,4 +1,4 @@
-# 验证体系说明（10 项自检都在验什么）
+# 验证体系说明（11 项自检都在验什么）
 
 > 面向评审：`tools/compliance_check.py` 每次巡检会跑下面 10 项。
 > 这里写清每项**验什么、怎么手工复核、失败意味着什么**，方便你不信任脚本时自己动手。
@@ -60,6 +60,17 @@ python3 tools/compliance_check.py --json   # 机读
 - **验什么**：把 `dify/` 打成 zip 到临时目录，检查 9 个必需文件都在，且没有 `.env` / `.local.env` / `.venv` / `__pycache__` 混进去。
 - **手工复核**：`bash tools/package.sh` 然后 `unzip -l dist/*.zip`。
 - **失败意味着**：打包脚本的排除规则被改坏，或必需文件被删。
+
+## C11 文档与实物一致
+
+- **验什么**：README / dsl-README 里写的"19 个节点"、README 里写的"`inn_line` 60 条"、样例表行数，分别与 DSL 实际节点数、库内实际条数、`samples/` 文件数比对。
+- **手工复核**：
+  ```bash
+  python3 -c "import yaml;print(len(yaml.safe_load(open('dsl/01_inn_chatflow.yml'))['workflow']['graph']['nodes']))"
+  mysql -h127.0.0.1 -P2891 -uroot -N -e "SELECT COUNT(*) FROM inn.inn_line"
+  ls samples/S*.md | wc -l
+  ```
+- **失败意味着**：代码改了文档没跟上（本项就是为这类漂移加的）。
 
 ## C5 运行说明完整（§4.2）
 

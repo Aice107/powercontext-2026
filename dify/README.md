@@ -322,7 +322,7 @@ dify/
 ```bash
 bash tools/reset-demo.sh     # 恢复到"评审第一次打开"的状态（重建数据 + 清空记忆）
 bash tools/package.sh        # 生成 dist/dify-submission-<日期>.zip + MANIFEST.sha256（含每个文件 sha256）
-python3 tools/compliance_check.py   # 9 项合规自检
+python3 tools/compliance_check.py   # 11 项合规自检
 bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/run-loadtest.md）
 ```
 
@@ -333,7 +333,7 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 
 ## 8.36 自检项说明
 
-10 项自检分别在验什么、怎么手工复核、失败意味着什么，见
+11 项自检分别在验什么、怎么手工复核、失败意味着什么，见
 [docs/verification.md](docs/verification.md)。
 
 ## 8.4 提交前检查清单
