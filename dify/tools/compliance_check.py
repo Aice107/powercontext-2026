@@ -359,6 +359,18 @@ def c11_doc_consistency():
             if int(m.group(1)) != dsl_nodes:
                 problems.append(f"{f.name} 写 {m.group(1)} 个节点，实际 {dsl_nodes}")
 
+    # 1b) HTTP 节点数：文档里"N 个/处 HTTP 节点"要和 DSL 里 http-request 节点数一致
+    http_nodes = sum(1 for n in yaml.safe_load(DSL.read_text())["workflow"]["graph"]["nodes"]
+                     if n.get("data", {}).get("type") == "http-request")
+    cn_num = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8}
+    for f in (ROOT / "README.md", ROOT / "dsl" / "README.md"):
+        text = f.read_text()
+        for m in re.finditer(r"([一二三四五六七八]|\d+)\s*(?:个|处)?\s*HTTP 节点", text):
+            raw = m.group(1)
+            num = int(raw) if raw.isdigit() else cn_num.get(raw, -1)
+            if num != http_nodes:
+                problems.append(f"{f.name} 写 {raw} 个 HTTP 节点，实际 {http_nodes}")
+
     # 2) 台词数：README 里 "`inn_line` N 条" 与库内一致
     try:
         real_lines = int(mysql("SELECT COUNT(*) FROM inn_line"))

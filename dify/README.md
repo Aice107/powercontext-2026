@@ -242,6 +242,9 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 
 ## 7. 已知限制
 
+> 更完整的"有意取舍 vs 未解决问题"清单（含影响与缓解方式）见
+> [docs/known-issues.md](docs/known-issues.md)；下面是要点摘要。
+
 1. **没有代码沙箱**：部署环境非 root，`dify-sandbox` 无法运行，因此 **DSL 中不使用 Code 节点**；
    判定用「参数提取器」节点，分支用「IF/ELSE」，检索用「HTTP 节点」完成。
 2. **档位映射在后端**：`grudge → tier` 是纯函数（`backend/app/rules.py`），Dify 依据 tier 做分支与提示词选择；
