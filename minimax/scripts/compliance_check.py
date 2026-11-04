@@ -15,6 +15,9 @@ EVIDENCE = ROOT / "evidence"
 
 
 def latest_run() -> Path | None:
+    reference = EVIDENCE / "reference"
+    if (reference / "acceptance.json").exists():
+        return reference
     runs = sorted([path for path in EVIDENCE.glob("run-*") if path.is_dir()], key=lambda path: path.stat().st_mtime)
     return runs[-1] if runs else None
 

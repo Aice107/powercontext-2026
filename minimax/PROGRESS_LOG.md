@@ -52,3 +52,23 @@
   1/3/4/5/6 PASS，2 BLOCKED（无 Key）。说明流程不依赖本机残留状态。
 - 修复 `demo.py` 让 `POWERCONTEXT_URL` 跟随 `POWERCONTEXT_PORT`；修复 `bootstrap.sh` 版本输出去弃用 API。
 - 结论：除「MiniMax 实际参与」外，其余五项与可复现性已通过；下一步只差真实 Key。
+## 2026-11-04T16:04:31+0800 自动合规巡检
+
+- 运行证据：`/home/ice/dify-project/minimax/evidence/reference`
+- 总体：**INCOMPLETE**
+- 代码：`17411039` dirty=True
+
+- [PASS] 1. 能够运行：按脚本完成初始化、导入、上下文、测试与状态读取
+- [BLOCKED] 2. MiniMax 实际参与：MINIMAX_API_KEY 未设置；仅 replay 记录，不计入必做项
+- [PASS] 3. 上下文正确且规格更新生效：v1 不含 SPEC-API-013，v2 含 SPEC-API-013 与‘包含截止当天’，来源可回查
+- [PASS] 4. 数据库实际参与：sources=10 chunks=66 terms=1993 index_v2=1 reindexed/9 skipped
+- [PASS] 5. 状态能够复用：重启 PowerContext 与新进程后读回 done/todo/verifications，并注入 --resume 上下文
+- [PASS] 6. 代码修改有效：修改前目标测试因断言失败，回归通过；修改后目标+回归通过；测试文件未改动
+
+
+## 2026-11-04 16:05 本轮巡检（人工补充）
+
+- 完成：架构/实现/文档/模块测试（13 passed）/回放证据/clean-room 复核；本地提交 `17411039`。
+- 进行中：无（等待 MiniMax Key）。
+- 阻塞：第 2 项「MiniMax 实际参与」仍为 BLOCKED；`evidence/reference` 为 `mode=replay`，未伪造。
+- 下一小时：检查是否出现 `minimax/.env` 或 `MINIMAX_API_KEY`；若出现，立即执行 `bash scripts/run_final.sh` 并复核六项；否则继续巡检并保持提交不变。
