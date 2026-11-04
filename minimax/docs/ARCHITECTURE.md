@@ -17,7 +17,7 @@
 | 1 | 能够运行 | `scripts/bootstrap.sh` 建 venv；`scripts/pc_server.sh start` 起 PowerContext；`scripts/demo.sh` 一条命令跑完导入→上下文→补丁→测试→状态→重启 | `evidence/run-*/summary.json`、`commands.log`、`README.md` |
 | 2 | MiniMax 实际参与 | `sdd_context.minimax` 把上下文发给 MiniMax（OpenAI 兼容/原生两种协议），保存请求、响应、usage、延迟、补丁哈希；补丁与提交 diff 逐字对应 | `evidence/minimax/dev-record.jsonl`、`patches/0001-*.patch`、`code-diff.patch` |
 | 3 | 上下文正确且规格更新生效 | seekdb 分块索引 + BM25 检索 + 按 spec_id/符号/测试名去重；规格更新后重新导入会删除旧块并写入新块，上下文立即使用新正文 | `evidence/run-*/context-v1.json`、`context-v2.json`、`context-assertions.json` |
-| 4 | 数据库实际参与 | 嵌入式 seekdb（`pylibseekdb`）存 sources/chunks/terms，检索用真实 SQL 查询；所有 SQL 写入查询日志 | `evidence/run-*/db-queries.log`、`db-stats.json` |
+| 4 | 数据库实际参与 | 本地 seekdb 1.4.0 服务存 sources/chunks/terms，检索用真实 SQL 查询；所有 SQL 写入查询日志 | `evidence/run-*/db-queries.log`、`db-stats.json`、`db-version.txt` |
 | 5 | 状态能够复用 | 任务状态以 `SDD_TASK_STATE_V1` Memory 写入 PowerContext；重启 PowerContext 与模块后按 task_id 读回，`--resume` 把 done/todo/verifications 注入新上下文 | `evidence/run-*/state-save.json`、`state-after-restart.json`、`resume-context.json` |
 | 6 | 代码修改有效 | 同一组目标测试在 before 因目标行为缺失而失败（断言失败，非环境错误），after 全通过；回归测试前后均通过 | `evidence/run-*/before-target.log`、`after-target.log`、`before-regression.log`、`after-regression.log` |
 
@@ -43,7 +43,7 @@
         │               │
         ▼               ▼
 ┌───────────────┐  ┌──────────────────────────────────────────────┐
-│ seekdb 嵌入式  │  │ MiniMax API（OpenAI 兼容 / 原生 v2）          │
+│ seekdb 1.4.0   │  │ MiniMax API（OpenAI 兼容 / 原生 v2）          │
 │ sources        │  │ 输入：任务 + 规格 + 代码 + 测试 + 进展         │
 │ chunks         │  │ 输出：unified diff（只改 app/，不改 tests/specs）│
 │ terms          │  └──────────────────────────────────────────────┘
@@ -109,7 +109,7 @@ minimax/
 
 ## 5. seekdb 数据模型
 
-嵌入式 seekdb 由 `pylibseekdb.open(<db_dir>)` 启动，`pylibseekdb.connection_options()` 返回 unix socket，`PyMySQL` 通过该 socket 执行参数化 SQL。这样不需要外部数据库进程，仍由 seekdb 内核实际存储与查询。
+本地 seekdb 服务由 `pylibseekdb==1.4.0.post2` 包内的 `seekdb` 二进制启动（默认 `127.0.0.1:2893`，数据目录 `.runtime/seekdb`），`PyMySQL` 通过 MySQL 协议执行参数化 SQL。服务端持久化确保了“一个 CLI 进程写入、下一个 CLI 进程读取”的真实跨进程行为；`db-version.txt` 记录 `SELECT VERSION()` 返回的 `OceanBase seekdb-v1.4.0.0`。
 
 ```sql
 CREATE TABLE sources (
@@ -338,7 +338,7 @@ JSON = {
 |---|---|
 | 评审环境没有 MiniMax Key | README 明确配置；无 Key 时命令失败并记录 BLOCKED，不伪造；提交开发记录需在开发阶段用真实 Key 生成 |
 | PowerContext 安装/启动失败 | 提供 `pc_server.sh` 自动创建 SQLite 配置、健康检查与日志；README 给出 uv 安装命令 |
-| seekdb 嵌入式轮子与 Python 版本不匹配 | 固定 Python 3.12 与 `pylibseekdb==1.4.0.post2`；`bootstrap.sh` 检查版本 |
+| seekdb 二进制与 Python/系统库不匹配 | 固定 Python 3.12 与 `pylibseekdb==1.4.0.post2`；`seekdb_server.sh` 设置 `LD_LIBRARY_PATH`，`bootstrap.sh` 检查版本 |
 | 检索召回不到目标块 | 中文 2-gram + 领域同义词 + 标题/spec_id 加成；验证脚本断言必须命中的三条来源 |
 | MiniMax 补丁不稳定 | 只给最小上下文与严格约束；`git apply --check` 失败重试一次；最终提交固定补丁与记录 |
 | 规格更新后旧块残留 | 按 path 哈希幂等替换；重新导入时先删 chunks/terms 再写 |
