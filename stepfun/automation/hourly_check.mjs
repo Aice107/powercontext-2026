@@ -25,6 +25,82 @@ async function fileText(path) {
   }
 }
 
+async function postJson(path, body) {
+  try {
+    const response = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(20000),
+    });
+    return { status: response.status, ...(await response.json()) };
+  } catch (error) {
+    return { status: 0, error: error.message };
+  }
+}
+
+/** 运行时一致性：增量写入可见性 + 会话切换不串库（使用临时知识库，检查后清理） */
+async function runtimeConsistency() {
+  const stamp = Date.now().toString(36).slice(-5);
+  const kbA = `chk_a_${stamp}`;
+  const kbB = `chk_b_${stamp}`;
+  const sessionId = `chk-${stamp}`;
+  const vec = (seed) => Array.from({ length: 512 }, (_, i) => +(Math.sin(seed * 3.17 + i * 0.11) * 0.5).toFixed(4));
+  const details = [];
+  let ok = true;
+  try {
+    for (const kb of [kbA, kbB]) {
+      const created = await postJson('/api/kbs', { name: kb, description: 'hourly check', model: 'bge-small-zh-v1.5', dtype: 'q8', dim: 512 });
+      if (created.status !== 200) throw new Error(`创建 ${kb} 失败: ${created.error}`);
+    }
+    const ingestA = await postJson('/api/ingest', {
+      kb: kbA,
+      chunks: [{ id: 'a#0', text: `知识库 A 的标记内容 token-${stamp}-alpha`, vector: vec(1), metadata: { docId: 'a', title: 'A', chunkIndex: 0 } }],
+    });
+    const ingestB = await postJson('/api/ingest', {
+      kb: kbB,
+      chunks: [{ id: 'b#0', text: `知识库 B 的标记内容 token-${stamp}-beta`, vector: vec(2), metadata: { docId: 'b', title: 'B', chunkIndex: 0 } }],
+    });
+    if (ingestA.status !== 200 || ingestB.status !== 200) throw new Error('临时知识库写入失败');
+
+    // 1) 会话 → A，检索应只命中 A
+    await postJson('/api/session', { sessionId, kb: kbA });
+    const searchA = await postJson('/api/search', { sessionId, mode: 'hybrid', query: '标记内容 alpha', vector: vec(1), topK: 3 });
+    const docA = searchA.results?.map((r) => r.metadata?.docId).filter(Boolean) || [];
+    const fixedA = searchA.kbSource === 'session' && docA.includes('a') && !docA.includes('b');
+    details.push(`会话A→${docA.join(',') || '空'}`);
+    ok = ok && fixedA;
+
+    // 2) 切换到 B，检索应只命中 B（不串库）
+    await postJson('/api/session', { sessionId, kb: kbB });
+    const searchB = await postJson('/api/search', { sessionId, mode: 'hybrid', query: '标记内容 beta', vector: vec(2), topK: 3 });
+    const docB = searchB.results?.map((r) => r.metadata?.docId).filter(Boolean) || [];
+    const fixedB = searchB.kb === kbB && docB.includes('b') && !docB.includes('a');
+    details.push(`会话B→${docB.join(',') || '空'}`);
+    ok = ok && fixedB;
+
+    // 3) 增量写入 + 刷新后立即可检索
+    const token = `token-${stamp}-gamma`;
+    const ingestNew = await postJson('/api/ingest', {
+      kb: kbB,
+      chunks: [{ id: 'b2#0', text: `增量文档 ${token}`, vector: vec(3), metadata: { docId: 'b2', title: 'B2', chunkIndex: 0 } }],
+    });
+    const searchNew = await postJson('/api/search', { sessionId, mode: 'hybrid', query: token, vector: vec(3), topK: 3 });
+    const docNew = searchNew.results?.map((r) => r.metadata?.docId) || [];
+    const visible = docNew.includes('b2') && ingestNew.timings?.refreshMs >= 0;
+    details.push(`增量可见=${visible}`);
+    ok = ok && visible;
+  } catch (error) {
+    ok = false;
+    details.push(`异常: ${error.message}`);
+  } finally {
+    for (const kb of [kbA, kbB]) {
+      await fetch(`${API}/api/kbs/${encodeURIComponent(kb)}`, { method: 'DELETE' }).catch(() => {});
+    }
+  }
+  return { ok, detail: details.join('；') };
+}
+
 async function getJson(path) {
   try {
     const response = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(4000) });
@@ -108,6 +184,12 @@ async function main() {
   const hybridStatements = (evidence?.statements || []).filter((s) => /DBMS_HYBRID_SEARCH|_keyword_rank/.test(s.sql || ''));
   check('sql-evidence', 'seekdb 内混合检索有 SQL 证据', hybridStatements.length > 0,
     hybridStatements.length ? `最近拦截到 ${hybridStatements.length} 条混合检索语句` : '尚未记录到混合检索语句（需先执行一次检索）');
+
+  // 10.5 运行时一致性：会话切换 / 增量刷新可见性
+  let runtime = { ok: false, detail: '跳过（API 不可用）' };
+  if (health?.ok) runtime = await runtimeConsistency();
+  check('runtime-consistency', '会话切换不串库 + 增量写入刷新后可检索', runtime.ok, runtime.detail,
+    '检查 server/lib/{session,kb}.mjs 与 ingest 刷新路径');
 
   // 11. 构建产物
   const distIndex = join(ROOT, 'web', 'dist', 'index.html');

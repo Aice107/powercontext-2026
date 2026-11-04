@@ -13,6 +13,7 @@
 - 复现步骤：[docs/REPRODUCE.md](docs/REPRODUCE.md)
 - 实测结果：[docs/RESULTS.md](docs/RESULTS.md)
 - 进度日志：[docs/PROGRESS.md](docs/PROGRESS.md)
+- 提交信息（分支/commit/推送状态）：[docs/SUBMIT.md](docs/SUBMIT.md)
 
 ## 1. 功能对照赛题
 

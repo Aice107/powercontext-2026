@@ -15,7 +15,7 @@
 | 向量/原文/元数据存于 seekdb | 集合 `id/document/embedding/metadata` | `server/lib/db.mjs`（Schema）、`server/lib/kb.mjs`（upsert） |
 | 混合检索在 seekdb 内完成 | `collection.hybridSearch` → `DBMS_HYBRID_SEARCH` + RRF | 界面「查看 SQL 取证」显示 `SET @search_parm` / `GET_SQL` / 融合 SQL；`/api/evidence` |
 | 增量导入 + 刷新后可检索 | `ingest`：按 docId 删除旧分块 → upsert → `refresh_index()` | `npm run smoke`（导入后立即检索命中）；`optimizations.json` 中 `visible: true` |
-| 集合与会话状态一致 | `app_sessions` 表；检索以会话为准 | `server/lib/session.mjs`；切换知识库后检索结果跟随 |
+| 集合与会话状态一致 | `app_sessions` 表；检索以会话为准 | `server/lib/session.mjs`；每小时检查中的 `runtime-consistency` 项实测「会话A→a、会话B→b、增量可见=true」 |
 | 可复现启动 | `scripts/seekdb_server.sh` + `npm start` | `docs/REPRODUCE.md` |
 
 ## 二、赛题禁止项自证
