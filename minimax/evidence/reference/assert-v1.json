@@ -1,0 +1,31 @@
+{
+  "context": "/home/ice/dify-project/minimax/evidence/run-test-replay2/context-v1.json",
+  "task_id": "taskhub-due-before",
+  "context_sha256": "7a4dc8da7baaffa7831d37c1f75c0963ccce50618906a720550cbaeffa2a6b21",
+  "specs": [
+    "SPEC-API-001",
+    "SPEC-API-002",
+    "SPEC-API-003",
+    "SPEC-API-010",
+    "SPEC-API-011",
+    "SPEC-API-030"
+  ],
+  "checks": [
+    {
+      "check": "forbid_spec",
+      "value": "SPEC-API-013",
+      "ok": true
+    },
+    {
+      "check": "require_code",
+      "value": "app/store.py::list_tasks",
+      "ok": true
+    },
+    {
+      "check": "require_test",
+      "value": "tests/test_due_before.py::test_due_before_includes_boundary_day",
+      "ok": true
+    }
+  ],
+  "passed": true
+}

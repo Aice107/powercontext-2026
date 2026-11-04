@@ -1,0 +1,44 @@
+# step: resume-context
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-test-replay2/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --resume --out /home/ice/dify-project/minimax/evidence/run-test-replay2/resume-context.json --md /home/ice/dify-project/minimax/evidence/run-test-replay2/resume-context.md
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:27:13+0800
+# duration_ms: 147.35
+# exit_code: 0
+#
+{
+  "context": "/home/ice/dify-project/minimax/evidence/run-test-replay2/resume-context.json",
+  "markdown": "/home/ice/dify-project/minimax/evidence/run-test-replay2/resume-context.md",
+  "task_id": "taskhub-due-before",
+  "context_sha256": "d09f3fce0bcc6d490be3e909345d522608451e4fad77ef88831801c5d4dcbf3b",
+  "specs": [
+    "SPEC-API-013",
+    "SPEC-API-030",
+    "SPEC-API-011",
+    "SPEC-API-010",
+    "SPEC-API-001",
+    "SPEC-API-002"
+  ],
+  "code": [
+    "app/validation.py::parse_date",
+    "app/store.py::list_tasks",
+    "app/store.py::<module>",
+    "app/validation.py::ValidationError",
+    "app/store.py::update_task",
+    "app/store.py::create_task",
+    "app/api.py::create_app",
+    "app/store.py::seed_tasks"
+  ],
+  "tests": [
+    "tests/test_due_before.py::test_due_before_invalid_date_returns_400",
+    "tests/test_due_before.py::test_due_before_includes_boundary_day",
+    "tests/test_tasks_regression.py::test_create_rejects_invalid_date",
+    "tests/test_due_before.py::test_due_before_combines_with_status_and_pagination",
+    "tests/test_tasks_regression.py::test_list_returns_seed_rows_and_pagination_metadata",
+    "tests/test_due_before.py::test_due_before_excludes_tasks_without_due_date",
+    "tests/test_tasks_regression.py::test_create_read_update_delete",
+    "tests/test_tasks_regression.py::test_create_validation_errors_use_json_error_shape"
+  ],
+  "warnings": [],
+  "resumed": true
+}
+

@@ -1,0 +1,9 @@
+# step: spec-update
+# command: patch -p1 -d /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace -i /home/ice/dify-project/minimax/patches/0002-spec-due-before.patch
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:27:02+0800
+# duration_ms: 6.1
+# exit_code: 0
+#
+patching file specs/task-api.md
+

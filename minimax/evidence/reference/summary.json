@@ -1,0 +1,114 @@
+{
+  "schema": "sdd-run-summary/v1",
+  "run_id": "test-replay2",
+  "mode": "replay",
+  "minimax_live": false,
+  "task_id": "taskhub-due-before",
+  "started_at": "2026-11-04T06:26:50.140004+00:00",
+  "finished_at": "2026-11-04T06:27:14.072951+00:00",
+  "git_commit": "2a6f99a55b5d0ea7f7c2184601bd76fe7b9598bf",
+  "context_v1_sha256": "7a4dc8da7baaffa7831d37c1f75c0963ccce50618906a720550cbaeffa2a6b21",
+  "context_v2_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+  "before": {
+    "target": {
+      "label": "before-target",
+      "command": "/home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_due_before.py",
+      "cwd": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+      "started_at": "2026-11-04T14:27:02+0800",
+      "duration_ms": 678.49,
+      "exit_code": 1,
+      "classification": "test_failure",
+      "summary": {
+        "text": "5 failed",
+        "failed": 5
+      },
+      "log": "/home/ice/dify-project/minimax/evidence/run-test-replay2/before-target.log"
+    },
+    "regression": {
+      "label": "before-regression",
+      "command": "/home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_tasks_regression.py",
+      "cwd": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+      "started_at": "2026-11-04T14:27:03+0800",
+      "duration_ms": 589.25,
+      "exit_code": 0,
+      "classification": "pass",
+      "summary": {
+        "text": "12 passed",
+        "passed": 12
+      },
+      "log": "/home/ice/dify-project/minimax/evidence/run-test-replay2/before-regression.log"
+    }
+  },
+  "after": {
+    "target": {
+      "label": "after-target",
+      "command": "/home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_due_before.py",
+      "cwd": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+      "started_at": "2026-11-04T14:27:04+0800",
+      "duration_ms": 618.3,
+      "exit_code": 0,
+      "classification": "pass",
+      "summary": {
+        "text": "5 passed",
+        "passed": 5
+      },
+      "log": "/home/ice/dify-project/minimax/evidence/run-test-replay2/after-target.log"
+    },
+    "regression": {
+      "label": "after-regression",
+      "command": "/home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_tasks_regression.py",
+      "cwd": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+      "started_at": "2026-11-04T14:27:05+0800",
+      "duration_ms": 449.07,
+      "exit_code": 0,
+      "classification": "pass",
+      "summary": {
+        "text": "12 passed",
+        "passed": 12
+      },
+      "log": "/home/ice/dify-project/minimax/evidence/run-test-replay2/after-regression.log"
+    }
+  },
+  "state_save": {
+    "scope_id": "scp_16g35tv91nr2t6smy2h7gwxze5",
+    "artifact_id": "art_6e81d26ac508445d8e5864f856cf1ab4",
+    "revision": 1,
+    "changed": true,
+    "text_bytes": 1123,
+    "saved_at": "2026-11-04T06:27:05.527081+00:00"
+  },
+  "seekdb": {
+    "host": "127.0.0.1",
+    "port": "2893",
+    "database": "sdd"
+  },
+  "db": {
+    "sources": 10,
+    "chunks": 66,
+    "terms": 1993,
+    "import_events": 11,
+    "task_runs": 0
+  },
+  "minimax": {
+    "attempt": 0,
+    "mode": "replay",
+    "task_id": "taskhub-due-before",
+    "model": null,
+    "endpoint": null,
+    "started_at": "2026-11-04T14:27:04+0800",
+    "latency_ms": 0,
+    "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+    "prompt_sha256": null,
+    "usage": null,
+    "response_sha256": null,
+    "patch_sha256": "76e8b2ab1191c8d6ffb3b9416aa689e7f8f5ff9231fad5b07add1cdd62171d35",
+    "applied": true,
+    "files": [
+      "app/api.py",
+      "app/store.py"
+    ],
+    "error": null,
+    "source_patch": "/home/ice/dify-project/minimax/patches/0001-due-before-filter.patch"
+  },
+  "acceptance": "/home/ice/dify-project/minimax/evidence/run-test-replay2/acceptance.json"
+}

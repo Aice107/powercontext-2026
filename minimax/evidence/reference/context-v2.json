@@ -1,0 +1,808 @@
+{
+  "schema": "sdd-context/v1",
+  "generated_at": "2026-11-04T14:27:02+0800",
+  "task": {
+    "id": "taskhub-due-before",
+    "title": "为 TaskHub 列表接口增加 due_before 截止日期筛选",
+    "description": "## 任务\n\n在 TaskHub 服务中，为 `GET /tasks` 增加可选的 `due_before=YYYY-MM-DD` 截止日期上界筛选。\n调用方传入该参数时，只返回截止日期不晚于该日期的任务。\n\n## 要改什么\n\n- 筛选是闭区间：截止日期等于 `due_before` 的任务必须包含在结果中（包含截止当天）。\n- `due_date` 为空的任务在启用该筛选时必须排除。\n- `due_before` 必须与既有 `status`、`priority`、`assignee` 筛选以及 `limit`/`offset` 分页按 AND 组合生效，\n  `total` 返回筛选后的总数。\n- 非法日期（格式错误或 2026-02-30 这类不存在的日期）返回 400，错误 `code=invalid_argument`，\n  `field=due_before`。\n- 不传 `due_before` 时，既有列表行为、分页元数据、错误格式与状态码完全不变。\n\n## 哪些原有行为必须保持\n\n- `GET /tasks` 不传筛选参数时仍返回全部 8 条种子任务，按 id 升序。\n- `status`、`priority`、`assignee` 筛选与分页仍然正确。\n- 创建、读取、更新、删除任务的行为与错误格式不变。\n- `tests/test_tasks_regression.py` 中的所有断言必须继续通过。",
+    "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace"
+  },
+  "query_terms": [
+    "taskhub",
+    "due_before",
+    "due",
+    "before",
+    "get",
+    "tasks",
+    "task",
+    "yyyy",
+    "mm",
+    "dd",
+    "due_date",
+    "date",
+    "status",
+    "statu",
+    "priority",
+    "assignee",
+    "limit",
+    "offset",
+    "total",
+    "2026",
+    "02",
+    "30",
+    "400",
+    "code",
+    "invalid_argument",
+    "invalid",
+    "argument",
+    "field",
+    "id",
+    "tests",
+    "test",
+    "test_tasks_regression",
+    "regression",
+    "py",
+    "为",
+    "列表",
+    "list",
+    "表接",
+    "接口",
+    "api",
+    "endpoint",
+    "口增",
+    "增加",
+    "add",
+    "截止",
+    "止日",
+    "日期",
+    "期筛",
+    "筛选",
+    "filter",
+    "截止日期",
+    "任务",
+    "在",
+    "服务",
+    "务中",
+    "加可",
+    "可选",
+    "选的",
+    "期上",
+    "上界",
+    "upper",
+    "界筛",
+    "调用",
+    "用方",
+    "方传",
+    "传入",
+    "入该",
+    "该参",
+    "参数",
+    "数时",
+    "只返",
+    "返回",
+    "回截",
+    "期不",
+    "不晚",
+    "晚于",
+    "于该",
+    "该日",
+    "期的",
+    "的任",
+    "要改",
+    "改什",
+    "什么",
+    "选是",
+    "是闭",
+    "闭区",
+    "区间",
+    "闭区间",
+    "inclusive",
+    "期等",
+    "等于",
+    "务必",
+    "必须",
+    "须包",
+    "包含",
+    "include",
+    "含在",
+    "在结",
+    "结果",
+    "果中",
+    "含截",
+    "止当",
+    "当天",
+    "day",
+    "为空",
+    "空的",
+    "务在",
+    "在启",
+    "启用",
+    "用该",
+    "该筛",
+    "选时",
+    "时必",
+    "须排",
+    "排除",
+    "exclude",
+    "须与",
+    "与既",
+    "既有",
+    "existing",
+    "选以",
+    "以及",
+    "分页",
+    "pagination",
+    "页按",
+    "组合",
+    "combine",
+    "合生",
+    "生效",
+    "回筛",
+    "选后",
+    "后的",
+    "的总",
+    "总数",
+    "非法",
+    "法日",
+    "格式",
+    "式错",
+    "错误",
+    "error",
+    "误或",
+    "这类",
+    "类不",
+    "不存",
+    "存在",
+    "在的",
+    "的日",
+    "不传",
+    "时",
+    "有列",
+    "表行",
+    "行为",
+    "页元",
+    "元数",
+    "数据",
+    "误格",
+    "式与",
+    "与状",
+    "状态",
+    "态码",
+    "码完",
+    "完全",
+    "全不",
+    "不变",
+    "哪些",
+    "些原",
+    "原有",
+    "有行",
+    "为必",
+    "须保",
+    "保持",
+    "传筛",
+    "选参",
+    "时仍",
+    "仍返",
+    "回全",
+    "全部",
+    "条种",
+    "种子",
+    "子任",
+    "按",
+    "升序",
+    "选与",
+    "与分",
+    "页仍",
+    "仍然",
+    "然正",
+    "正确",
+    "创建",
+    "读取",
+    "更新",
+    "删除",
+    "除任",
+    "务的",
+    "的行",
+    "为与",
+    "与错",
+    "式不",
+    "中的",
+    "的所",
+    "所有",
+    "有断",
+    "断言",
+    "言必",
+    "须继",
+    "继续",
+    "续通",
+    "通过"
+  ],
+  "specs": [
+    {
+      "path": "specs/task-api.md",
+      "start_line": 67,
+      "end_line": 78,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "score": 171.881133,
+      "text": "### SPEC-API-013 截止日期上界筛选 due_before\n\n`GET /tasks` 支持可选参数 `due_before=YYYY-MM-DD`，只返回截止日期不晚于该日期的任务。\n\n- 比较是闭区间：截止日期等于 `due_before` 的任务必须包含在结果中（包含截止当天）。\n- `due_date` 为空的任务在启用该筛选时一律排除。\n- `due_before` 必须与 `status`、`priority`、`assignee`、`limit`、`offset` 按 AND 组合生效；\n  `total` 是筛选后的总数。\n- 非法日期（格式错误或不存在的日期）返回 400，错误 `code=invalid_argument`，\n  `field=due_before`。\n- 不传 `due_before` 时行为与 v1 完全一致。",
+      "spec_id": "SPEC-API-013",
+      "title": "SPEC-API-013 截止日期上界筛选 due_before",
+      "meta": {
+        "heading_level": 3,
+        "version": "v2"
+      }
+    },
+    {
+      "path": "specs/task-api.md",
+      "start_line": 93,
+      "end_line": 96,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "score": 81.140929,
+      "text": "### SPEC-API-030 回归保证\n\n本次变更不得改变既有接口的路径、字段名、分页元数据、错误格式与状态码。\n`tests/test_tasks_regression.py` 中的断言是必须保持的行为基线。",
+      "spec_id": "SPEC-API-030",
+      "title": "SPEC-API-030 回归保证",
+      "meta": {
+        "heading_level": 3,
+        "version": "v2"
+      }
+    },
+    {
+      "path": "specs/task-api.md",
+      "start_line": 51,
+      "end_line": 60,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "score": 64.271995,
+      "text": "### SPEC-API-011 既有筛选\n\n列表支持以下可选筛选参数，多个条件按 AND 组合：\n\n- `status`：精确匹配状态；非法值返回 400。\n- `priority`：精确匹配优先级；非法值返回 400。\n- `assignee`：精确匹配负责人。\n\n不传筛选参数时返回全部任务。",
+      "spec_id": "SPEC-API-011",
+      "title": "SPEC-API-011 既有筛选",
+      "meta": {
+        "heading_level": 3,
+        "version": "v2"
+      }
+    },
+    {
+      "path": "specs/task-api.md",
+      "start_line": 41,
+      "end_line": 50,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "score": 62.995248,
+      "text": "### SPEC-API-010 列表入口\n\n`GET /tasks` 返回任务列表与分页元数据：\n\n```json\n{\"items\": [...], \"total\": 8, \"limit\": 50, \"offset\": 0}\n```\n\n`items` 按 `id` 升序排列。`total` 是应用筛选后的总数，不受 `limit`/`offset` 影响。",
+      "spec_id": "SPEC-API-010",
+      "title": "SPEC-API-010 列表入口",
+      "meta": {
+        "heading_level": 3,
+        "version": "v2"
+      }
+    },
+    {
+      "path": "specs/task-api.md",
+      "start_line": 9,
+      "end_line": 13,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "score": 41.225897,
+      "text": "### SPEC-API-001 JSON 与状态码\n\n所有接口返回 `application/json`。成功状态码为 200（查询/更新）、201（创建）或 204（删除）。\n请求体必须是 JSON 对象；否则返回 400。",
+      "spec_id": "SPEC-API-001",
+      "title": "SPEC-API-001 JSON 与状态码",
+      "meta": {
+        "heading_level": 3,
+        "version": "v2"
+      }
+    },
+    {
+      "path": "specs/task-api.md",
+      "start_line": 14,
+      "end_line": 24,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "score": 40.267242,
+      "text": "### SPEC-API-002 错误格式\n\n错误响应统一为：\n\n```json\n{\"error\": {\"code\": \"invalid_argument\", \"message\": \"...\", \"field\": \"...\"}}\n```\n\n- 参数非法：400，`code=invalid_argument`。\n- 资源不存在：404，`code=not_found`。",
+      "spec_id": "SPEC-API-002",
+      "title": "SPEC-API-002 错误格式",
+      "meta": {
+        "heading_level": 3,
+        "version": "v2"
+      }
+    }
+  ],
+  "code": [
+    {
+      "path": "app/validation.py",
+      "start_line": 62,
+      "end_line": 75,
+      "sha256": "88450369442c9d5aabe42cb6f806ea155c007a6f5d4f74790b8568416d24f425",
+      "score": 16.965302,
+      "text": "def parse_date(value: Any, field: str = \"due_date\") -> str | None:\n    \"\"\"Parse a strict ISO date (YYYY-MM-DD) into its canonical text form.\"\"\"\n\n    if value is None or value == \"\":\n        return None\n    if not isinstance(value, str):\n        raise ValidationError(f\"{field} must be a YYYY-MM-DD string or null\", field)\n    try:\n        parsed = date.fromisoformat(value)\n    except ValueError as exc:\n        raise ValidationError(f\"{field} must be a valid YYYY-MM-DD date\", field) from exc\n    if parsed.isoformat() != value:\n        raise ValidationError(f\"{field} must be a valid YYYY-MM-DD date\", field)\n    return parsed.isoformat()",
+      "symbol": "parse_date",
+      "title": "parse_date",
+      "meta": {
+        "args": [
+          "value",
+          "field"
+        ],
+        "decorators": [],
+        "docstring": "Parse a strict ISO date (YYYY-MM-DD) into its canonical text form.",
+        "returns": "str | None"
+      }
+    },
+    {
+      "path": "app/store.py",
+      "start_line": 93,
+      "end_line": 124,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "score": 14.920649,
+      "text": "def list_tasks(\n    conn: sqlite3.Connection,\n    *,\n    status: str | None = None,\n    priority: str | None = None,\n    assignee: str | None = None,\n    limit: int = 50,\n    offset: int = 0,\n) -> dict[str, Any]:\n    where: list[str] = []\n    params: list[Any] = []\n    if status is not None:\n        where.append(\"status = ?\")\n        params.append(status)\n    if priority is not None:\n        where.append(\"priority = ?\")\n        params.append(priority)\n    if assignee is not None:\n        where.append(\"assignee = ?\")\n        params.append(assignee)\n    clause = (\" WHERE \" + \" AND \".join(where)) if where else \"\"\n    total = conn.execute(f\"SELECT COUNT(*) FROM tasks{clause}\", params).fetchone()[0]\n    rows = conn.execute(\n        f\"SELECT * FROM tasks{clause} ORDER BY id ASC LIMIT ? OFFSET ?\",\n        [*params, limit, offset],\n    ).fetchall()\n    return {\n        \"items\": [_row(row) for row in rows],\n        \"total\": int(total),\n        \"limit\": limit,\n        \"offset\": offset,\n    }",
+      "symbol": "list_tasks",
+      "title": "list_tasks",
+      "meta": {
+        "args": [
+          "conn"
+        ],
+        "decorators": [],
+        "docstring": "",
+        "returns": "dict[str, Any]"
+      }
+    },
+    {
+      "path": "app/store.py",
+      "start_line": 1,
+      "end_line": 48,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "score": 13.131111,
+      "text": "\"\"\"SQLite persistence and query building for TaskHub.\"\"\"\n\nfrom __future__ import annotations\n\nimport sqlite3\nfrom datetime import datetime, timezone\nfrom pathlib import Path\nfrom typing import Any\n\nfrom .validation import (\n    NotFoundError,\n    parse_date,\n    parse_optional_text,\n    parse_priority,\n    parse_status,\n    require_title,\n)\n\nSCHEMA = \"\"\"\nCREATE TABLE IF NOT EXISTS tasks (\n    id          INTEGER PRIMARY KEY AUTOINCREMENT,\n    title       TEXT NOT NULL,\n    description TEXT NOT NULL DEFAULT '',\n    status      TEXT NOT NULL,\n    priority    TEXT NOT NULL,\n    assignee    TEXT,\n    due_date    TEXT,\n    created_at  TEXT NOT NULL,\n    updated_at  TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);\nCREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);\nCREATE INDEX IF NOT EXISTS idx_tasks_assignee ON tasks(assignee);\nCREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);\n\"\"\"\n\nSEED_TASKS = [\n    (\"Fix login redirect\", \"Redirect loops after SSO login\", \"todo\", \"high\", \"alice\", \"2026-01-30\"),\n    (\"Add audit log\", \"Record who changed each task\", \"todo\", \"medium\", \"bob\", \"2026-01-31\"),\n    (\"Update docs\", \"Document the filter parameters\", \"done\", \"low\", \"alice\", \"2026-02-01\"),\n    (\"Tune query\", \"Reduce the list endpoint latency\", \"in_progress\", \"high\", \"carol\", \"2026-01-15\"),\n    (\"Refactor store\", \"Split the store into smaller modules\", \"todo\", \"medium\", \"alice\", None),\n    (\"Add metrics\", \"Expose request counters\", \"in_progress\", \"low\", \"bob\", \"2026-02-10\"),\n    (\"Upgrade Flask\", \"Move to the current Flask release\", \"done\", \"medium\", \"carol\", \"2026-01-31\"),\n    (\"Fix timezone\", \"Render due dates in the user zone\", \"todo\", \"high\", \"alice\", \"2026-03-01\"),\n]",
+      "symbol": "<module>",
+      "meta": {
+        "imports": [
+          "__future__:annotations",
+          "sqlite3",
+          "datetime:datetime,timezone",
+          "pathlib:Path",
+          "typing:Any",
+          "validation:NotFoundError,parse_date,parse_optional_text,parse_priority,parse_status,require_title"
+        ]
+      }
+    },
+    {
+      "path": "app/validation.py",
+      "start_line": 9,
+      "end_line": 13,
+      "sha256": "88450369442c9d5aabe42cb6f806ea155c007a6f5d4f74790b8568416d24f425",
+      "score": 12.429458,
+      "text": "class ValidationError(ValueError):\n    \"\"\"A caller-visible invalid argument (HTTP 400).\"\"\"\n\n    code = \"invalid_argument\"",
+      "symbol": "ValidationError",
+      "title": "ValidationError",
+      "meta": {
+        "decorators": []
+      }
+    },
+    {
+      "path": "app/store.py",
+      "start_line": 155,
+      "end_line": 182,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "score": 12.36462,
+      "text": "def update_task(conn: sqlite3.Connection, task_id: int, payload: dict[str, Any]) -> dict[str, Any]:\n    current = get_task(conn, task_id)\n    title = require_title(payload) if \"title\" in payload else current[\"title\"]\n    description = (\n        parse_optional_text(payload.get(\"description\"), \"description\", 2000) or \"\"\n        if \"description\" in payload\n        else current[\"description\"]\n    )\n    status = parse_status(payload[\"status\"]) if \"status\" in payload else current[\"status\"]\n    priority = parse_priority(payload[\"priority\"]) if \"priority\" in payload else current[\"priority\"]\n    assignee = (\n        parse_optional_text(payload.get(\"assignee\"), \"assignee\")\n        if \"assignee\" in payload\n        else current[\"assignee\"]\n    )\n    due_date = parse_date(payload.get(\"due_date\"), \"due_date\") if \"due_date\" in payload else current[\"due_date\"]\n    now = _now()\n    with conn:\n        conn.execute(\n            \"\"\"\n            UPDATE tasks\n               SET title = ?, description = ?, status = ?, priority = ?,\n                   assignee = ?, due_date = ?, updated_at = ?\n             WHERE id = ?\n            \"\"\",\n            (title, description, status, priority, assignee, due_date, now, task_id),\n        )\n    return get_task(conn, task_id)",
+      "symbol": "update_task",
+      "title": "update_task",
+      "meta": {
+        "args": [
+          "conn",
+          "task_id",
+          "payload"
+        ],
+        "decorators": [],
+        "docstring": "",
+        "returns": "dict[str, Any]"
+      }
+    },
+    {
+      "path": "app/store.py",
+      "start_line": 134,
+      "end_line": 152,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "score": 11.847369,
+      "text": "def create_task(conn: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any]:\n    title = require_title(payload)\n    description = parse_optional_text(payload.get(\"description\"), \"description\", 2000) or \"\"\n    status = parse_status(payload.get(\"status\", \"todo\"))\n    priority = parse_priority(payload.get(\"priority\", \"medium\"))\n    assignee = parse_optional_text(payload.get(\"assignee\"), \"assignee\")\n    due_date = parse_date(payload.get(\"due_date\"), \"due_date\")\n    now = _now()\n    with conn:\n        cursor = conn.execute(\n            \"\"\"\n            INSERT INTO tasks\n                (title, description, status, priority, assignee, due_date, created_at, updated_at)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n            \"\"\",\n            (title, description, status, priority, assignee, due_date, now, now),\n        )\n        task_id = int(cursor.lastrowid)\n    return get_task(conn, task_id)",
+      "symbol": "create_task",
+      "title": "create_task",
+      "meta": {
+        "args": [
+          "conn",
+          "payload"
+        ],
+        "decorators": [],
+        "docstring": "",
+        "returns": "dict[str, Any]"
+      }
+    },
+    {
+      "path": "app/api.py",
+      "start_line": 15,
+      "end_line": 95,
+      "sha256": "83f00e65566ea50e053406c304c909e2ed894658235f8d8d3a6faf47860f1766",
+      "score": 11.723218,
+      "text": "def create_app(db_path: str | Path | None = None, *, seed: bool = True) -> Flask:\n    app = Flask(__name__)\n    app.config[\"DB_PATH\"] = str(db_path or Path(__file__).resolve().parent.parent / \"taskhub.sqlite3\")\n    store.init_db(app.config[\"DB_PATH\"])\n    if seed:\n        store.seed_tasks(app.config[\"DB_PATH\"])\n\n    def connection():\n        return store.connect(app.config[\"DB_PATH\"])\n\n    @app.get(\"/healthz\")\n    def healthz() -> Any:\n        return jsonify({\"status\": \"ok\"})\n\n    @app.get(\"/tasks\")\n    def list_tasks() -> Any:\n        status = request.args.get(\"status\")\n        priority = request.args.get(\"priority\")\n        assignee = request.args.get(\"assignee\")\n        if status is not None:\n            status = parse_status(status)\n        if priority is not None:\n            priority = parse_priority(priority)\n        limit = parse_int(request.args.get(\"limit\"), \"limit\", 50, 1, 100)\n        offset = parse_int(request.args.get(\"offset\"), \"offset\", 0, 0, 1_000_000)\n        with closing(connection()) as conn:\n            result = store.list_tasks(\n                conn,\n                status=status,\n                priority=priority,\n                assignee=assignee,\n                limit=limit,\n                offset=offset,\n            )\n        return jsonify(result)\n\n    @app.post(\"/tasks\")\n    def create_task() -> Any:\n        payload = _json_body()\n        with closing(connection()) as conn:\n            created = store.create_task(conn, payload)\n        return jsonify(created), 201\n\n    @app.get(\"/tasks/<int:task_id>\")\n    def get_task(task_id: int) -> Any:\n        with closing(connection()) as conn:\n            return jsonify(store.get_task(conn, task_id))\n\n    @app.patch(\"/tasks/<int:task_id>\")\n    def update_task(task_id: int) -> Any:\n        payload = _json_body()\n        with closing(connection()) as conn:\n            return jsonify(store.update_task(conn, task_id, payload))\n\n    @app.delete(\"/tasks/<int:task_id>\")\n    def delete_task(task_id: int) -> Any:\n        with closing(connection()) as conn:\n            store.delete_task(conn, task_id)\n        return \"\", 204\n\n    @app.errorhandler(ValidationError)\n    def handle_validation_error(exc: ValidationError) -> Any:\n        status_code = 404 if exc.code == \"not_found\" else 400\n        return (\n            jsonify(\n                {\n                    \"error\": {\n                        \"code\": exc.code,\n                        \"message\": str(exc),\n                        \"field\": exc.field,\n                    }\n                }\n            ),\n            status_code,\n        )\n\n    @app.errorhandler(404)\n    def handle_not_found(_exc: Any) -> Any:\n        return jsonify({\"error\": {\"code\": \"not_found\", \"message\": \"resource not found\"}}), 404\n\n    return app",
+      "symbol": "create_app",
+      "title": "create_app",
+      "meta": {
+        "args": [
+          "db_path"
+        ],
+        "decorators": [],
+        "docstring": "",
+        "returns": "Flask"
+      }
+    },
+    {
+      "path": "app/store.py",
+      "start_line": 63,
+      "end_line": 80,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "score": 10.43927,
+      "text": "def seed_tasks(db_path: str | Path) -> int:\n    \"\"\"Insert the deterministic demo rows once. Returns the number inserted.\"\"\"\n\n    init_db(db_path)\n    now = _now()\n    with connect(db_path) as conn:\n        count = conn.execute(\"SELECT COUNT(*) FROM tasks\").fetchone()[0]\n        if count:\n            return 0\n        conn.executemany(\n            \"\"\"\n            INSERT INTO tasks\n                (title, description, status, priority, assignee, due_date, created_at, updated_at)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n            \"\"\",\n            [(*row, now, now) for row in SEED_TASKS],\n        )\n        return len(SEED_TASKS)",
+      "symbol": "seed_tasks",
+      "title": "seed_tasks",
+      "meta": {
+        "args": [
+          "db_path"
+        ],
+        "decorators": [],
+        "docstring": "Insert the deterministic demo rows once. Returns the number inserted.",
+        "returns": "int"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "path": "tests/test_due_before.py",
+      "start_line": 31,
+      "end_line": 37,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "score": 37.566399,
+      "text": "def test_due_before_invalid_date_returns_400(client):\n    for value in (\"2026-13-01\", \"not-a-date\", \"2026-02-30\"):\n        response = client.get(f\"/tasks?due_before={value}\")\n        assert response.status_code == 400, value\n        error = response.get_json()[\"error\"]\n        assert error[\"code\"] == \"invalid_argument\"\n        assert error[\"field\"] == \"due_before\"",
+      "symbol": "test_due_before_invalid_date_returns_400",
+      "title": "test_due_before_invalid_date_returns_400",
+      "meta": {
+        "assertions": [
+          "assert response.status_code == 400",
+          "assert error['code'] == 'invalid_argument'",
+          "assert error['field'] == 'due_before'"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_due_before.py",
+      "start_line": 10,
+      "end_line": 16,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "score": 31.178271,
+      "text": "def test_due_before_includes_boundary_day(client):\n    response = client.get(\"/tasks?due_before=2026-01-31&limit=100\")\n    assert response.status_code == 200\n    body = response.get_json()\n    assert body[\"total\"] == 4\n    assert [item[\"id\"] for item in body[\"items\"]] == [1, 2, 4, 7]\n    assert all(item[\"due_date\"] <= \"2026-01-31\" for item in body[\"items\"])",
+      "symbol": "test_due_before_includes_boundary_day",
+      "title": "test_due_before_includes_boundary_day",
+      "meta": {
+        "assertions": [
+          "assert response.status_code == 200",
+          "assert body['total'] == 4",
+          "assert [item['id'] for item in body['items']] == [1, 2, 4, 7]",
+          "assert all((item['due_date'] <= '2026-01-31' for item in body['items']))"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 109,
+      "end_line": 112,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "score": 30.055846,
+      "text": "def test_create_rejects_invalid_date(client):\n    response = client.post(\"/tasks\", json={\"title\": \"Bad date\", \"due_date\": \"2026-02-30\"})\n    assert response.status_code == 400\n    assert response.get_json()[\"error\"][\"field\"] == \"due_date\"",
+      "symbol": "test_create_rejects_invalid_date",
+      "title": "test_create_rejects_invalid_date",
+      "meta": {
+        "assertions": [
+          "assert response.status_code == 400",
+          "assert response.get_json()['error']['field'] == 'due_date'"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_due_before.py",
+      "start_line": 19,
+      "end_line": 28,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "score": 29.315182,
+      "text": "def test_due_before_combines_with_status_and_pagination(client):\n    filtered = client.get(\"/tasks?due_before=2026-01-31&status=todo\").get_json()\n    assert filtered[\"total\"] == 2\n    assert [item[\"id\"] for item in filtered[\"items\"]] == [1, 2]\n\n    page = client.get(\"/tasks?due_before=2026-01-31&status=todo&limit=1&offset=1\").get_json()\n    assert page[\"total\"] == 2\n    assert page[\"limit\"] == 1\n    assert page[\"offset\"] == 1\n    assert [item[\"id\"] for item in page[\"items\"]] == [2]",
+      "symbol": "test_due_before_combines_with_status_and_pagination",
+      "title": "test_due_before_combines_with_status_and_pagination",
+      "meta": {
+        "assertions": [
+          "assert filtered['total'] == 2",
+          "assert [item['id'] for item in filtered['items']] == [1, 2]",
+          "assert page['total'] == 2",
+          "assert page['limit'] == 1",
+          "assert page['offset'] == 1",
+          "assert [item['id'] for item in page['items']] == [2]"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 12,
+      "end_line": 21,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "score": 27.756243,
+      "text": "def test_list_returns_seed_rows_and_pagination_metadata(client):\n    response = client.get(\"/tasks\")\n    assert response.status_code == 200\n    body = response.get_json()\n    assert body[\"total\"] == 8\n    assert body[\"limit\"] == 50\n    assert body[\"offset\"] == 0\n    assert [item[\"id\"] for item in body[\"items\"]] == [1, 2, 3, 4, 5, 6, 7, 8]\n    assert body[\"items\"][0][\"title\"] == \"Fix login redirect\"\n    assert body[\"items\"][0][\"due_date\"] == \"2026-01-30\"",
+      "symbol": "test_list_returns_seed_rows_and_pagination_metadata",
+      "title": "test_list_returns_seed_rows_and_pagination_metadata",
+      "meta": {
+        "assertions": [
+          "assert response.status_code == 200",
+          "assert body['total'] == 8",
+          "assert body['limit'] == 50",
+          "assert body['offset'] == 0",
+          "assert [item['id'] for item in body['items']] == [1, 2, 3, 4, 5, 6, 7, 8]",
+          "assert body['items'][0]['title'] == 'Fix login redirect'",
+          "assert body['items'][0]['due_date'] == '2026-01-30'"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_due_before.py",
+      "start_line": 40,
+      "end_line": 44,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "score": 24.999296,
+      "text": "def test_due_before_excludes_tasks_without_due_date(client):\n    body = client.get(\"/tasks?due_before=2026-12-31\").get_json()\n    assert body[\"total\"] == 7\n    assert 5 not in {item[\"id\"] for item in body[\"items\"]}\n    assert all(item[\"due_date\"] is not None for item in body[\"items\"])",
+      "symbol": "test_due_before_excludes_tasks_without_due_date",
+      "title": "test_due_before_excludes_tasks_without_due_date",
+      "meta": {
+        "assertions": [
+          "assert body['total'] == 7",
+          "assert 5 not in {item['id'] for item in body['items']}",
+          "assert all((item['due_date'] is not None for item in body['items']))"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 52,
+      "end_line": 80,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "score": 22.554049,
+      "text": "def test_create_read_update_delete(client):\n    created = client.post(\n        \"/tasks\",\n        json={\n            \"title\": \"Write release notes\",\n            \"description\": \"Summarise the due_before change\",\n            \"status\": \"todo\",\n            \"priority\": \"medium\",\n            \"assignee\": \"dana\",\n            \"due_date\": \"2026-02-20\",\n        },\n    )\n    assert created.status_code == 201\n    task = created.get_json()\n    assert task[\"id\"] == 9\n    assert task[\"due_date\"] == \"2026-02-20\"\n\n    fetched = client.get(f\"/tasks/{task['id']}\")\n    assert fetched.status_code == 200\n    assert fetched.get_json()[\"title\"] == \"Write release notes\"\n\n    updated = client.patch(f\"/tasks/{task['id']}\", json={\"status\": \"done\", \"priority\": \"high\"})\n    assert updated.status_code == 200\n    assert updated.get_json()[\"status\"] == \"done\"\n    assert updated.get_json()[\"priority\"] == \"high\"\n\n    deleted = client.delete(f\"/tasks/{task['id']}\")\n    assert deleted.status_code == 204\n    assert client.get(f\"/tasks/{task['id']}\").status_code == 404",
+      "symbol": "test_create_read_update_delete",
+      "title": "test_create_read_update_delete",
+      "meta": {
+        "assertions": [
+          "assert created.status_code == 201",
+          "assert task['id'] == 9",
+          "assert task['due_date'] == '2026-02-20'",
+          "assert fetched.status_code == 200",
+          "assert fetched.get_json()['title'] == 'Write release notes'",
+          "assert updated.status_code == 200",
+          "assert updated.get_json()['status'] == 'done'",
+          "assert updated.get_json()['priority'] == 'high'",
+          "assert deleted.status_code == 204",
+          "assert client.get(f\"/tasks/{task['id']}\").status_code == 404"
+        ],
+        "docstring": ""
+      }
+    },
+    {
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 83,
+      "end_line": 88,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "score": 21.916383,
+      "text": "def test_create_validation_errors_use_json_error_shape(client):\n    response = client.post(\"/tasks\", json={\"title\": \" \", \"status\": \"todo\"})\n    assert response.status_code == 400\n    error = response.get_json()[\"error\"]\n    assert error[\"code\"] == \"invalid_argument\"\n    assert error[\"field\"] == \"title\"",
+      "symbol": "test_create_validation_errors_use_json_error_shape",
+      "title": "test_create_validation_errors_use_json_error_shape",
+      "meta": {
+        "assertions": [
+          "assert response.status_code == 400",
+          "assert error['code'] == 'invalid_argument'",
+          "assert error['field'] == 'title'"
+        ],
+        "docstring": ""
+      }
+    }
+  ],
+  "progress": {
+    "done": [],
+    "todo": [],
+    "verifications": [],
+    "resumed_from_powercontext": false
+  },
+  "sources": [
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e"
+    },
+    {
+      "kind": "code",
+      "path": "app/validation.py",
+      "sha256": "88450369442c9d5aabe42cb6f806ea155c007a6f5d4f74790b8568416d24f425"
+    },
+    {
+      "kind": "code",
+      "path": "app/store.py",
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277"
+    },
+    {
+      "kind": "code",
+      "path": "app/api.py",
+      "sha256": "83f00e65566ea50e053406c304c909e2ed894658235f8d8d3a6faf47860f1766"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_due_before.py",
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_tasks_regression.py",
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21"
+    }
+  ],
+  "required_sources": [
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "start_line": 67,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "spec_id": "SPEC-API-013"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "start_line": 93,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "spec_id": "SPEC-API-030"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "start_line": 51,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "spec_id": "SPEC-API-011"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "start_line": 41,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "spec_id": "SPEC-API-010"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "start_line": 9,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "spec_id": "SPEC-API-001"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/task-api.md",
+      "start_line": 14,
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "spec_id": "SPEC-API-002"
+    },
+    {
+      "kind": "code",
+      "path": "app/validation.py",
+      "start_line": 62,
+      "sha256": "88450369442c9d5aabe42cb6f806ea155c007a6f5d4f74790b8568416d24f425",
+      "symbol": "parse_date"
+    },
+    {
+      "kind": "code",
+      "path": "app/store.py",
+      "start_line": 93,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "symbol": "list_tasks"
+    },
+    {
+      "kind": "code",
+      "path": "app/store.py",
+      "start_line": 1,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "symbol": "<module>"
+    },
+    {
+      "kind": "code",
+      "path": "app/validation.py",
+      "start_line": 9,
+      "sha256": "88450369442c9d5aabe42cb6f806ea155c007a6f5d4f74790b8568416d24f425",
+      "symbol": "ValidationError"
+    },
+    {
+      "kind": "code",
+      "path": "app/store.py",
+      "start_line": 155,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "symbol": "update_task"
+    },
+    {
+      "kind": "code",
+      "path": "app/store.py",
+      "start_line": 134,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "symbol": "create_task"
+    },
+    {
+      "kind": "code",
+      "path": "app/api.py",
+      "start_line": 15,
+      "sha256": "83f00e65566ea50e053406c304c909e2ed894658235f8d8d3a6faf47860f1766",
+      "symbol": "create_app"
+    },
+    {
+      "kind": "code",
+      "path": "app/store.py",
+      "start_line": 63,
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "symbol": "seed_tasks"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_due_before.py",
+      "start_line": 31,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "symbol": "test_due_before_invalid_date_returns_400"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_due_before.py",
+      "start_line": 10,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "symbol": "test_due_before_includes_boundary_day"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 109,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "symbol": "test_create_rejects_invalid_date"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_due_before.py",
+      "start_line": 19,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "symbol": "test_due_before_combines_with_status_and_pagination"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 12,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "symbol": "test_list_returns_seed_rows_and_pagination_metadata"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_due_before.py",
+      "start_line": 40,
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "symbol": "test_due_before_excludes_tasks_without_due_date"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 52,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "symbol": "test_create_read_update_delete"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_tasks_regression.py",
+      "start_line": 83,
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "symbol": "test_create_validation_errors_use_json_error_shape"
+    }
+  ],
+  "warnings": [],
+  "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e"
+}

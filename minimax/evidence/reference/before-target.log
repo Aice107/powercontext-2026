@@ -1,0 +1,72 @@
+# label: before-target
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_due_before.py
+# cwd: /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace
+# started_at: 2026-11-04T14:27:02+0800
+# duration_ms: 678.49
+# exit_code: 1
+# classification: test_failure
+#
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+____________________ test_due_before_includes_boundary_day _____________________
+
+client = <FlaskClient <Flask 'app.api'>>
+
+    def test_due_before_includes_boundary_day(client):
+        response = client.get("/tasks?due_before=2026-01-31&limit=100")
+        assert response.status_code == 200
+        body = response.get_json()
+>       assert body["total"] == 4
+E       assert 8 == 4
+
+tests/test_due_before.py:14: AssertionError
+_____________ test_due_before_combines_with_status_and_pagination ______________
+
+client = <FlaskClient <Flask 'app.api'>>
+
+    def test_due_before_combines_with_status_and_pagination(client):
+        filtered = client.get("/tasks?due_before=2026-01-31&status=todo").get_json()
+>       assert filtered["total"] == 2
+E       assert 4 == 2
+
+tests/test_due_before.py:21: AssertionError
+___________________ test_due_before_invalid_date_returns_400 ___________________
+
+client = <FlaskClient <Flask 'app.api'>>
+
+    def test_due_before_invalid_date_returns_400(client):
+        for value in ("2026-13-01", "not-a-date", "2026-02-30"):
+            response = client.get(f"/tasks?due_before={value}")
+>           assert response.status_code == 400, value
+E           AssertionError: 2026-13-01
+E           assert 200 == 400
+E            +  where 200 = <WrapperTestResponse streamed [200 OK]>.status_code
+
+tests/test_due_before.py:34: AssertionError
+_______________ test_due_before_excludes_tasks_without_due_date ________________
+
+client = <FlaskClient <Flask 'app.api'>>
+
+    def test_due_before_excludes_tasks_without_due_date(client):
+        body = client.get("/tasks?due_before=2026-12-31").get_json()
+>       assert body["total"] == 7
+E       assert 8 == 7
+
+tests/test_due_before.py:42: AssertionError
+_________________ test_due_before_empty_result_keeps_metadata __________________
+
+client = <FlaskClient <Flask 'app.api'>>
+
+    def test_due_before_empty_result_keeps_metadata(client):
+        body = client.get("/tasks?due_before=2025-01-01").get_json()
+>       assert body["total"] == 0
+E       assert 8 == 0
+
+tests/test_due_before.py:49: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_due_before.py::test_due_before_includes_boundary_day - asse...
+FAILED tests/test_due_before.py::test_due_before_combines_with_status_and_pagination
+FAILED tests/test_due_before.py::test_due_before_invalid_date_returns_400 - A...
+FAILED tests/test_due_before.py::test_due_before_excludes_tasks_without_due_date
+FAILED tests/test_due_before.py::test_due_before_empty_result_keeps_metadata
+5 failed in 0.10s

@@ -1,0 +1,15 @@
+# step: acceptance
+# command: /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/verify_acceptance.py --run-dir /home/ice/dify-project/minimax/evidence/run-test-replay2 --out /home/ice/dify-project/minimax/evidence/run-test-replay2/acceptance.json
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:27:14+0800
+# duration_ms: 46.29
+# exit_code: 1
+#
+[PASS] 1. 能够运行: 按脚本完成初始化、导入、上下文、测试与状态读取
+[FAIL] 2. MiniMax 实际参与: 没有 mode=minimax 的实际调用记录（replay 不计入必做项）
+[PASS] 3. 上下文正确且规格更新生效: v1 不含 SPEC-API-013，v2 含 SPEC-API-013 与‘包含截止当天’，来源可回查
+[PASS] 4. 数据库实际参与: sources=10 chunks=66 terms=1993 index_v2=1 reindexed/9 skipped
+[PASS] 5. 状态能够复用: 重启 PowerContext 与新进程后读回 done/todo/verifications，并注入 --resume 上下文
+[PASS] 6. 代码修改有效: 修改前目标测试因断言失败，回归通过；修改后目标+回归通过；测试文件未改动
+OVERALL: FAIL
+

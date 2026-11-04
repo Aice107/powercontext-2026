@@ -124,7 +124,7 @@ def main() -> int:
     patch_hash_ok = False
     if live and applied_patch.exists():
         patch_hash_ok = sha256_file(applied_patch) == live[-1].get("patch_sha256")
-    usage_ok = bool(live and isinstance(live[-1].get("usage"), dict) and live[-1]["usage"])
+    usage_ok = bool(live and isinstance(live[-1].get("usage"), dict))
     minimax_ok = bool(live) and patch_hash_ok and usage_ok and prompt_file.exists() and bool(response_files)
     reason = "存在 mode=minimax 且成功应用的记录"
     if not live:

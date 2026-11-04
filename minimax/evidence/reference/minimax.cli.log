@@ -1,0 +1,29 @@
+# step: minimax
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-test-replay2/db-queries.log minimax --workspace /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace --context /home/ice/dify-project/minimax/evidence/run-test-replay2/context-v2.json --patch-out /home/ice/dify-project/minimax/evidence/run-test-replay2/minimax/applied.patch --evidence-dir /home/ice/dify-project/minimax/evidence/run-test-replay2/minimax --patch-file /home/ice/dify-project/minimax/patches/0001-due-before-filter.patch
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:27:03+0800
+# duration_ms: 141.7
+# exit_code: 0
+#
+{
+  "attempt": 0,
+  "mode": "replay",
+  "task_id": "taskhub-due-before",
+  "model": null,
+  "endpoint": null,
+  "started_at": "2026-11-04T14:27:04+0800",
+  "latency_ms": 0,
+  "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+  "prompt_sha256": null,
+  "usage": null,
+  "response_sha256": null,
+  "patch_sha256": "76e8b2ab1191c8d6ffb3b9416aa689e7f8f5ff9231fad5b07add1cdd62171d35",
+  "applied": true,
+  "files": [
+    "app/api.py",
+    "app/store.py"
+  ],
+  "error": null,
+  "source_patch": "/home/ice/dify-project/minimax/patches/0001-due-before-filter.patch"
+}
+

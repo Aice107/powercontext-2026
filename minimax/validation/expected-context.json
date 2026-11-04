@@ -1,0 +1,36 @@
+{
+  "schema": "sdd-expected-context/v1",
+  "task_id": "taskhub-due-before",
+  "workspace": "demo/baseline (after applying patches/0002-spec-due-before.patch)",
+  "before_spec_update": {
+    "must_not_contain_specs": ["SPEC-API-013"]
+  },
+  "after_spec_update": {
+    "must_contain_specs": ["SPEC-API-013"],
+    "must_contain_text": ["包含截止当天"],
+    "must_contain_code": [
+      "app/store.py::list_tasks",
+      "app/api.py::create_app"
+    ],
+    "must_contain_tests": [
+      "tests/test_due_before.py::test_due_before_includes_boundary_day",
+      "tests/test_due_before.py::test_due_before_invalid_date_returns_400",
+      "tests/test_tasks_regression.py::test_list_returns_seed_rows_and_pagination_metadata"
+    ]
+  },
+  "target_tests": [
+    "tests/test_due_before.py::test_due_before_includes_boundary_day",
+    "tests/test_due_before.py::test_due_before_combines_with_status_and_pagination",
+    "tests/test_due_before.py::test_due_before_invalid_date_returns_400",
+    "tests/test_due_before.py::test_due_before_excludes_tasks_without_due_date",
+    "tests/test_due_before.py::test_due_before_empty_result_keeps_metadata"
+  ],
+  "regression_tests": [
+    "tests/test_tasks_regression.py"
+  ],
+  "expected_after_spec_update_spec_text": {
+    "spec_id": "SPEC-API-013",
+    "path": "specs/task-api.md",
+    "contains": "包含截止当天"
+  }
+}

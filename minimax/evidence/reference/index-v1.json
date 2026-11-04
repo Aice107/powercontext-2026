@@ -1,0 +1,78 @@
+{
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+  "files": 10,
+  "indexed": 10,
+  "skipped": 0,
+  "chunks": 65,
+  "terms": 1874,
+  "elapsed_ms": 191.09,
+  "sources": [
+    {
+      "path": "README.md",
+      "kind": "doc",
+      "sha256": "8b1c1645ca29f7150428cc986caefeebde3e2a223d42053ba311a9f239d7fc20",
+      "chunks": 11
+    },
+    {
+      "path": "app/__init__.py",
+      "kind": "code",
+      "sha256": "0c369fbfc3f55230f64878faf0eca7677b58d94953c24cbabfb72fc99f25c93a",
+      "chunks": 1
+    },
+    {
+      "path": "app/__main__.py",
+      "kind": "code",
+      "sha256": "2968903f111b81f02fee742c8a9f248e7db949a81d0090c932d7df3e59d236b1",
+      "chunks": 2
+    },
+    {
+      "path": "app/api.py",
+      "kind": "code",
+      "sha256": "83f00e65566ea50e053406c304c909e2ed894658235f8d8d3a6faf47860f1766",
+      "chunks": 3
+    },
+    {
+      "path": "app/store.py",
+      "kind": "code",
+      "sha256": "18fe8b40e2d2272fd0081a89835529536b59a2381fff9827845c3f7f25096277",
+      "chunks": 11
+    },
+    {
+      "path": "app/validation.py",
+      "kind": "code",
+      "sha256": "88450369442c9d5aabe42cb6f806ea155c007a6f5d4f74790b8568416d24f425",
+      "chunks": 10
+    },
+    {
+      "path": "specs/task-api.md",
+      "kind": "spec",
+      "sha256": "3866cad7bfc378ccd1318cceb0c2913ebe8cee39f55256c44de57bb6886b387c",
+      "chunks": 9
+    },
+    {
+      "path": "tests/conftest.py",
+      "kind": "test",
+      "sha256": "a22efc6960d99a674b1fbf4f2b819e99018923cc3a3e2c8c73aabc84b7a30214",
+      "chunks": 1
+    },
+    {
+      "path": "tests/test_due_before.py",
+      "kind": "test",
+      "sha256": "85d09bd5b5a579713abdbfa0b3d5539d7f7b44fd368d17fe8c599afc439eeb56",
+      "chunks": 5
+    },
+    {
+      "path": "tests/test_tasks_regression.py",
+      "kind": "test",
+      "sha256": "b5fa9d83f36565cac89795364658b4c0756cebe0124fb1e0937be57e36f5bf21",
+      "chunks": 12
+    }
+  ],
+  "db": {
+    "sources": 10,
+    "chunks": 65,
+    "terms": 1874,
+    "import_events": 10,
+    "task_runs": 0
+  }
+}

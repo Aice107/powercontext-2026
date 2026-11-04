@@ -1,0 +1,24 @@
+{
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+  "files": 10,
+  "indexed": 1,
+  "skipped": 9,
+  "chunks": 10,
+  "terms": 513,
+  "elapsed_ms": 54.79,
+  "sources": [
+    {
+      "path": "specs/task-api.md",
+      "kind": "spec",
+      "sha256": "99162313f0e011531b931ae9acbcebeeec2f4b8fa74bc76c26648dc071cd1f6e",
+      "chunks": 10
+    }
+  ],
+  "db": {
+    "sources": 10,
+    "chunks": 66,
+    "terms": 1993,
+    "import_events": 11,
+    "task_runs": 0
+  }
+}

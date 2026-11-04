@@ -1,0 +1,10 @@
+# step: seekdb-reset
+# command: bash /home/ice/dify-project/minimax/scripts/seekdb_server.sh reset
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:26:57+0800
+# duration_ms: 3451.92
+# exit_code: 0
+#
+seekdb stopped (pid 12486)
+seekdb started on 127.0.0.1:2893 (pid 12761)
+

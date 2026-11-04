@@ -1,0 +1,45 @@
+# MiniMax × OceanBase「规有所依」进度日志
+
+> 每小时自动巡检会向本文件追加「自动合规巡检」小节；人工阶段记录见下。
+
+## 2026-11-04 13:49 接题与环境勘察
+
+- 读取赛题 `minimax.md`，确认提交仓库 `powercontext-2026`、分支 `2026-competition-ecosystem`、资产目录 `minimax/`。
+- 确认环境：Python 3.12、PowerContext 1.4.1、seekdb 1.4.0、pylibseekdb 1.4.0.post2 可用。
+- 关键结论：必须完成六项必做；MiniMax 必须实际参与代码修改，不能只放配置。
+
+## 2026-11-04 14:10 架构定稿
+
+- 完成 `docs/ARCHITECTURE.md`：seekdb 索引 + BM25 检索 + 上下文包 + MiniMax 补丁闭环 + PowerContext 状态复用 + TaskHub 业务样例。
+- 确定提交结构、验收矩阵、证据命名与回放边界（replay 不计入 MiniMax 实际参与）。
+
+## 2026-11-04 14:27 端到端回放跑通（5/6）
+
+- 命令：`.venv/bin/python scripts/demo.py --mode replay --run-id test-replay2`
+- 证据目录：`evidence/run-test-replay2/`
+- 结果：
+  - 1 能够运行：PASS
+  - 2 MiniMax 实际参与：**BLOCKED**（未配置 `MINIMAX_API_KEY`，replay 不计入）
+  - 3 上下文正确且规格更新生效：PASS（v1 不含 SPEC-API-013；v2 含且正文含“包含截止当天”）
+  - 4 数据库实际参与：PASS（seekdb 10 sources / 66 chunks / 1993 terms，SQL 日志可查）
+  - 5 状态能够复用：PASS（PowerContext 重启后读回 done/todo/verifications）
+  - 6 代码修改有效：PASS（修改前 5 failed 断言失败；修改后目标+回归全通过）
+
+## 下一步
+
+1. 配置真实 `MINIMAX_API_KEY`（写入 `minimax/.env`，权限 600）。
+2. 运行 `scripts/demo.py --mode minimax --run-id final`，生成 `mode=minimax` 的开发记录并替换 `evidence/reference/`。
+3. 复核 `scripts/verify_acceptance.py` 六项全 PASS 后提交。
+## 2026-11-04T15:56:08+0800 自动合规巡检
+
+- 运行证据：`/home/ice/dify-project/minimax/evidence/run-test-replay2`
+- 总体：**INCOMPLETE**
+- 代码：`2a6475ac` dirty=True
+
+- [PASS] 1. 能够运行：按脚本完成初始化、导入、上下文、测试与状态读取
+- [BLOCKED] 2. MiniMax 实际参与：MINIMAX_API_KEY 未设置；仅 replay 记录，不计入必做项
+- [PASS] 3. 上下文正确且规格更新生效：v1 不含 SPEC-API-013，v2 含 SPEC-API-013 与‘包含截止当天’，来源可回查
+- [PASS] 4. 数据库实际参与：sources=10 chunks=66 terms=1993 index_v2=1 reindexed/9 skipped
+- [PASS] 5. 状态能够复用：重启 PowerContext 与新进程后读回 done/todo/verifications，并注入 --resume 上下文
+- [PASS] 6. 代码修改有效：修改前目标测试因断言失败，回归通过；修改后目标+回归通过；测试文件未改动
+

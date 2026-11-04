@@ -1,0 +1,10 @@
+# step: pc-after-restart
+# command: bash /home/ice/dify-project/minimax/scripts/pc_server.sh status
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:27:13+0800
+# duration_ms: 18.21
+# exit_code: 0
+#
+PowerContext: up on 127.0.0.1:8093
+pid: 12927
+

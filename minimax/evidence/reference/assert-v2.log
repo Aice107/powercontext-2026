@@ -1,0 +1,44 @@
+# step: assert-v2
+# command: /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-test-replay2/context-v2.json --require-spec SPEC-API-013 --require-text 包含截止当天 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-test-replay2/assert-v2.json
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T14:27:02+0800
+# duration_ms: 43.08
+# exit_code: 0
+#
+{
+  "context": "/home/ice/dify-project/minimax/evidence/run-test-replay2/context-v2.json",
+  "task_id": "taskhub-due-before",
+  "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+  "specs": [
+    "SPEC-API-001",
+    "SPEC-API-002",
+    "SPEC-API-010",
+    "SPEC-API-011",
+    "SPEC-API-013",
+    "SPEC-API-030"
+  ],
+  "checks": [
+    {
+      "check": "require_spec",
+      "value": "SPEC-API-013",
+      "ok": true
+    },
+    {
+      "check": "require_code",
+      "value": "app/store.py::list_tasks",
+      "ok": true
+    },
+    {
+      "check": "require_test",
+      "value": "tests/test_due_before.py::test_due_before_includes_boundary_day",
+      "ok": true
+    },
+    {
+      "check": "require_text",
+      "value": "包含截止当天",
+      "ok": true
+    }
+  ],
+  "passed": true
+}
+

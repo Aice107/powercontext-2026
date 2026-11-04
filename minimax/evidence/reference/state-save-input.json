@@ -1,0 +1,43 @@
+{
+  "schema": "sdd-task-state/v1",
+  "task_id": "taskhub-due-before",
+  "status": "implemented",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+  "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+  "done": [
+    "导入 specs v1 并生成不含 SPEC-API-013 的上下文",
+    "更新规格到 v2 并重新导入（仅 spec 文件重建索引）",
+    "以 replay 模式生成并应用代码补丁",
+    "运行修改前目标测试与回归测试并记录退出码",
+    "运行修改后目标测试与回归测试并记录退出码"
+  ],
+  "todo": [
+    "评审按 README 从干净环境复跑",
+    "如后续规格再变更，重新导入并更新任务状态"
+  ],
+  "verifications": [
+    {
+      "name": "before-target",
+      "exit_code": 1,
+      "summary": "5 failed"
+    },
+    {
+      "name": "before-regression",
+      "exit_code": 0,
+      "summary": "12 passed"
+    },
+    {
+      "name": "after-target",
+      "exit_code": 0,
+      "summary": "5 passed"
+    },
+    {
+      "name": "after-regression",
+      "exit_code": 0,
+      "summary": "12 passed"
+    }
+  ],
+  "next_step": "评审复跑；若规格变化则重新导入并重新生成上下文",
+  "saved_at": "2026-11-04T06:27:05.527081+00:00",
+  "saved_at_ns": 1793773625527098472
+}
