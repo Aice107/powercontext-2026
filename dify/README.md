@@ -267,13 +267,13 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 证据：[evidence/logs/dify-on-seekdb.md](evidence/logs/dify-on-seekdb.md)。
 本作品主线仍用 MySQL 承载 Dify 元数据库、seekdb 承担应用数据——这条路线作为可选扩展记录，未纳入主线验证范围。
 
-### 7.1.1 性能实测（20 轮连打）
+### 7.2 性能实测（20 轮连打）
 
 `evidence/logs/run-loadtest.md`：单轮端到端 **中位数 5.6–6.3s / P95 9.0–11.7s**（两次实测区间，含 2 次 LLM 调用：
 意图判定 + 回应生成），20/20 全部 succeeded；仇值按 12→100→76 走完"升级—触顶—和解"整条曲线；
 每轮写 1 条账本 + 1 条记忆。时延波动主要来自模型侧排队，不是后端。
 
-### 7.1.1 全新导入演练（实测）
+### 7.3 全新导入演练（实测）
 
 模拟评审从零操作（`tools/fresh-import-drill.sh`）：
 
@@ -286,7 +286,7 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 
 证据：[evidence/logs/fresh-import-drill.md](evidence/logs/fresh-import-drill.md)。
 
-### 7.1.2 依赖自愈（实测）
+### 7.4 依赖自愈（实测）
 
 开发机上的看门狗（`tools/watchdog.sh`，本机开发态脚本）每 15 秒检查一次依赖；做过一次故意破坏的演练：
 
@@ -297,7 +297,7 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 
 证据：[evidence/logs/selfheal-drill.md](evidence/logs/selfheal-drill.md)。评审环境不需要这个脚本，它只是说明"依赖挂了不需要人工介入"。
 
-### 7.2 网络与资源
+### 7.5 网络与资源
 
 - Dify 进程需能访问：inn-api（默认 8010）、模型 API（如 `api.deepseek.com`）、插件 Marketplace；
 - inn-api 需能访问 seekdb（2891）；
@@ -333,7 +333,7 @@ dify/
 
 ---
 
-## 8.2 tools/ 里有两类脚本（请勿混淆）
+## 9. 工程脚本（tools/）
 
 | 类别 | 文件 | 用途 | 评审是否需要 |
 | --- | --- | --- | --- |
@@ -344,7 +344,7 @@ dify/
 > `start-local.sh` / `watchdog.sh` / `capture.mjs` / `record.mjs` 依赖作者机器的
 > `~/dify`（Dify 部署）与 `~/dify-shot`（chromium），仅用于生产素材，不属于运行说明的一部分。
 
-## 8.3 打包与自检脚本
+### 9.1 常用脚本
 
 ```bash
 bash tools/reset-demo.sh     # 恢复到"评审第一次打开"的状态（重建数据 + 清空记忆）
@@ -353,39 +353,41 @@ python3 tools/compliance_check.py   # 11 项合规自检
 bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/run-loadtest.md）
 ```
 
-## 8.35 开发过程记录
+## 10. 开发过程与自检
+
+### 10.1 进展时间线
 
 `docs/progress-log.md` 是按时间线整理的项目进展（每个阶段做了什么、怎么验证的）；
 `docs/progress-log.raw.md` 是逐次自检的机器输出（append-only）。
 
-## 8.36 自检项说明
+### 10.2 自检项说明
 
 11 项自检分别在验什么、怎么手工复核、失败意味着什么，见
 [docs/verification.md](docs/verification.md)。
 
-## 8.4 提交前检查清单
+## 11. 提交前检查清单
 
 对照赛题 §4.1–§4.4 的逐项核对表（含每项指向的文件）见
 [docs/submission-checklist.md](docs/submission-checklist.md)。
 
-## 8.5 评审 FAQ
+## 12. 评审 FAQ
 
 常见疑问（为什么不拿 seekdb 当 Dify 数据库、为什么 embedding 用哈希、为什么没有 Code 节点、
 断网会怎样……）见 [docs/faq.md](docs/faq.md)。
 
-## 9. 第三方素材与许可
+## 13. 第三方素材与许可
 
 - 台词、传闻、演示账本数据均为本项目原创，未复用第三方文本；
 - 未复用公开工作流/代码；Dify、seekdb、插件均为官方发布版本，按各自许可证使用。
 
 ---
 
-## 10. 提交材料对照（赛题 §4）
+## 14. 提交材料对照（赛题 §4）
 
 | 赛题要求 | 本仓库对应 | 说明 |
 | --- | --- | --- |
 | §4.1 Dify DSL + 用途/导入顺序 + 版本 | [dsl/01_inn_chatflow.yml](dsl/01_inn_chatflow.yml)、[dsl/README.md](dsl/README.md) | 单文件；1.17.0 导出；重导入已验证 |
-| §4.1 重新绑定知识库/工具/服务地址 | [dsl/README.md](dsl/README.md) | 三处 HTTP 节点地址 + 六个模型节点 |
+| §4.1 重新绑定知识库/工具/服务地址 | [dsl/README.md](dsl/README.md) | 四个 HTTP 节点地址 + 六个模型节点 |
 | §4.2 作品创意/玩法/体验/分工 | §1、§2 | |
 | §4.2 运行环境与版本 | §3 | Dify 1.17.0 / seekdb 1.4.0.0 / Python 3.12 / 插件 0.0.73 |
 | §4.2 完整步骤与应用入口 | §4 | |
@@ -397,7 +399,7 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 | §4.4 现成插件 | §3 版本表 | `langgenius/openai_api_compatible:0.0.73`，Marketplace |
 | §4.4 自定义插件 / 自定义后端 | `backend/` | 自定义后端已附源码与启动说明；未使用自定义插件 |
 
-## 11. 标识与数据关联（赛题 §4.4 "用户/角色/会话标识如何与工作流关联"）
+## 15. 标识与数据关联（赛题 §4.4 "用户/角色/会话标识如何与工作流关联"）
 
 | 标识 | 产生方式 | 写入位置 | 在 DSL 里的位置 |
 | --- | --- | --- | --- |
