@@ -225,6 +225,7 @@ INN_API_PORT=8010
 | S5 | 逐客与求原谅（条件分支） | [samples/S5_expel.md](samples/S5_expel.md) |
 | S6 | 打烊结算 | [samples/S6_settle.md](samples/S6_settle.md) |
 | S7 | 依赖不可用兜底 | [samples/S7_degraded.md](samples/S7_degraded.md) |
+| S7b | PC 不可用时降级 | [samples/S7b_pc_down.md](samples/S7b_pc_down.md) |
 | S8 | 档位梯度（T1/T2/T3 对比） | [samples/S8_tier_gradient.md](samples/S8_tier_gradient.md) |
 | S9 | PowerContext 记忆 | [samples/S9_pc_memory.md](samples/S9_pc_memory.md) |
 | S10 | 和解线（善举降仇值） | [samples/S10_kindness.md](samples/S10_kindness.md) |

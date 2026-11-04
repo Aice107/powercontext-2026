@@ -370,7 +370,7 @@ def c11_doc_consistency():
 
     # 3) 样例数：README §6 表格里的 S* 行数 vs samples/ 文件数
     sample_files = len(list((ROOT / "samples").glob("S*.md")))
-    listed = len(re.findall(r"^\|\s*S\d+\s*\|", (ROOT / "README.md").read_text(), re.MULTILINE))
+    listed = len(re.findall(r"^\|\s*S\d+[a-z]?\s*\|", (ROOT / "README.md").read_text(), re.MULTILINE))
     if listed != sample_files:
         problems.append(f"README 列了 {listed} 组样例，samples/ 有 {sample_files} 个文件")
 
