@@ -51,3 +51,28 @@ bash scripts/run_final.sh
 - `patches/0001` 只改 `app/`，不改 `tests/`/`specs/`；目标测试前后逐字一致。
 - `evidence/reference/` 中的绝对路径来自本机运行，不影响从源码复现。
 - 上下文模块的补丁应用器会按补丁正文做上下文匹配，修复 LLM diff 行号偏移；仍只允许 `app/` 路径。
+
+## 5. 远端提交
+
+本机已配置 `submission` 远端：
+
+```text
+submission  https://github.com/Aice107/powercontext-2026.git
+```
+
+本地分支 `2026-competition-ecosystem` 已包含全部提交；本机没有可用的 GitHub 推送凭据
+（HTTPS 无 credential helper，SSH 无 key），因此尚未推送。请在具备凭据的环境执行：
+
+```bash
+cd /home/ice/dify-project
+git push submission 2026-competition-ecosystem
+```
+
+推送后核对：
+
+```bash
+git ls-remote submission refs/heads/2026-competition-ecosystem
+git rev-parse HEAD
+```
+
+两个 SHA 应一致；平台提交时使用该完整 40 位 SHA。
