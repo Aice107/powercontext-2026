@@ -272,7 +272,7 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 
 ### 7.2 性能实测（20 轮连打）
 
-`evidence/logs/run-loadtest.md`：单轮端到端 **中位数 5.6–6.3s / P95 9.0–11.7s**（两次实测区间，含 2 次 LLM 调用：
+`evidence/logs/run-loadtest.md`：单轮端到端 **中位数 5.6–6.3s / P95 8.6–11.7s**（三次实测区间，含 2 次 LLM 调用：
 意图判定 + 回应生成），20/20 全部 succeeded；仇值按 12→100→76 走完"升级—触顶—和解"整条曲线；
 每轮写 1 条账本 + 1 条记忆。时延波动主要来自模型侧排队，不是后端。
 
@@ -411,6 +411,7 @@ bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/
 | `event_id` | seekdb 自增主键 | `inn_ledger.id` | 记账响应块 `EVENT=` |
 | 角色 | 固定单一 NPC「柳三娘」 | `inn_line.npc` | 各 LLM 节点的 system prompt |
 | 记忆边界 | 一玩家一份账本（`WHERE player_id=?` 强制过滤） | 全部查询 | 无跨玩家读取 |
+| PowerContext Scope | `/inn/session` 返回 `scope_key`（幂等键 `inn:player:<pid>`）与 `pc_scope_id`（真实 `scp_...`） | `inn_pc_scope` | 二者不是同一个值：前者用于幂等建档，后者是实际 Scope ID |
 
 演示数据：执行 `bash db/init.sh` 后，`p_demo01` 会被预置为"住了 3 天、仇值 62（T3 报复）、7 条旧账"的状态，
 评审可直接用这个 ID 体验"翻旧账"与"逐客"，无需自己刷数据。

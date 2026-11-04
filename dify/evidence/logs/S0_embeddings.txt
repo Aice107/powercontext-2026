@@ -1,0 +1,2 @@
+ledger_rows	with_embedding	rumor_with_embedding
+12	12	2

@@ -1,22 +1,25 @@
-"""Embedded seekdb storage for engineering sources, chunks and terms.
+"""seekdb storage for engineering sources, chunks and terms.
 
-``pylibseekdb`` starts an in-process seekdb instance and exposes a unix socket
-through ``connection_options()``.  We talk to that socket with PyMySQL so all
-statements are parameterised and ordinary SQL can be inspected/logged.
+The demo uses a local seekdb server (the binary shipped inside the
+``pylibseekdb`` wheel) and talks to it with PyMySQL.  A server, rather than the
+in-process embedding, is used because the CLI starts a new process for every
+command and the data must still be visible to the next command.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 import pymysql
-import pylibseekdb
 
 DATABASE = "sdd"
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_PORT = 2893
 
 SCHEMA = [
     """
@@ -84,34 +87,50 @@ SCHEMA = [
 ]
 
 
-class SeekdbStore:
-    """Own one embedded seekdb instance and one PyMySQL connection."""
+class SeekdbUnavailable(RuntimeError):
+    """The local seekdb server is not reachable."""
 
-    def __init__(self, db_dir: str | Path, query_log: str | Path | None = None) -> None:
-        self.db_dir = Path(db_dir).resolve()
-        self.db_dir.mkdir(parents=True, exist_ok=True)
+
+class SeekdbStore:
+    """One PyMySQL connection to the local seekdb server."""
+
+    def __init__(
+        self,
+        host: str | None = None,
+        port: int | None = None,
+        database: str | None = None,
+        query_log: str | Path | None = None,
+    ) -> None:
+        self.host = host or os.environ.get("SEEKDB_HOST") or DEFAULT_HOST
+        self.port = int(port or os.environ.get("SEEKDB_PORT") or DEFAULT_PORT)
+        self.database = database or os.environ.get("SEEKDB_DATABASE") or DATABASE
         self.query_log = Path(query_log).resolve() if query_log else None
         if self.query_log:
             self.query_log.parent.mkdir(parents=True, exist_ok=True)
-        self._instance = pylibseekdb.open(str(self.db_dir))
-        options = pylibseekdb.connection_options()
-        self._conn = pymysql.connect(
-            user=options.get("user", "root"),
-            unix_socket=options["unix_socket"],
-            database="test",
-            charset="utf8mb4",
-            autocommit=True,
-            cursorclass=pymysql.cursors.DictCursor,
-        )
+        try:
+            self._conn = pymysql.connect(
+                host=self.host,
+                port=self.port,
+                user=os.environ.get("SEEKDB_USER", "root"),
+                password=os.environ.get("SEEKDB_PASSWORD", ""),
+                charset="utf8mb4",
+                autocommit=True,
+                cursorclass=pymysql.cursors.DictCursor,
+                connect_timeout=5,
+            )
+        except pymysql.err.OperationalError as exc:
+            raise SeekdbUnavailable(
+                f"seekdb is not reachable at {self.host}:{self.port}: {exc}. "
+                "Start it with scripts/seekdb_server.sh start."
+            ) from exc
         self._init_database()
 
-    # ------------------------------------------------------------------ basics
     def _init_database(self) -> None:
+        if not re.fullmatch(r"[A-Za-z0-9_]+", self.database):
+            raise ValueError(f"invalid database name: {self.database!r}")
         with self._conn.cursor() as cur:
-            cur.execute(
-                f"CREATE DATABASE IF NOT EXISTS {DATABASE} CHARACTER SET utf8mb4"
-            )
-        self._conn.select_db(DATABASE)
+            cur.execute(f"CREATE DATABASE IF NOT EXISTS {self.database} CHARACTER SET utf8mb4")
+        self._conn.select_db(self.database)
         for statement in SCHEMA:
             with self._conn.cursor() as cur:
                 cur.execute(statement)
@@ -166,10 +185,7 @@ class SeekdbStore:
         return rows[0] if rows else None
 
     def close(self) -> None:
-        try:
-            self._conn.close()
-        finally:
-            self._instance.close()
+        self._conn.close()
 
     def __enter__(self) -> "SeekdbStore":
         return self
@@ -215,14 +231,3 @@ def _safe_params(params: Sequence[Any] | None) -> list[Any] | None:
         else:
             safe.append(value)
     return safe
-
-
-def default_db_dir(workspace: str | Path) -> Path:
-    """Keep the embedded database out of the indexed workspace."""
-
-    return Path(workspace).resolve().parent / ".runtime" / "seekdb"
-
-
-def env_or(name: str, default: str) -> str:
-    value = os.environ.get(name)
-    return value if value else default

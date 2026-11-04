@@ -1,1 +1,2 @@
-ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:2881' (111)
+id	action_text	action_type	severity	grudge_after	vec
+13	往酒坛里兑半坛水	drink	2	12	vector(1024)

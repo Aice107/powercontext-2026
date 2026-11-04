@@ -78,6 +78,7 @@ def main() -> int:
 
     # 1. runnable
     required_cmds = [
+        "seekdb_server.sh reset",
         "pc_server.sh start",
         "index --workspace",
         "context --workspace",
@@ -89,6 +90,8 @@ def main() -> int:
     missing_cmds = [item for item in required_cmds if item not in commands]
     runnable_evidence = [
         "commands.log",
+        "seekdb-reset.log",
+        "seekdb-status.txt",
         "context-v2.json",
         "db-stats.json",
         "before-target.log",

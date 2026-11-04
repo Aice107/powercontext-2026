@@ -1,1 +1,52 @@
-ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:2881' (111)
+-- 后端 hybrid 查询（与 backend/app/main.py:_hybrid_similar 同构）
+-- 查询向量取该玩家第一条事件的 embedding，文本命中用本句话
+id	action_text	severity	vsim	ft
+13	往酒坛里兑半坛水	2	1.0000	3.8633
+14	又往酒坛里兑水	2	0.8700	9.3065
+
+-- 执行计划
+Query Plan
+=============================================================================
+|ID|OPERATOR              |NAME                       |EST.ROWS|EST.TIME(us)|
+-----------------------------------------------------------------------------
+|0 |TOP-N SORT            |                           |1       |20          |
+|1 |└─SUBPLAN FILTER      |                           |1       |20          |
+|2 |  ├─TABLE RANGE SCAN  |inn_ledger(idx_player_time)|1       |10          |
+|3 |  └─TOP-N SORT        |                           |1       |10          |
+|4 |    └─TABLE RANGE SCAN|inn_ledger(idx_player_time)|2       |10          |
+=============================================================================
+Outputs & filters:
+-------------------------------------
+  0 - output([inn_ledger.id]), filter(nil), rowset=16
+      sort_keys([COSINE_SIMILARITY(inn_ledger.embedding, :0), DESC]), topn(3)
+  1 - output([inn_ledger.id], [:0], [inn_ledger.embedding]), filter(nil), rowset=16
+      exec_params_(nil), onetime_exprs_([subquery(1)(:0)]), init_plan_idxs_(nil), use_batch=false
+  2 - output([inn_ledger.id], [inn_ledger.embedding]), filter([inn_ledger.severity >= 1]), rowset=16
+      access([inn_ledger.id], [inn_ledger.embedding], [inn_ledger.severity]), partitions(p0)
+      is_index_back=true, is_global_index=false, filter_before_indexback[false], 
+      range_key([inn_ledger.player_id], [inn_ledger.created_at], [inn_ledger.id]), range(p_guest01,MIN,MIN ; p_guest01,MAX,MAX), 
+      range_cond([inn_ledger.player_id = cast('p_guest01', VARCHAR(1048576))])
+  3 - output([inn_ledger.embedding]), filter(nil), rowset=16
+      sort_keys([inn_ledger.id, ASC]), topn(1)
+  4 - output([inn_ledger.id], [inn_ledger.embedding]), filter(nil), rowset=16
+      access([inn_ledger.id], [inn_ledger.embedding]), partitions(p0)
+      is_index_back=true, is_global_index=false, 
+      range_key([inn_ledger.player_id], [inn_ledger.created_at], [inn_ledger.id]), range(p_guest01,MIN,MIN ; p_guest01,MAX,MAX), 
+      range_cond([inn_ledger.player_id = cast('p_guest01', VARCHAR(1048576))])
+
+-- 索引确认
+index_name	index_type
+idx_player_time	BTREE
+idx_player_time	BTREE
+ft_action	FULLTEXT
+ft_action	FULLTEXT
+rowkey_vid_table	BTREE
+vidx_ledger	BTREE
+vidx_ledger	BTREE
+vid_rowkey_table	BTREE
+vidx_ledger_index_id_table	BTREE
+vidx_ledger_index_id_table	BTREE
+vidx_ledger_index_id_table	BTREE
+vidx_ledger_index_snapshot_data_table	BTREE
+vidx_ledger_index_snapshot_data_table	BTREE
+PRIMARY	BTREE

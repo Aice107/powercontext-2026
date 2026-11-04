@@ -4,24 +4,29 @@
 
 | 编号 | 验证点 | 证据文件 | 说明 |
 | --- | --- | --- | --- |
-| S1 | 首次入店 | [logs/S1_first_visit.log](logs/S1_first_visit.log)、[logs/S1_db_after.txt](logs/S1_db_after.txt) | 新玩家建档，事件数 0 |
-| S2 | 记账 | [logs/S2_prank.log](logs/S2_prank.log)、[logs/S2_db_ledger.txt](logs/S2_db_ledger.txt) | 记账块 + seekdb 行 |
-| S3 | 翻旧账 | [logs/S3_old_grudge.log](logs/S3_old_grudge.log)、[logs/S3_sql_hybrid.txt](logs/S3_sql_hybrid.txt) | 混合检索命中 + EXPLAIN |
-| S4 | 跨会话记忆 | [logs/S4_cross_session.log](logs/S4_cross_session.log)、[logs/S4_db_player.txt](logs/S4_db_player.txt) | 档案块与库内数值一致 |
-| S7b | PC 不可用降级 | [logs/S7b_pc_down.log](logs/S7b_pc_down.log)、[logs/S7b_pc_warnings.txt](logs/S7b_pc_warnings.txt) | PC 停 → `MEMORY=无` 仍应答；PC 起 → 记忆回来；含 inn-api 降级 warning 与同期 200 日志 |
-| S5 | 逐客分支 | [logs/S5_expel.log](logs/S5_expel.log)、[logs/S5_expel_nodes.txt](logs/S5_expel_nodes.txt)、[logs/S5_expel_run.sse](logs/S5_expel_run.sse) | 节点序列含 `是否逐客 case=true → 逐客令` |
-| S5b | 求原谅 | [logs/S5_forgive.log](logs/S5_forgive.log)、[logs/S5_forgive_nodes.txt](logs/S5_forgive_nodes.txt) | 同样满仇值，`是否逐客 case=false → 三娘回应` |
+| S0 | 向量落库自检 | [logs/S0_embeddings.txt](logs/S0_embeddings.txt) | `db/init.sh` 后 12/12 账本行、2/2 传闻均有 embedding（排除"初始化时机导致无向量"） |
+| S1 | 首次入店 | [logs/S1_first_visit.log](logs/S1_first_visit.log)、[logs/S1_db_after.txt](logs/S1_db_after.txt) | 新玩家建档，`events=0` |
+| S2 | 记账 | [logs/S2_prank.log](logs/S2_prank.log)、[logs/S2_db_ledger.txt](logs/S2_db_ledger.txt) | 账本行 + `DELTA=12`；`vec` 列显示该行确有 `vector(1024)` |
+| S3 | 翻旧账（混合检索） | [logs/S3_old_grudge.log](logs/S3_old_grudge.log)、[logs/S3_sql_hybrid.txt](logs/S3_sql_hybrid.txt) | **SQL 直接执行结果**：两条事件 `vsim=1.0000/0.8700`、`ft=3.86/9.31`，含 EXPLAIN 与索引清单 |
+| S4 | 跨会话记忆 | [logs/S4_cross_session.log](logs/S4_cross_session.log)、[logs/S4_db_player.txt](logs/S4_db_player.txt) | 档案块 `62/4/3/7` 与库内一致 |
+| S5 | 逐客分支 | [logs/S5_expel.log](logs/S5_expel.log)、[logs/S5_expel_nodes.txt](logs/S5_expel_nodes.txt) | 数值链 62→76→92；节点 `是否逐客 case=true → 逐客令` |
+| S5b | 求原谅（同状态续跑） | [logs/S5_forgive.log](logs/S5_forgive.log)、[logs/S5_forgive_nodes.txt](logs/S5_forgive_nodes.txt) | 92→68；节点 `是否逐客 case=false → 三娘回应` |
+| S5c | 账本快照 | [logs/S5_db_ledger.txt](logs/S5_db_ledger.txt) | 上述两条路径的账本行（含 grudge_after 链） |
 | S6 | 打烊结算 | [logs/S6_settle.log](logs/S6_settle.log) | 《账本长卷》全文 |
-| S7 | 降级兜底 | [logs/S7_degraded.log](logs/S7_degraded.log) | 后端不可用时的兜底话术 |
-| S8 | 档位梯度 | [logs/S8_tier_gradient.log](logs/S8_tier_gradient.log) | 同一句话在 T1/T2/T3 三种仇值下的态度差异 |
-| S9 | PowerContext 记忆 | [logs/S9_pc_memory.log](logs/S9_pc_memory.log)、[logs/S9_pc_scope.txt](logs/S9_pc_scope.txt)、[logs/S9_pc_search.json](logs/S9_pc_search.json) | Scope 建档 + 印象写入 + 召回进 prompt |
-| S10 | 和解线 | [logs/S10_kindness.log](logs/S10_kindness.log) | 善举 -24 仇值，T3 → T1 |
-| 体验路径 | [logs/demo-path-3min.log](logs/demo-path-3min.log) | README §1.4 的四步：记账+翻旧账 → 逐客 → 长卷 → 求原谅 |
-| seekdb 作 Dify 元库（可行性） | [logs/dify-on-seekdb.md](logs/dify-on-seekdb.md) | 迁移 143 表 + 独立实例 /health、/setup 实测 |
-| 全新导入演练 | [logs/fresh-import-drill.md](logs/fresh-import-drill.md) | 从零导入 DSL → 19 节点 → 跑通一轮 → 删除，模拟评审路径 |
-| 自愈演练 | [logs/selfheal-drill.md](logs/selfheal-drill.md) | 杀 inn-api → 2s 恢复；杀 seekdb → 72s 新进程接管，20 行数据无损 |
-| 压测 | [logs/run-loadtest.md](logs/run-loadtest.md) | 20 轮连打：20/20 成功、p50 5.6s、p95 9.0s、仇值 12→100→76 |
+| S7 | 依赖不可用兜底 | [logs/S7_degraded.log](logs/S7_degraded.log) | seekdb/inn-api 挂掉时的兜底话术 |
+| S7b | PC 不可用降级 | [logs/S7b_pc_down.log](logs/S7b_pc_down.log)、[logs/S7b_pc_warnings.txt](logs/S7b_pc_warnings.txt) | PC 停 → `MEMORY=无` 仍应答；PC 起 → 记忆回来 |
+| S8 | 档位梯度 | [logs/S8_tier_gradient.log](logs/S8_tier_gradient.log) | 同一句话在 T1/T2/T3 下的三种反应 |
+| S9 | PowerContext 记忆 | [logs/S9_pc_memory.log](logs/S9_pc_memory.log)、[logs/S9_pc_scope.txt](logs/S9_pc_scope.txt)、[logs/S9_pc_search.json](logs/S9_pc_search.json) | Scope 映射 + 印象写入 + `search` 命中（reset-demo 后状态一致） |
+| S10 | 和解线 | [logs/S10_kindness.log](logs/S10_kindness.log)、[logs/S10_db_ledger.txt](logs/S10_db_ledger.txt) | 62→38（`DELTA=-24`），库内该行为 `kindness/-3` |
+| 体验路径 | 四步走 | [logs/demo-path-3min.log](logs/demo-path-3min.log) | README §1.4 的四步 |
+| seekdb 作 Dify 元库 | 可行性 | [logs/dify-on-seekdb.md](logs/dify-on-seekdb.md) | 迁移 143 表 + 独立实例 /health、/setup |
+| 全新导入演练 | 模拟评审 | [logs/fresh-import-drill.md](logs/fresh-import-drill.md) | 从零导入 → 19 节点 → 跑通一轮 |
+| 自愈演练 | 故障恢复 | [logs/selfheal-drill.md](logs/selfheal-drill.md) | inn-api 2s / seekdb 72s 恢复，数据无损 |
+| 压测 | 20 轮 | [logs/run-loadtest.md](logs/run-loadtest.md) | 20/20 成功，p50 5.6–6.3s |
 | DSL | 可重导入 | [../dsl/01_inn_chatflow.yml](../dsl/01_inn_chatflow.yml) | 1.17.0 重导入 `status=completed` |
+
+> 所有 DB 核验文件（S0/S1_db/S2_db/S3_sql/S4_db/S5_db/S10_db）都由 `mysql -P2891` 直连产生，
+> `tools/collect_evidence.sh` 结尾会校验它们**不含连接错误且非空**，否则整批作废。
 
 ## 证据是怎么产生的
 

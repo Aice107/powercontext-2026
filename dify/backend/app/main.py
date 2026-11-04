@@ -270,8 +270,9 @@ def session(
         "total_events": int(player.get("total_events", 0)),
         "last_seen": str(player.get("last_seen", "")),
         "recent_events": events,
-        # PowerContext Scope 约定：一个玩家一个 Scope，前缀固定，便于评审核对
-        "scope_hint": f"inn:player:{player_id}",
+        # 两个字段要分清：scope_key 是幂等键（不是 scope id）；pc_scope_id 才是真实 Scope
+        "scope_key": f"inn:player:{player_id}",
+        "pc_scope_id": (db.one("SELECT scope_id FROM inn_pc_scope WHERE player_id=%s", (player_id,)) or {}).get("scope_id"),
         "memory": _memory_block(player_id, player.get("nickname") or nickname) or None,
     }
 

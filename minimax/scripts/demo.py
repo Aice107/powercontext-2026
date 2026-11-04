@@ -98,7 +98,16 @@ class Recorder:
 
 
 def sdd(*args: str) -> list[str]:
-    return [str(PY), "-m", "sdd_context", "--db", DB, "--query-log", str(RUN_DIR / "db-queries.log"), *args]
+    return [
+        str(PY),
+        "-m",
+        "sdd_context",
+        "--seekdb-host", os.environ.get("SEEKDB_HOST", "127.0.0.1"),
+        "--seekdb-port", os.environ.get("SEEKDB_PORT", "2893"),
+        "--seekdb-db", os.environ.get("SEEKDB_DATABASE", "sdd"),
+        "--query-log", str(RUN_DIR / "db-queries.log"),
+        *args,
+    ]
 
 
 def load_env_file(path: Path) -> None:
@@ -155,15 +164,17 @@ def main() -> int:
     args = parser.parse_args()
 
     load_env_file(ROOT / ".env")
+    os.environ.setdefault("SEEKDB_HOST", "127.0.0.1")
+    os.environ.setdefault("SEEKDB_PORT", "2893")
+    os.environ.setdefault("SEEKDB_DATABASE", "sdd")
     run_id = args.run_id or time.strftime("%Y%m%d-%H%M%S")
-    global RUN_DIR, DB
+    global RUN_DIR
     RUN_DIR = ROOT / "evidence" / f"run-{run_id}"
     RUN_DIR.mkdir(parents=True, exist_ok=True)
     (RUN_DIR / "minimax").mkdir(parents=True, exist_ok=True)
     runtime = ROOT / ".runtime" / f"demo-{run_id}"
     runtime.mkdir(parents=True, exist_ok=True)
     workspace = runtime / "workspace"
-    DB = str(runtime / "seekdb")
     recorder = Recorder(RUN_DIR)
     started_at = utc_now()
 
@@ -176,6 +187,8 @@ def main() -> int:
 
     # 0. environment ---------------------------------------------------------
     step("env-check", ["bash", str(ROOT / "scripts" / "bootstrap.sh"), "--check"], "env-check.log")
+    step("seekdb-reset", ["bash", str(ROOT / "scripts" / "seekdb_server.sh"), "reset"], "seekdb-reset.log")
+    step("seekdb-status", ["bash", str(ROOT / "scripts" / "seekdb_server.sh"), "status"], "seekdb-status.txt")
     step("pc-start", ["bash", str(PC_SCRIPT), "start"], "pc-start.log")
     step("pc-status-before", ["bash", str(PC_SCRIPT), "status"], "pc-status-before.txt")
 
@@ -406,6 +419,11 @@ def main() -> int:
             "regression": read_json(RUN_DIR / "after-regression.result.json", {}),
         },
         "state_save": read_json(RUN_DIR / "state-save.json", {}),
+        "seekdb": {
+            "host": os.environ.get("SEEKDB_HOST"),
+            "port": os.environ.get("SEEKDB_PORT"),
+            "database": os.environ.get("SEEKDB_DATABASE"),
+        },
         "db": read_json(RUN_DIR / "db-stats.json", {}),
         "minimax": read_json(RUN_DIR / "minimax.result.json", {}),
         "acceptance": str(RUN_DIR / "acceptance.json"),
@@ -439,7 +457,6 @@ def _git_commit() -> str | None:
 
 
 RUN_DIR: Path
-DB: str
 
 
 if __name__ == "__main__":

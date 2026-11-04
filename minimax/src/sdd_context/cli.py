@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .context import build_context, load_task_file, write_context
+from .db import SeekdbUnavailable
 from .ingest import ingest_workspace
 from .minimax import MiniMaxError, MiniMaxUnavailable, apply_patch, generate_and_apply, replay_patch
 from .state import PowerContextError, TaskStateStore
@@ -21,7 +22,9 @@ DEFAULT_RUNTIME = PROJECT_ROOT / ".runtime"
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="sdd-context", description="Spec-driven development context module")
-    parser.add_argument("--db", default=None, help="embedded seekdb directory (default: .runtime/seekdb)")
+    parser.add_argument("--seekdb-host", default=None, help="seekdb host (default: SEEKDB_HOST or 127.0.0.1)")
+    parser.add_argument("--seekdb-port", default=None, help="seekdb port (default: SEEKDB_PORT or 2893)")
+    parser.add_argument("--seekdb-db", default=None, help="seekdb database (default: SEEKDB_DATABASE or sdd)")
     parser.add_argument("--query-log", default=None, help="SQL query log path (default: .runtime/db-queries.log)")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -68,21 +71,22 @@ def build_parser() -> argparse.ArgumentParser:
     apply.add_argument("--patch", required=True)
 
     stats = sub.add_parser("db-stats", help="print seekdb table counts")
-    stats.add_argument("--db", default=None)
 
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    db_dir = Path(args.db) if args.db else DEFAULT_RUNTIME / "seekdb"
+    host = args.seekdb_host
+    port = int(args.seekdb_port) if args.seekdb_port else None
+    database = args.seekdb_db
     query_log = Path(args.query_log) if args.query_log else DEFAULT_RUNTIME / "db-queries.log"
 
     try:
         if args.command == "index":
-            return _index(args, db_dir, query_log)
+            return _index(args, host, port, database, query_log)
         if args.command == "context":
-            return _context(args, db_dir, query_log)
+            return _context(args, host, port, database, query_log)
         if args.command == "state-save":
             return _state_save(args)
         if args.command == "state-load":
@@ -96,35 +100,35 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "apply-patch":
             return _apply(args)
         if args.command == "db-stats":
-            return _db_stats(db_dir, query_log)
-    except (PowerContextError, MiniMaxError, MiniMaxUnavailable) as exc:
+            return _db_stats(host, port, database, query_log)
+    except (PowerContextError, SeekdbUnavailable, MiniMaxError, MiniMaxUnavailable) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
     print(f"unknown command {args.command}", file=sys.stderr)
     return 2
 
 
-def _open_store(db_dir: Path, query_log: Path):
+def _open_store(host: str | None, port: int | None, database: str | None, query_log: Path):
     from .db import SeekdbStore
 
-    return SeekdbStore(db_dir, query_log)
+    return SeekdbStore(host, port, database, query_log)
 
 
-def _index(args: argparse.Namespace, db_dir: Path, query_log: Path) -> int:
-    with _open_store(db_dir, query_log) as store:
+def _index(args: argparse.Namespace, host: str | None, port: int | None, database: str | None, query_log: Path) -> int:
+    with _open_store(host, port, database, query_log) as store:
         summary = ingest_workspace(store, args.workspace, force=args.force)
         summary["db"] = store.stats()
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0
 
 
-def _context(args: argparse.Namespace, db_dir: Path, query_log: Path) -> int:
+def _context(args: argparse.Namespace, host: str | None, port: int | None, database: str | None, query_log: Path) -> int:
     title, description = load_task_file(args.task_file)
     task_id = args.task_id or Path(args.task_file).stem
     resume_state = None
     if args.resume:
         resume_state = TaskStateStore().load_state(task_id)
-    with _open_store(db_dir, query_log) as store:
+    with _open_store(host, port, database, query_log) as store:
         context = build_context(
             store,
             args.workspace,
@@ -232,8 +236,8 @@ def _apply(args: argparse.Namespace) -> int:
     return 0
 
 
-def _db_stats(db_dir: Path, query_log: Path) -> int:
-    with _open_store(db_dir, query_log) as store:
+def _db_stats(host: str | None, port: int | None, database: str | None, query_log: Path) -> int:
+    with _open_store(host, port, database, query_log) as store:
         print(json.dumps(store.stats(), ensure_ascii=False, indent=2))
     return 0
 

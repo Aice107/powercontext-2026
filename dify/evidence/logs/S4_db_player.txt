@@ -1,1 +1,2 @@
-ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:2881' (111)
+player_id	grudge	visits	days_known	total_events
+p_demo01	62	4	3	7
