@@ -167,6 +167,7 @@ def main() -> int:
     os.environ.setdefault("SEEKDB_HOST", "127.0.0.1")
     os.environ.setdefault("SEEKDB_PORT", "2893")
     os.environ.setdefault("SEEKDB_DATABASE", "sdd")
+    os.environ.setdefault("POWERCONTEXT_URL", f"http://127.0.0.1:{os.environ.get('POWERCONTEXT_PORT', '8093')}")
     run_id = args.run_id or time.strftime("%Y%m%d-%H%M%S")
     global RUN_DIR
     RUN_DIR = ROOT / "evidence" / f"run-{run_id}"

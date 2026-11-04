@@ -43,3 +43,12 @@
 - [PASS] 5. 状态能够复用：重启 PowerContext 与新进程后读回 done/todo/verifications，并注入 --resume 上下文
 - [PASS] 6. 代码修改有效：修改前目标测试因断言失败，回归通过；修改后目标+回归通过；测试文件未改动
 
+
+## 2026-11-04 16:05 文档、模块测试与 clean-room 复核
+
+- 补齐 `README.md`、`docs/VALIDATION.md`、`docs/TECHNICAL_NOTE.md`、`ACCEPTANCE.md`、`validation/expected-context.json`、`validation/reset.md`。
+- 模块测试：`.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests` → **13 passed**。
+- 使用独立 runtime 与独立端口（seekdb 2894 / PowerContext 8094）做 clean-room replay：
+  1/3/4/5/6 PASS，2 BLOCKED（无 Key）。说明流程不依赖本机残留状态。
+- 修复 `demo.py` 让 `POWERCONTEXT_URL` 跟随 `POWERCONTEXT_PORT`；修复 `bootstrap.sh` 版本输出去弃用 API。
+- 结论：除「MiniMax 实际参与」外，其余五项与可复现性已通过；下一步只差真实 Key。

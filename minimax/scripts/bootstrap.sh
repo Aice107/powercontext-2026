@@ -23,14 +23,14 @@ if [ "$CHECK_ONLY" -eq 0 ]; then
 fi
 
 "$ROOT/.venv/bin/python" - <<'PY'
+import importlib.metadata
 import sys
-import flask
-import pymysql
-import pylibseekdb
 print(f"python={sys.version.split()[0]}")
-print(f"flask={flask.__version__}")
-print(f"pymysql={pymysql.__version__}")
-print(f"pylibseekdb={getattr(pylibseekdb, '__version__', 'unknown')}")
+for name in ("flask", "pymysql", "pylibseekdb", "pytest"):
+    try:
+        print(f"{name}={importlib.metadata.version(name)}")
+    except importlib.metadata.PackageNotFoundError:
+        print(f"{name}=missing")
 PY
 
 if ! command -v powercontext >/dev/null 2>&1; then
