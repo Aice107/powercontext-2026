@@ -1,0 +1,30 @@
+diff -ruN -x __pycache__ -x '*.pyc' a/specs/task-api.md b/specs/task-api.md
+--- a/specs/task-api.md	2026-11-04 13:58:02.776894201 +0800
++++ b/specs/task-api.md	2026-11-04 13:58:23.479248897 +0800
+@@ -1,6 +1,6 @@
+ # TaskHub HTTP API 规格
+ 
+-- 规格版本：v1
++- 规格版本：v2（新增 SPEC-API-013 截止日期上界筛选）
+ - 适用范围：`app/` 下的 HTTP 服务与数据访问层
+ - 变更约定：任何行为变更必须先更新本规格，再修改代码与测试
+ 
+@@ -64,6 +64,18 @@
+ - `offset`：默认 0，必须是非负整数；非法值返回 400。
+ - 分页元数据必须原样返回实际生效的 `limit` 与 `offset`。
+ 
++### SPEC-API-013 截止日期上界筛选 due_before
++
++`GET /tasks` 支持可选参数 `due_before=YYYY-MM-DD`，只返回截止日期不晚于该日期的任务。
++
++- 比较是闭区间：截止日期等于 `due_before` 的任务必须包含在结果中（包含截止当天）。
++- `due_date` 为空的任务在启用该筛选时一律排除。
++- `due_before` 必须与 `status`、`priority`、`assignee`、`limit`、`offset` 按 AND 组合生效；
++  `total` 是筛选后的总数。
++- 非法日期（格式错误或不存在的日期）返回 400，错误 `code=invalid_argument`，
++  `field=due_before`。
++- 不传 `due_before` 时行为与 v1 完全一致。
++
+ ## 4. 单个任务
+ 
+ ### SPEC-API-020 读取、更新与删除

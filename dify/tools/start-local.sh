@@ -67,7 +67,15 @@ fi
 
 # 6. 状态汇总
 echo
-for pair in "seekdb:2891" "inn-api:8010" "powercontext:8090" "dify-api:5001" "dify-web:3000"; do
+# plugin daemon 也必须在：Dify 调模型全靠它，缺了会报 "Failed to request plugin daemon"
+if ! port_up 5002 && [ -x "$HOME/dify/bin/dify-plugin-daemon" ]; then
+  say "补启动 plugin daemon :5002"
+  ( cd "$HOME/dify" && set -a && . ./daemon.env && set +a \
+      && nohup "$HOME/dify/bin/dify-plugin-daemon" > "$HOME/dify/run/daemon.log" 2>&1 & )
+  sleep 8
+fi
+
+for pair in "seekdb:2891" "inn-api:8010" "powercontext:8090" "dify-api:5001" "dify-web:3000" "plugin-daemon:5002"; do
   name="${pair%%:*}"; port="${pair##*:}"
   printf '  %-14s :%-5s %s\n' "$name" "$port" "$(port_up "$port" && echo up || echo DOWN)"
 done
