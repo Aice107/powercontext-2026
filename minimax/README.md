@@ -139,6 +139,7 @@ MiniMax 配置项：
 | `MINIMAX_BASE_URL` | `https://api.minimax.io/v1` | API 基地址 |
 | `MINIMAX_MODEL` | `MiniMax-M2.1` | 模型名 |
 | `MINIMAX_API_STYLE` | `openai` | `openai`（`/chat/completions`）或 `native`（`/text/chatcompletion_v2`） |
+| `MINIMAX_GROUP_ID` | 无 | 可选；native v2 端点的 GroupId |
 | `MINIMAX_TIMEOUT` | `120` | 秒 |
 
 开发记录写入 `evidence/run-<id>/minimax/dev-record.jsonl`：模型、端点、上下文 SHA、prompt SHA、usage、延迟、响应 SHA、补丁 SHA、是否应用；同时保存 `prompt.md`、`response-<n>.txt`、`applied.patch`。**不记录模型私有思维链，不记录 API Key。**

@@ -11,7 +11,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -47,6 +47,7 @@ class MiniMaxConfig:
     model: str
     style: str
     timeout: float
+    group_id: str | None = None
 
     @classmethod
     def from_env(cls) -> "MiniMaxConfig":
@@ -56,14 +57,20 @@ class MiniMaxConfig:
             model=os.environ.get("MINIMAX_MODEL", "MiniMax-M2.1"),
             style=os.environ.get("MINIMAX_API_STYLE", "openai").lower(),
             timeout=float(os.environ.get("MINIMAX_TIMEOUT", "120")),
+            group_id=os.environ.get("MINIMAX_GROUP_ID") or None,
         )
 
     def endpoint(self) -> str:
         if self.base_url.endswith("/chat/completions") or self.base_url.endswith("/text/chatcompletion_v2"):
-            return self.base_url
-        if self.style == "native":
-            return self.base_url + "/text/chatcompletion_v2"
-        return self.base_url + "/chat/completions"
+            url = self.base_url
+        elif self.style == "native":
+            url = self.base_url + "/text/chatcompletion_v2"
+        else:
+            url = self.base_url + "/chat/completions"
+        if self.style == "native" and self.group_id and "GroupId=" not in url:
+            separator = "&" if "?" in url else "?"
+            url = f"{url}{separator}GroupId={self.group_id}"
+        return url
 
 
 def build_prompt(context: dict[str, Any]) -> tuple[str, str]:
@@ -129,12 +136,16 @@ def call_minimax(system: str, user: str, config: MiniMaxConfig) -> dict[str, Any
         raise MiniMaxError(f"MiniMax returned non-JSON: {body[:500]}") from exc
     if data.get("base_resp", {}).get("status_code") not in (None, 0):
         raise MiniMaxError(f"MiniMax base_resp error: {data.get('base_resp')}")
+    content: str | None = None
     try:
         content = data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError) as exc:
-        raise MiniMaxError(f"MiniMax response has no choices[0].message.content: {body[:800]}") from exc
+    except (KeyError, IndexError, TypeError):
+        # The native v2 endpoint has historically returned ``reply``.
+        reply = data.get("reply")
+        if isinstance(reply, str):
+            content = reply
     if not isinstance(content, str) or not content.strip():
-        raise MiniMaxError("MiniMax returned an empty completion")
+        raise MiniMaxError(f"MiniMax response has no usable completion: {body[:800]}")
     return {
         "content": content,
         "usage": data.get("usage") or {},
@@ -238,7 +249,20 @@ def generate_and_apply(
     for attempt in range(1, 3):
         prompt = user if last_error is None else user + "\n\n## Previous patch failed to apply\n\n" + last_error
         started = time.strftime("%Y-%m-%dT%H:%M:%S%z")
-        result = call_minimax(system, prompt, config)
+        try:
+            result = call_minimax(system, prompt, config)
+        except MiniMaxError as first_error:
+            if config.style != "openai":
+                raise
+            # Some deployments only expose the native v2 path.  Try it once
+            # before giving up, while keeping the original error in the log.
+            native_config = replace(config, style="native")
+            try:
+                result = call_minimax(system, prompt, native_config)
+            except MiniMaxError as native_error:
+                raise MiniMaxError(
+                    f"OpenAI-compatible call failed ({first_error}); native fallback also failed ({native_error})"
+                ) from native_error
         content = result["content"]
         (evidence_dir / f"response-{attempt}.txt").write_text(content, encoding="utf-8")
         try:
