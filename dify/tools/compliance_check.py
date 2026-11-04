@@ -454,7 +454,8 @@ def main() -> int:
     print(report)
 
     if "--log" in sys.argv:
-        log = ROOT / "docs" / "progress-log.md"
+        # 自检明细写 raw 文件；progress-log.md 是人工维护的时间线，不被脚本污染
+        log = ROOT / "docs" / "progress-log.raw.md"
         log.parent.mkdir(parents=True, exist_ok=True)
         with log.open("a") as f:
             f.write("\n" + report + "\n")

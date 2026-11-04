@@ -313,6 +313,11 @@ python3 tools/compliance_check.py   # 9 项合规自检
 bash tools/run_loadtest.py 20       # 20 轮连打压测（输出 evidence/logs/run-loadtest.md）
 ```
 
+## 8.35 开发过程记录
+
+`docs/progress-log.md` 是按时间线整理的项目进展（每个阶段做了什么、怎么验证的）；
+`docs/progress-log.raw.md` 是逐次自检的机器输出（append-only）。
+
 ## 8.4 提交前检查清单
 
 对照赛题 §4.1–§4.4 的逐项核对表（含每项指向的文件）见
