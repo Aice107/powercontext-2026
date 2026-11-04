@@ -124,11 +124,8 @@ cp .env.example .env
 # 编辑 .env，填入 MINIMAX_API_KEY=...
 chmod 600 .env
 
-# 完整验证：真实调用 MiniMax 生成补丁、应用、测试、保存状态
-.venv/bin/python scripts/demo.py --mode minimax --run-id final
-
-# 机器核验六项
-.venv/bin/python scripts/verify_acceptance.py --run-dir evidence/run-final
+# 一条命令：启动服务、真实调用 MiniMax、测试、状态重启、替换 reference、核验六项
+bash scripts/run_final.sh
 ```
 
 MiniMax 配置项：
