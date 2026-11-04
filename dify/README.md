@@ -246,6 +246,19 @@ INN_APP_ID=<app_id> bash tools/collect_evidence.sh
 `evidence/logs/run-loadtest.md`：单轮端到端 **中位数 5.6s / P95 9.0s**（含 2 次 LLM 调用：意图判定 + 回应生成），
 20/20 全部 succeeded；仇值按 12→100→76 走完"升级—触顶—和解"整条曲线；每轮写 1 条账本 + 1 条记忆。
 
+### 7.1.1 全新导入演练（实测）
+
+模拟评审从零操作（`tools/fresh-import-drill.sh`）：
+
+| 步骤 | 结果 |
+| --- | --- |
+| 导入 `dsl/01_inn_chatflow.yml` 为新应用 | `status=completed` |
+| 草稿图节点数 | 19（与文档一致） |
+| 跑一轮「往酒坛里兑半坛水」 | `succeeded`，172 字，含翻旧账 |
+| 清理 | 删除测试应用 204 |
+
+证据：[evidence/logs/fresh-import-drill.md](evidence/logs/fresh-import-drill.md)。
+
 ### 7.1.2 依赖自愈（实测）
 
 开发机上的看门狗（`tools/watchdog.sh`，本机开发态脚本）每 15 秒检查一次依赖；做过一次故意破坏的演练：
