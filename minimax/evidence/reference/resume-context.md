@@ -1,9 +1,9 @@
 # SDD development context
 
 - Task ID: `taskhub-due-before`
-- Workspace: `/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace`
-- Context SHA-256: `d09f3fce0bcc6d490be3e909345d522608451e4fad77ef88831801c5d4dcbf3b`
-- Generated at: 2026-11-04T14:27:13+0800
+- Workspace: `/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace`
+- Context SHA-256: `1705372f386965d202e9f62b3e4fde7adca94548420f192593cf2a2b47b142be`
+- Generated at: 2026-11-04T16:02:24+0800
 
 ## Task
 
@@ -560,7 +560,7 @@ def test_create_validation_errors_use_json_error_shape(client):
 
 ## 4. Current progress
 
-- Resumed from PowerContext: `2026-11-04T06:27:05.527081+00:00`
+- Resumed from PowerContext: `2026-11-04T08:02:17.897856+00:00`
 - Status: `implemented`
 - Done: 导入 specs v1 并生成不含 SPEC-API-013 的上下文; 更新规格到 v2 并重新导入（仅 spec 文件重建索引）; 以 replay 模式生成并应用代码补丁; 运行修改前目标测试与回归测试并记录退出码; 运行修改后目标测试与回归测试并记录退出码
 - Todo: 评审按 README 从干净环境复跑; 如后续规格再变更，重新导入并更新任务状态

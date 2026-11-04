@@ -1,22 +1,22 @@
 # step: before-target
-# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-test-replay2/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace --target tests/test_due_before.py --log /home/ice/dify-project/minimax/evidence/run-test-replay2/before-target.log --label before-target
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log test --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --target tests/test_due_before.py --log /home/ice/dify-project/minimax/evidence/run-reference-v2/before-target.log --label before-target
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T14:27:02+0800
-# duration_ms: 797.44
+# started_at: 2026-11-04T16:02:16+0800
+# duration_ms: 511.26
 # exit_code: 0
 #
 {
   "label": "before-target",
   "command": "/home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_due_before.py",
-  "cwd": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
-  "started_at": "2026-11-04T14:27:02+0800",
-  "duration_ms": 678.49,
+  "cwd": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
+  "started_at": "2026-11-04T16:02:16+0800",
+  "duration_ms": 432.69,
   "exit_code": 1,
   "classification": "test_failure",
   "summary": {
     "text": "5 failed",
     "failed": 5
   },
-  "log": "/home/ice/dify-project/minimax/evidence/run-test-replay2/before-target.log"
+  "log": "/home/ice/dify-project/minimax/evidence/run-reference-v2/before-target.log"
 }
 

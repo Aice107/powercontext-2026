@@ -180,8 +180,10 @@ def main() -> int:
     )
 
     # 4. database actually participates
+    version_text = (run_dir / "db-version.txt").read_text(encoding="utf-8", errors="replace") if (run_dir / "db-version.txt").exists() else ""
     db_ok = (
-        int(db_stats.get("sources", 0)) >= 10
+        "seekdb" in version_text.lower()
+        and int(db_stats.get("sources", 0)) >= 10
         and int(db_stats.get("chunks", 0)) > 0
         and int(db_stats.get("terms", 0)) > 0
         and int(index_v2.get("indexed", 0)) == 1
@@ -193,7 +195,12 @@ def main() -> int:
         4,
         "数据库实际参与",
         db_ok,
-        [str(run_dir / "db-stats.json"), str(run_dir / "db-queries.log"), str(run_dir / "index-v2.json")],
+        [
+            str(run_dir / "db-version.txt"),
+            str(run_dir / "db-stats.json"),
+            str(run_dir / "db-queries.log"),
+            str(run_dir / "index-v2.json"),
+        ],
         f"sources={db_stats.get('sources')} chunks={db_stats.get('chunks')} terms={db_stats.get('terms')} "
         f"index_v2={index_v2.get('indexed')} reindexed/{index_v2.get('skipped')} skipped",
     )

@@ -149,6 +149,7 @@ rm -rf .runtime/demo-* && cp -a demo/baseline .runtime/manual-workspace
 | `assert-v1.json` / `assert-v2.json` | 必要/禁止来源断言 |
 | `before-target.log` / `after-target.log` | 目标测试日志（命令、退出码、断言） |
 | `before-regression.log` / `after-regression.log` | 回归测试日志 |
+| `db-version.txt` | seekdb 版本（`SELECT VERSION()`） |
 | `db-queries.log` | seekdb SQL（含参数、行数、耗时） |
 | `state-save.json` / `state-after-restart.json` / `resume-context.json` | PowerContext 保存、重启读取、复用上下文 |
 | `minimax/dev-record.jsonl` / `prompt.md` / `response-*.txt` / `applied.patch` | MiniMax 开发记录（replay 时 `mode=replay`） |

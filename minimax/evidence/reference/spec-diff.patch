@@ -1,6 +1,6 @@
 diff -ruN -x __pycache__ -x '*.pyc' a/task-api.md b/task-api.md
 --- a/task-api.md	2026-11-04 13:58:02.776894201 +0800
-+++ b/task-api.md	2026-11-04 14:27:02.066515358 +0800
++++ b/task-api.md	2026-11-04 16:02:15.860688363 +0800
 @@ -1,6 +1,6 @@
  # TaskHub HTTP API 规格
  

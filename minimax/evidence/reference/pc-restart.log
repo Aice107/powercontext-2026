@@ -1,10 +1,10 @@
 # step: pc-restart
 # command: bash /home/ice/dify-project/minimax/scripts/pc_server.sh restart
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T14:27:06+0800
-# duration_ms: 7162.51
+# started_at: 2026-11-04T16:02:18+0800
+# duration_ms: 6089.84
 # exit_code: 0
 #
-PowerContext stopped (pid 9890)
-PowerContext started on 127.0.0.1:8093 (pid 12927)
+PowerContext stopped (pid 12927)
+PowerContext started on 127.0.0.1:8093 (pid 57221)
 

@@ -1,14 +1,14 @@
 # step: assert-v2
-# command: /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-test-replay2/context-v2.json --require-spec SPEC-API-013 --require-text 包含截止当天 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-test-replay2/assert-v2.json
+# command: /home/ice/dify-project/minimax/.venv/bin/python /home/ice/dify-project/minimax/scripts/assert_context.py --context /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v2.json --require-spec SPEC-API-013 --require-text 包含截止当天 --require-code app/store.py::list_tasks --require-test tests/test_due_before.py::test_due_before_includes_boundary_day --out /home/ice/dify-project/minimax/evidence/run-reference-v2/assert-v2.json
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T14:27:02+0800
-# duration_ms: 43.08
+# started_at: 2026-11-04T16:02:16+0800
+# duration_ms: 28.72
 # exit_code: 0
 #
 {
-  "context": "/home/ice/dify-project/minimax/evidence/run-test-replay2/context-v2.json",
+  "context": "/home/ice/dify-project/minimax/evidence/run-reference-v2/context-v2.json",
   "task_id": "taskhub-due-before",
-  "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+  "context_sha256": "9c7d292d922e83808a1b64457700c21295df171b75d2fc1558cb150c3c7c6e9b",
   "specs": [
     "SPEC-API-001",
     "SPEC-API-002",

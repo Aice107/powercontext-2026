@@ -1,0 +1,12 @@
+# step: db-version
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log db-version
+# cwd: /home/ice/dify-project/minimax
+# started_at: 2026-11-04T16:02:15+0800
+# duration_ms: 274.16
+# exit_code: 0
+#
+{
+  "version": "5.7.25-OceanBase seekdb-v1.4.0.0",
+  "database": "sdd"
+}
+

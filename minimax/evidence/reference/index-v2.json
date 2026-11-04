@@ -1,11 +1,11 @@
 {
-  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
   "files": 10,
   "indexed": 1,
   "skipped": 9,
   "chunks": 10,
   "terms": 513,
-  "elapsed_ms": 54.79,
+  "elapsed_ms": 42.18,
   "sources": [
     {
       "path": "specs/task-api.md",

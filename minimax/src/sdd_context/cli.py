@@ -71,6 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     apply.add_argument("--patch", required=True)
 
     stats = sub.add_parser("db-stats", help="print seekdb table counts")
+    version = sub.add_parser("db-version", help="print the seekdb server version")
 
     return parser
 
@@ -101,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
             return _apply(args)
         if args.command == "db-stats":
             return _db_stats(host, port, database, query_log)
+        if args.command == "db-version":
+            return _db_version(host, port, database, query_log)
     except (PowerContextError, SeekdbUnavailable, MiniMaxError, MiniMaxUnavailable) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
@@ -239,6 +242,12 @@ def _apply(args: argparse.Namespace) -> int:
 def _db_stats(host: str | None, port: int | None, database: str | None, query_log: Path) -> int:
     with _open_store(host, port, database, query_log) as store:
         print(json.dumps(store.stats(), ensure_ascii=False, indent=2))
+    return 0
+
+
+def _db_version(host: str | None, port: int | None, database: str | None, query_log: Path) -> int:
+    with _open_store(host, port, database, query_log) as store:
+        print(json.dumps({"version": store.version(), "database": store.database}, ensure_ascii=False, indent=2))
     return 0
 
 

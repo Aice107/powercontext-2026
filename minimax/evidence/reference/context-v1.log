@@ -1,15 +1,15 @@
 # step: context-v1
-# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-test-replay2/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --out /home/ice/dify-project/minimax/evidence/run-test-replay2/context-v1.json --md /home/ice/dify-project/minimax/evidence/run-test-replay2/context-v1.md
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log context --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace --task-file /home/ice/dify-project/minimax/validation/task.md --task-id taskhub-due-before --out /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.json --md /home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.md
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T14:27:01+0800
-# duration_ms: 165.52
+# started_at: 2026-11-04T16:02:15+0800
+# duration_ms: 115.38
 # exit_code: 0
 #
 {
-  "context": "/home/ice/dify-project/minimax/evidence/run-test-replay2/context-v1.json",
-  "markdown": "/home/ice/dify-project/minimax/evidence/run-test-replay2/context-v1.md",
+  "context": "/home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.json",
+  "markdown": "/home/ice/dify-project/minimax/evidence/run-reference-v2/context-v1.md",
   "task_id": "taskhub-due-before",
-  "context_sha256": "7a4dc8da7baaffa7831d37c1f75c0963ccce50618906a720550cbaeffa2a6b21",
+  "context_sha256": "b6800bfc4c1fa31e5944da985cde31f5681b6de5c314a717d2f4ba676fba8b55",
   "specs": [
     "SPEC-API-030",
     "SPEC-API-011",

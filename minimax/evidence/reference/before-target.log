@@ -1,8 +1,8 @@
 # label: before-target
 # command: /home/ice/dify-project/minimax/.venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_due_before.py
-# cwd: /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace
-# started_at: 2026-11-04T14:27:02+0800
-# duration_ms: 678.49
+# cwd: /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace
+# started_at: 2026-11-04T16:02:16+0800
+# duration_ms: 432.69
 # exit_code: 1
 # classification: test_failure
 #
@@ -69,4 +69,4 @@ FAILED tests/test_due_before.py::test_due_before_combines_with_status_and_pagina
 FAILED tests/test_due_before.py::test_due_before_invalid_date_returns_400 - A...
 FAILED tests/test_due_before.py::test_due_before_excludes_tasks_without_due_date
 FAILED tests/test_due_before.py::test_due_before_empty_result_keeps_metadata
-5 failed in 0.10s
+5 failed in 0.06s

@@ -1,9 +1,9 @@
 # SDD development context
 
 - Task ID: `taskhub-due-before`
-- Workspace: `/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace`
-- Context SHA-256: `7a4dc8da7baaffa7831d37c1f75c0963ccce50618906a720550cbaeffa2a6b21`
-- Generated at: 2026-11-04T14:27:01+0800
+- Workspace: `/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace`
+- Context SHA-256: `b6800bfc4c1fa31e5944da985cde31f5681b6de5c314a717d2f4ba676fba8b55`
+- Generated at: 2026-11-04T16:02:15+0800
 
 ## Task
 

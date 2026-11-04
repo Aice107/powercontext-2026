@@ -1,18 +1,18 @@
 # step: index-v2
-# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-test-replay2/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace
+# command: /home/ice/dify-project/minimax/.venv/bin/python -m sdd_context --seekdb-host 127.0.0.1 --seekdb-port 2893 --seekdb-db sdd --query-log /home/ice/dify-project/minimax/evidence/run-reference-v2/db-queries.log index --workspace /home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace
 # cwd: /home/ice/dify-project/minimax
-# started_at: 2026-11-04T14:27:02+0800
-# duration_ms: 180.34
+# started_at: 2026-11-04T16:02:15+0800
+# duration_ms: 129.19
 # exit_code: 0
 #
 {
-  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
   "files": 10,
   "indexed": 1,
   "skipped": 9,
   "chunks": 10,
   "terms": 513,
-  "elapsed_ms": 54.79,
+  "elapsed_ms": 42.18,
   "sources": [
     {
       "path": "specs/task-api.md",

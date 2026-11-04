@@ -1,6 +1,6 @@
 diff -ruN -x __pycache__ -x '*.pyc' a/api.py b/api.py
 --- a/api.py	2026-11-04 13:57:45.660600917 +0800
-+++ b/api.py	2026-11-04 14:27:04.120138661 +0800
++++ b/api.py	2026-11-04 16:02:17.122762480 +0800
 @@ -9,7 +9,7 @@
  from flask import Flask, jsonify, request
  
@@ -28,7 +28,7 @@ diff -ruN -x __pycache__ -x '*.pyc' a/api.py b/api.py
              )
 diff -ruN -x __pycache__ -x '*.pyc' a/store.py b/store.py
 --- a/store.py	2026-11-04 13:57:36.504444026 +0800
-+++ b/store.py	2026-11-04 14:27:04.120163084 +0800
++++ b/store.py	2026-11-04 16:02:17.122779572 +0800
 @@ -96,6 +96,7 @@
      status: str | None = None,
      priority: str | None = None,

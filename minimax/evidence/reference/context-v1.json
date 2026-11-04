@@ -1,11 +1,11 @@
 {
   "schema": "sdd-context/v1",
-  "generated_at": "2026-11-04T14:27:01+0800",
+  "generated_at": "2026-11-04T16:02:15+0800",
   "task": {
     "id": "taskhub-due-before",
     "title": "为 TaskHub 列表接口增加 due_before 截止日期筛选",
     "description": "## 任务\n\n在 TaskHub 服务中，为 `GET /tasks` 增加可选的 `due_before=YYYY-MM-DD` 截止日期上界筛选。\n调用方传入该参数时，只返回截止日期不晚于该日期的任务。\n\n## 要改什么\n\n- 筛选是闭区间：截止日期等于 `due_before` 的任务必须包含在结果中（包含截止当天）。\n- `due_date` 为空的任务在启用该筛选时必须排除。\n- `due_before` 必须与既有 `status`、`priority`、`assignee` 筛选以及 `limit`/`offset` 分页按 AND 组合生效，\n  `total` 返回筛选后的总数。\n- 非法日期（格式错误或 2026-02-30 这类不存在的日期）返回 400，错误 `code=invalid_argument`，\n  `field=due_before`。\n- 不传 `due_before` 时，既有列表行为、分页元数据、错误格式与状态码完全不变。\n\n## 哪些原有行为必须保持\n\n- `GET /tasks` 不传筛选参数时仍返回全部 8 条种子任务，按 id 升序。\n- `status`、`priority`、`assignee` 筛选与分页仍然正确。\n- 创建、读取、更新、删除任务的行为与错误格式不变。\n- `tests/test_tasks_regression.py` 中的所有断言必须继续通过。",
-    "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace"
+    "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace"
   },
   "query_terms": [
     "taskhub",
@@ -804,5 +804,5 @@
     }
   ],
   "warnings": [],
-  "context_sha256": "7a4dc8da7baaffa7831d37c1f75c0963ccce50618906a720550cbaeffa2a6b21"
+  "context_sha256": "b6800bfc4c1fa31e5944da985cde31f5681b6de5c314a717d2f4ba676fba8b55"
 }

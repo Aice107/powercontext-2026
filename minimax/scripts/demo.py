@@ -190,6 +190,7 @@ def main() -> int:
     step("env-check", ["bash", str(ROOT / "scripts" / "bootstrap.sh"), "--check"], "env-check.log")
     step("seekdb-reset", ["bash", str(ROOT / "scripts" / "seekdb_server.sh"), "reset"], "seekdb-reset.log")
     step("seekdb-status", ["bash", str(ROOT / "scripts" / "seekdb_server.sh"), "status"], "seekdb-status.txt")
+    step("db-version", sdd("db-version"), "db-version.log", stdout_name="db-version.txt")
     step("pc-start", ["bash", str(PC_SCRIPT), "start"], "pc-start.log")
     step("pc-status-before", ["bash", str(PC_SCRIPT), "status"], "pc-status-before.txt")
 

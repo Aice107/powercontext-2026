@@ -211,6 +211,10 @@ class SeekdbStore:
         self.execute("DELETE FROM chunks WHERE source_id = %s", (source["source_id"],))
         self.execute("DELETE FROM sources WHERE source_id = %s", (source["source_id"],))
 
+    def version(self) -> str:
+        row = self.query_one("SELECT VERSION() AS version")
+        return str(row["version"]) if row else "unknown"
+
     def stats(self) -> dict[str, int]:
         result: dict[str, int] = {}
         for table in ("sources", "chunks", "terms", "import_events", "task_runs"):

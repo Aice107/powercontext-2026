@@ -2,8 +2,8 @@
   "schema": "sdd-task-state/v1",
   "task_id": "taskhub-due-before",
   "status": "implemented",
-  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-test-replay2/workspace",
-  "context_sha256": "864c0cfddbe53f10cfc6ecad540c09362593ea154d9fa376edc4d12f669fdf8e",
+  "workspace": "/home/ice/dify-project/minimax/.runtime/demo-reference-v2/workspace",
+  "context_sha256": "9c7d292d922e83808a1b64457700c21295df171b75d2fc1558cb150c3c7c6e9b",
   "done": [
     "导入 specs v1 并生成不含 SPEC-API-013 的上下文",
     "更新规格到 v2 并重新导入（仅 spec 文件重建索引）",
@@ -38,6 +38,6 @@
     }
   ],
   "next_step": "评审复跑；若规格变化则重新导入并重新生成上下文",
-  "saved_at": "2026-11-04T06:27:05.527081+00:00",
-  "saved_at_ns": 1793773625527098472
+  "saved_at": "2026-11-04T08:02:17.897856+00:00",
+  "saved_at_ns": 1793779337897869276
 }
