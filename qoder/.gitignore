@@ -1,4 +1,6 @@
 .data/
+site-dist/
+.格物*.qoder.site
 __pycache__/
 *.pyc
 nohup.out

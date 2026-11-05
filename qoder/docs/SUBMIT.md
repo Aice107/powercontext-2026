@@ -7,17 +7,17 @@
 | 项 | 值 |
 | --- | --- |
 | 代码仓库 | https://github.com/Aice107/powercontext-2026 |
-| 提交分支 | `2026-competition-ecosystem`（按赛题要求基于该分支开发） |
-| 提交 commit | `<push 后填写：git rev-parse HEAD 输出>` |
+| 提交分支 | `2026-competition-ecosystem`（按赛题要求基于该分支开发；提交内容同时在分支 `qoder-submission` 上） |
+| 提交 commit | `a30b7942…`（推送后以 `git rev-parse origin/2026-competition-ecosystem` 输出为准） |
 | 项目资产目录 | `qoder/` |
 
 ## 项目网站
 
 | 项 | 值 |
 | --- | --- |
-| 网站地址 | `<Qoder Sites 发布后填写完整 URL>` |
-| 可见范围 | 任何人都可访问（个人账号发布） |
-| 发布方式 | Qoder Sites（站点源码：`qoder/site/`） |
+| 网站地址 | https://gewu-copilot-l2o2y8buvaq.qoder.zone |
+| 可见范围 | 任何人都可访问（公开，未登录可打开） |
+| 发布方式 | Qoder Sites（站点源码：`qoder/site/`，发布产物：`qoder/site-dist/`） |
 
 ## 提交前自检清单
 
