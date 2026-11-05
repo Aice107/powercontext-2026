@@ -1,0 +1,74 @@
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --ink: #1c2330; --muted: #67707e;
+  --accent: #2f5eff; --line: #e3e6ec; --ok: #1a9c6b; --warn: #c47f17;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.65 "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 18px 28px; background: #101725; color: #fff; }
+.brand { display: flex; gap: 14px; align-items: center; }
+.logo { font-size: 26px; font-weight: 700; background: var(--accent); color: #fff;
+  border-radius: 10px; padding: 6px 12px; }
+header h1 { margin: 0; font-size: 19px; }
+.sub { margin: 2px 0 0; color: #aeb8c9; font-size: 12.5px; }
+.health { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.pill { background: #1d2a42; border: 1px solid #2c3c5c; color: #cfe0ff;
+  padding: 4px 10px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
+.pill.ok { color: #9df0cd; border-color: #1f5c44; }
+.pill.bad { color: #ffb3b3; border-color: #6e2b2b; }
+
+nav { display: flex; gap: 4px; padding: 10px 28px 0; background: #101725; }
+.tab { border: 1px solid #2c3c5c; border-bottom: none; background: #16203300; color: #aeb8c9;
+  padding: 8px 20px; border-radius: 10px 10px 0 0; cursor: pointer; font-size: 14.5px; }
+.tab.active { background: var(--bg); color: var(--ink); font-weight: 600; }
+
+main { padding: 20px 28px 40px; max-width: 1080px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 14px; }
+.card h3 { margin: 0 0 10px; font-size: 15.5px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+.filters { font-size: 13px; color: var(--muted); }
+.filters label { display: flex; gap: 6px; align-items: center; }
+input, select, textarea, button { font: inherit; border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 10px; background: #fff; color: var(--ink); }
+textarea { width: 100%; margin: 8px 0; }
+button { cursor: pointer; background: #eef1f6; }
+button:hover { background: #e2e7f0; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:hover { background: #234bd0; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+
+.meta { font-size: 12.5px; color: var(--muted); margin: 4px 2px 10px; }
+.hit { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 16px; margin-bottom: 10px; }
+.hit .score { float: right; color: var(--accent); font-weight: 600; font-size: 13px; }
+.hit .title { font-weight: 600; }
+.hit .src { color: var(--muted); font-size: 12.5px; margin: 2px 0 6px; }
+.hit .snippet { font-size: 13.5px; color: #333c4c; white-space: pre-wrap; }
+.bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 8px; }
+.bar i { display: block; height: 4px; border-radius: 2px; background: var(--accent); }
+
+details summary { cursor: pointer; color: var(--accent); font-size: 13.5px; }
+pre { background: #0f1524; color: #d6e3ff; padding: 12px 14px; border-radius: 10px;
+  overflow: auto; font-size: 12px; line-height: 1.55; }
+pre.markdown { background: var(--card); color: var(--ink); border: 1px solid var(--line);
+  font-size: 14px; white-space: pre-wrap; }
+
+.pref { display: inline-block; background: #eaf1ff; border: 1px solid #c6d6ff; color: #2347b8;
+  border-radius: 999px; padding: 4px 12px; font-size: 12.5px; margin: 0 8px 8px 0; }
+.pref b { color: #17307e; }
+.memo-hit { border-left: 3px solid var(--accent); padding: 6px 12px; margin: 6px 0;
+  background: #f8faff; border-radius: 0 8px 8px 0; font-size: 13.5px; }
+.memo-hit .kind { color: var(--accent); font-size: 12px; margin-right: 8px; }
+.jr { font-size: 12.5px; border-bottom: 1px dashed var(--line); padding: 6px 2px; }
+.jr .t { color: var(--muted); margin-right: 8px; }
+.doc { display: flex; gap: 10px; align-items: baseline; padding: 7px 4px;
+  border-bottom: 1px dashed var(--line); font-size: 13.5px; }
+.doc .tag { color: var(--accent); font-size: 12px; min-width: 86px; }
+.doc .muted { color: var(--muted); font-size: 12.5px; }
+
+footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 24px 0 34px; }

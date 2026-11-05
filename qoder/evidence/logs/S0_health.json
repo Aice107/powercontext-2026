@@ -1,0 +1,1 @@
+{"app":"gewu","seekdb":{"chunks":56,"by_kind":{"note":10,"experiment":18,"meeting":7,"paper":18,"todo":3},"dim":512},"powercontext":{"ok":true,"status":200,"elapsed_ms":3.8},"embedding":{"model":"bge-small-zh-v1.5","dim":512}}

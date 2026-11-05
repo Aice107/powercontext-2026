@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>格物 Gewu · 科研笔记管家与组会汇报助手</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="wrap head">
+    <div>
+      <span class="logo">格物</span>
+      <h1>Gewu · 科研笔记管家与组会汇报助手</h1>
+      <p class="sub">Qoder × OceanBase 赛题作品 · seekdb 存"知识" + PowerContext 存"人" · 全程 Qoder 开发 · 本地向量模型零 Key</p>
+    </div>
+    <nav>
+      <a href="#problem">痛点</a>
+      <a href="#features">核心功能</a>
+      <a href="#tech">技术实现</a>
+      <a href="#verify">验证</a>
+      <a href="#run">体验与复现</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="hero card">
+  <h2>把"翻记录找证据 + 拼周报"压缩成一次检索和一次生成</h2>
+  <p>论文摘录、实验记录、组会纪要、待办清单导入后：<b>找得到</b>——seekdb 一条语句完成向量 + 中文全文 + 结构化过滤的混合检索，逐条给出处；
+  <b>记得住</b>——PowerContext 跨会话记住你的汇报偏好与导师约束；<b>写得快</b>——一键生成带证据链的组会草稿，版式随记忆自动变化。</p>
+  <div class="badges">
+    <span class="badge">seekdb · dbms_hybrid_search</span>
+    <span class="badge">PowerContext · atomic-memory</span>
+    <span class="badge">本地 ONNX · bge-small-zh-v1.5 · 512d</span>
+    <span class="badge">FastAPI + 原生前端</span>
+  </div>
+</section>
+
+<section id="problem">
+  <h2>解决什么问题</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>找笔记难</h3>
+      <p>"我明明记过 ef_search 怎么调"——课题组文档散落，Ctrl+F 找不回；纯向量检索对<b>参数名、错误码</b>这类硬信号又很迟钝。
+      格物用 seekdb 的混合检索把两条路放进一条 SQL：语义负责"大概在讲同一件事"，全文负责"必须出现的硬信号"，融合排序在数据库内部完成。</p>
+    </div>
+    <div class="card">
+      <h3>写汇报烦</h3>
+      <p>每周组会材料是重复劳动，导师的偏好（结论先行、必挂出处、提前一天发）每次都靠人肉遵守。
+      格物把这些偏好写进 PowerContext 记忆，生成草稿时真实生效——并且你能看到"哪条记忆改变了输出的哪一段"。</p>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <h2>核心功能</h2>
+  <div class="grid2">
+    <div class="card"><h3>① 导入即索引</h3>
+      <p>粘贴或批量导入 markdown：front matter 解析出课题/类型/日期，按小节分块，本地 ONNX 向量化后写入 seekdb 堆表（向量列 + ngram 全文索引 + 标量列）。16 篇示例语料 → 56 分块，全程约 5 秒。</p></div>
+    <div class="card"><h3>② 混合检索带出处</h3>
+      <p>hybrid / vector / fts 三种模式可对照；课题、类型、日期窗口作为 filter 下推到两路检索；结果逐条带《标题 · 小节 · 日期》出处；界面可展开"查看 seekdb 取证"看到实际执行的 SQL。</p></div>
+    <div class="card"><h3>③ 记忆跨会话复用</h3>
+      <p>偏好写入 PowerContext 后，即使重启服务、换个会话召回，仍按语义命中（matched_by 含 vector）。记忆读写全程 JSONL 留痕，可核对。</p></div>
+    <div class="card"><h3>④ 组会草稿 + 证据链</h3>
+      <p>确定性装配：记忆决定版式（结论先行/先给数据/挂出处/提前一天提醒），检索提供事实与数据。附录列出命中的记忆条目、seekdb SQL 与"本次因记忆改变的输出"清单。</p></div>
+  </div>
+
+  <div class="card demo">
+    <h3>真实输出（节选自 evidence/logs/S8_draft.md）</h3>
+<pre># 组会汇报草稿（2026-10-26 ~ 2026-11-01）
+
+&gt; 提醒：按组会惯例，本材料需提前一天发出。（来自 PowerContext 记忆约束）
+
+## 一句话结论
+混合检索有实质收益，不是把两路结果拼一下的错觉，因为两路的失败样本是互补的。
+
+## 关键数据
+- 仅向量（ef_search=160） | 0.93 | 5.0% | 18.6ms 〔实验记录 1030 · 设置 · 2026-10-30〕
+- 混合（RRF 融合）        | 0.96 | 0.0% | 22.4ms 〔实验记录 1030 · 设置 · 2026-10-30〕</pre>
+    <p class="note">有记忆 vs 无记忆的对照草稿（版式与出处随记忆增删而变化）都在仓库 <code>qoder/evidence/logs/</code> 里，可逐字节核对。</p>
+  </div>
+</section>
+
+<section id="tech">
+  <h2>技术实现</h2>
+  <div class="card">
+    <pre>浏览器 ──► 格物主应用 (FastAPI :8712)
+             ├─ seekdb（嵌入式 pylibseekdb，一份实例两个使用方）
+             │    ├─ 知识层：堆表 chunks（向量 + ngram 全文 + 标量列）
+             │    └─ dbms_hybrid_search.search(...)：向量+全文+过滤+RRF 一条语句
+             ├─ PowerContext Server (:8000，DATABASE_KIND=seekdb)
+             │    └─ 记忆层：atomic-memory 写入 / hybrid 召回 / 生命周期
+             └─ 本地向量服务 (:8710) ─ ONNX Runtime CPU，零云端 Key</pre>
+    <ul>
+      <li><b>一个 seekdb、两个使用方</b>：PowerContext 的记忆表（database <code>test</code>）与应用的知识表（database <code>gewu</code>）共享同一嵌入式实例；</li>
+      <li><b>实测确定的工程细节</b>：混合检索仅支持堆表；range 只接受数值常量 → 日期用 <code>int</code>（yyyymmdd）；向量单位归一化后 l2 序等价余弦序；</li>
+      <li><b>确定性草稿</b>：同样输入逐字节一致输出，评审可复现、可核对记忆的真实作用；</li>
+      <li><b>无参数绑定下的注入防护</b>：自建 SQL 字面量转义层，配套单元测试（5 passed）。</li>
+    </ul>
+  </div>
+</section>
+
+<section id="verify">
+  <h2>验证与证据</h2>
+  <div class="card">
+    <p>仓库内 <code>qoder/scripts/verify.sh</code> 一键跑完 S0~S9 验证样例，原始输出落在 <code>qoder/evidence/logs/</code>：
+    检索的 SQL/DSL 取证（S2~S5）、记忆写入响应（S6）、语义召回（S7）、草稿对照（S8/S8b）、记忆日志（S9）。</p>
+    <table>
+      <tr><th>技术要求</th><th>核对方法</th></tr>
+      <tr><td>seekdb 检索真实生效</td><td>界面"查看 SQL 取证"；coursework 课题被 filter 排除（S5）</td></tr>
+      <tr><td>PowerContext 记忆保存并复用</td><td>跨会话召回 matched_by 含 vector（S7）；记忆增删改变草稿版式（S8 vs S8b）</td></tr>
+      <tr><td>零云端依赖可复现</td><td>模型 hf-mirror 公开下载；无需任何 API Key</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="run">
+  <h2>体验与复现</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>代码仓库</h3>
+      <p><a href="https://github.com/Aice107/powercontext-2026">github.com/Aice107/powercontext-2026</a>（分支 <code>2026-competition-ecosystem</code>，资产在 <code>qoder/</code>）</p>
+      <p>运行说明：<code>qoder/docs/REPRODUCE.md</code> · 验证样例：<code>qoder/docs/VERIFICATION.md</code> · 合规对照：<code>qoder/docs/COMPLIANCE.md</code></p>
+    </div>
+    <div class="card">
+      <h3>本地体验（约 10 分钟）</h3>
+<pre>git clone https://github.com/Aice107/powercontext-2026
+cd powercontext-2026/qoder
+bash scripts/setup.sh     # 依赖 + 本地模型，无 Key
+bash scripts/run_all.sh   # 三服务就绪
+# 打开 http://127.0.0.1:8712</pre>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer><div class="wrap">格物 Gewu · Qoder × OceanBase「Build with Qoder」赛题 · seekdb + PowerContext · Qoder 开发 · Qoder Sites 发布</div></footer>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>格物 Gewu · 科研笔记管家与组会汇报助手</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo">格物</span>
+    <div>
+      <h1>Gewu · 科研笔记管家与组会汇报助手</h1>
+      <p class="sub">seekdb 混合检索（存"知识"） + PowerContext 记忆（存"人"） · 本地向量模型，零云端依赖</p>
+    </div>
+  </div>
+  <div id="health" class="health">
+    <span class="pill" id="pill-seekdb">seekdb …</span>
+    <span class="pill" id="pill-pc">PowerContext …</span>
+    <span class="pill" id="pill-embed">embedding …</span>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="search">混合检索</button>
+  <button class="tab" data-tab="memory">记忆</button>
+  <button class="tab" data-tab="draft">组会草稿</button>
+  <button class="tab" data-tab="corpus">语料</button>
+</nav>
+
+<main>
+<!-- ============ 检索 ============ -->
+<section id="tab-search" class="panel active">
+  <div class="card">
+    <div class="row">
+      <input id="q" placeholder="试试：怎么提升召回率 / ef_search 延迟 / 量化会不会掉点" size="42">
+      <select id="mode">
+        <option value="hybrid">hybrid（向量+全文+RRF）</option>
+        <option value="vector">vector（仅向量）</option>
+        <option value="fts">fts（仅全文）</option>
+      </select>
+      <button class="primary" onclick="doSearch()">检索</button>
+    </div>
+    <div class="row filters">
+      <label>课题 <input id="f-project" placeholder="vec-search" size="12"></label>
+      <label>类型
+        <select id="f-kind">
+          <option value="">全部</option><option>paper</option><option>experiment</option>
+          <option>meeting</option><option>note</option><option>todo</option>
+        </select>
+      </label>
+      <label>从 <input id="f-since" type="date" value="2026-09-01"></label>
+      <label>到 <input id="f-until" type="date" value="2026-11-03"></label>
+      <label>Top <input id="f-size" type="number" value="8" min="1" max="30" style="width:56px"></label>
+    </div>
+    <p class="hint">对比玩法：同一句「量化会不会掉点」，分别用 vector / fts / hybrid 检索，看失败样本如何互补。</p>
+  </div>
+  <div id="search-meta" class="meta"></div>
+  <div id="search-results"></div>
+  <details class="card" id="sql-box" hidden>
+    <summary>查看 seekdb 取证（实际执行的 SQL 与 DSL）</summary>
+    <pre id="sql-content"></pre>
+  </details>
+</section>
+
+<!-- ============ 记忆 ============ -->
+<section id="tab-memory" class="panel">
+  <div class="card">
+    <h3>写入记忆（PowerContext）</h3>
+    <div class="row">
+      <select id="m-kind">
+        <option value="preference">preference（偏好）</option>
+        <option value="constraint">constraint（约束）</option>
+        <option value="progress">progress（进度）</option>
+      </select>
+      <input id="m-text" size="48" placeholder="例：组会材料要结论先行">
+      <button class="primary" onclick="remember()">记住</button>
+    </div>
+    <p class="hint">可用的演示偏好：「结论先行」「先给数据」「每个结论挂出处」「避免形容词」「材料提前一天发」——写入后到「组会草稿」重新生成，能看到草稿结构随之改变。</p>
+  </div>
+  <div class="card">
+    <h3>召回记忆</h3>
+    <div class="row">
+      <input id="r-q" size="42" placeholder="例：导师对材料有什么要求">
+      <select id="r-mode">
+        <option value="hybrid">hybrid</option><option value="vector">vector</option>
+        <option value="fts">fts</option><option value="auto">auto</option>
+      </select>
+      <button onclick="recall()">召回</button>
+    </div>
+    <div id="recall-results"></div>
+  </div>
+  <div class="card">
+    <h3>记忆读写日志（证据）</h3>
+    <button onclick="loadJournal()">刷新日志</button>
+    <div id="journal"></div>
+  </div>
+</section>
+
+<!-- ============ 草稿 ============ -->
+<section id="tab-draft" class="panel">
+  <div class="card">
+    <div class="row">
+      <label>从 <input id="d-since" type="date" value="2026-10-26"></label>
+      <label>到 <input id="d-until" type="date" value="2026-11-01"></label>
+      <label>课题 <input id="d-project" placeholder="留空=全部" size="12"></label>
+      <button class="primary" onclick="makeDraft()">生成草稿</button>
+    </div>
+    <p class="hint">草稿是确定性装配：seekdb 检索本周证据 + PowerContext 偏好决定版式与内容，附录会列出证据链与实际执行的 SQL。</p>
+  </div>
+  <div id="draft-prefs"></div>
+  <div class="card"><pre id="draft-md" class="markdown" hidden></pre></div>
+</section>
+
+<!-- ============ 语料 ============ -->
+<section id="tab-corpus" class="panel">
+  <div class="card">
+    <div class="row">
+      <button class="primary" onclick="ingestSample()">导入示例语料（data/corpus）</button>
+      <button onclick="loadDocs()">刷新列表</button>
+    </div>
+    <p class="hint">示例语料是一位课题为「向量检索召回质量优化」的研究生的笔记：论文摘录、实验记录、组会纪要、待办，共 16 篇。也支持粘贴导入：</p>
+    <textarea id="paste-md" rows="4" placeholder='---
+title: 我的笔记
+kind: note
+project: vec-search
+date: 2026-11-05
+---
+正文…'></textarea>
+    <div class="row"><input id="paste-name" size="20" placeholder="文件名（可选）"><button onclick="pasteIngest()">导入粘贴内容</button></div>
+  </div>
+  <div id="doc-list"></div>
+</section>
+</main>
+
+<footer>
+  格物 Gewu · Qoder × OceanBase 赛题作品 · seekdb + PowerContext · 代码与运行说明见仓库 qoder/ 目录
+</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+:root { --bg:#f6f7f9; --card:#fff; --ink:#1c2330; --muted:#66707e; --accent:#2f5eff; --line:#e3e6ec; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15.5px/1.7 "PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif; }
+.wrap { max-width:1000px; margin:0 auto; padding:0 24px; }
+header { background:#101725; color:#fff; padding:22px 0 14px; }
+.head { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:14px; }
+.logo { font-size:24px; font-weight:700; background:var(--accent); border-radius:10px; padding:4px 12px; margin-right:10px; }
+h1 { display:inline; font-size:20px; margin:0; }
+.sub { color:#aeb8c9; font-size:13px; margin:8px 0 0; }
+nav a { color:#cfe0ff; text-decoration:none; font-size:14px; margin-left:16px; }
+nav a:hover { color:#fff; }
+main { padding:26px 0 10px; }
+h2 { font-size:21px; margin:34px 0 14px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 22px; margin-bottom:16px; }
+.hero { background:linear-gradient(135deg,#eef3ff,#f8fbff); }
+.hero h2 { margin-top:0; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:760px){ .grid2 { grid-template-columns:1fr; } }
+.card h3 { margin-top:0; font-size:16.5px; }
+.badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.badge { background:#fff; border:1px solid #c6d6ff; color:#2347b8; border-radius:999px; padding:4px 12px; font-size:12.5px; }
+pre { background:#0f1524; color:#d6e3ff; padding:14px 16px; border-radius:10px; overflow:auto; font-size:12.5px; line-height:1.6; }
+.demo pre { white-space:pre-wrap; }
+.note, .muted { color:var(--muted); font-size:13px; }
+code { background:#eef1f6; border-radius:5px; padding:1px 6px; font-size:13px; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th, td { border:1px solid var(--line); padding:8px 12px; text-align:left; }
+th { background:#f2f5fb; }
+a { color:var(--accent); }
+footer { text-align:center; color:var(--muted); font-size:12.5px; padding:22px 0 36px; }
