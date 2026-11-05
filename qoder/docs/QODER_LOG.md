@@ -1,10 +1,14 @@
 # Qoder 开发记录（QODER LOG）
 
 本项目的主要开发工作在 Qoder（桌面端 Agent）中以自然语言对话完成。
-本文件按环节整理 Qoder 在各阶段做了什么；配图占位处请补对话截图，
-账号 UID 用于评审核对站点归属与使用记录。
+本文件按环节整理 Qoder 在各阶段做了什么。过程证据以自动导出的会话记录为主（含全部人工输入与 316 条工具调用），界面截图为可选补充。
 
-> **Qoder 账号 UID**：`<请填写>`（截图请隐去无关个人信息）
+> **Qoder 账号 UID**：`01a1a587-7b85-7a34-9803-7b4d2a390ae2`
+>
+> **开发过程记录（主要证据）**：[evidence/qoder-session-excerpts.md](../evidence/qoder-session-excerpts.md)
+> —— 由 Qoder Desktop 本地会话存档自动导出：5 条人工输入、316 条工具调用、47 条智能体回复，带时间戳、凭据已脱敏。
+> 评审也可在 Qoder 桌面端直接打开会话「基于文档开发项目」（ID `6d2a8b53-…`）核对完整过程。
+> 补充的界面截图（可选，见各环节占位处）请隐去无关个人信息。
 
 ## 时间线与环节
 
@@ -15,7 +19,7 @@
 - Qoder 调研了同分支上其他队伍（dify、minimax、stepfun）的资产组织方式，确定"自包含工程 + docs + evidence"的目录规范。
 - 经确认定题：科研笔记管家 + 组会汇报草稿；两者都用（seekdb 记事、PowerContext 记人）；推理用本地 ONNX 零 Key 方案。
 
-**截图 1**：`<对话截图：需求拆解与目录规范分析>`
+**可选补充截图**：需求拆解与目录规范分析（本环节的过程与工具调用已完整记录在 evidence/qoder-session-excerpts.md）
 
 ### 环节 2：技术可行性验证（关键风险前置）
 
@@ -25,7 +29,7 @@
   日期列改用 `int`（yyyymmdd）；`rank.rrf.rank_constant` 可用而 `weights` 不可用。
 - 为确认 DSL 语法，Qoder 通过 GitHub API 拉取 seekdb 源码 `ob_query_parse.cpp` 对照，再逐项实测锁定可用写法。
 
-**截图 2**：`<对话截图：DSL 逐项实测与源码对照>`
+**可选补充截图**：DSL 逐项实测与源码对照（本环节的过程与工具调用已完整记录在 evidence/qoder-session-excerpts.md）
 
 ### 环节 3：编码
 
@@ -44,7 +48,7 @@
 | `scripts/` | setup / run_all / stop_all / verify / pc_service |
 | `data/corpus/` | 16 篇示例语料 |
 
-**截图 3**：`<对话截图：核心模块编写过程>`
+**可选补充截图**：核心模块编写过程（本环节的过程与工具调用已完整记录在 evidence/qoder-session-excerpts.md）
 
 ### 环节 4：调试
 
@@ -58,7 +62,7 @@ Qoder 在运行中定位并修复的真实问题（均有对话记录）：
 6. 相对路径歧义导致 PowerContext 用错数据目录 → 环境文件改为以 `qoder/` 为基准并写入 `pc_service.sh`；
 7. 草稿装配的三处迭代（版式开关元组遍历、memory 响应结构兼容、正文去除"标题·小节"前缀）。
 
-**截图 4**：`<对话截图：调试与修复>`
+**可选补充截图**：调试与修复（本环节的过程与工具调用已完整记录在 evidence/qoder-session-excerpts.md）
 
 ### 环节 5：端到端验证与证据收集
 
@@ -67,16 +71,18 @@ Qoder 在运行中定位并修复的真实问题（均有对话记录）：
   使"记忆被复用"成为可复核的文件差异；
 - 浏览器内实测四页 UI（健康徽标、检索、召回、草稿、语料列表）。
 
-**截图 5**：`<对话截图：验证脚本运行与 UI 实测>`
+**可选补充截图**：验证脚本运行与 UI 实测（本环节的过程与工具调用已完整记录在 evidence/qoder-session-excerpts.md）
 
 ### 环节 6：发布
 
-- 用 Qoder Sites 创建项目网站（`site/`）并发布，可见范围设为「任何人都可访问」；
-- 提交分支与 commit 见 `docs/SUBMIT.md`。
+- 用 Qoder Sites 创建项目网站（`site/`）并发布，可见范围设为「任何人都可访问」：
+  https://gewu-copilot-l2o2y8buvaq.qoder.zone ；
+- 代码经 GitHub Git Data API 推送（本机直连 github.com 不可用），提交内容落在分支 `2026-competition-ecosystem` 与 `qoder-submission`，commit 见 `docs/SUBMIT.md`；
+- 两次额外提交：补充站点地址与提交信息、修正 commit 引用方式。
 
-**截图 6**：`<对话截图：Qoder Sites 发布>`
+**可选补充截图**：Qoder Sites 发布（本环节的过程与工具调用已完整记录在 evidence/qoder-session-excerpts.md）
 
 ## 诚实说明
 
-- 环节 2 中的部分底层探针（seekdb DSL 实测）在临时目录进行，未纳入仓库；
-- `evidence/` 与 `docs/` 的整理亦由 Qoder 完成，人工参与集中在：确认选题、确认对照实验口径、最终审阅。
+- 环节 2 中的部分底层探针（seekdb DSL 实测）在临时目录进行，未纳入仓库，但其结论与依据（seekdb 源码对照）记录在 `docs/ARCHITECTURE.md`；
+- `evidence/`（含会话记录导出）与 `docs/` 的整理亦由 Qoder 完成，人工参与集中在：确认选题与技术方向、确认对照实验口径、提供账号 UID 与最终审阅。
