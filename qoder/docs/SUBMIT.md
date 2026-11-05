@@ -8,7 +8,7 @@
 | --- | --- |
 | 代码仓库 | https://github.com/Aice107/powercontext-2026 |
 | 提交分支 | `2026-competition-ecosystem`（按赛题要求基于该分支开发；提交内容同时在分支 `qoder-submission` 上） |
-| 提交 commit | `a30b7942…`（推送后以 `git rev-parse origin/2026-competition-ecosystem` 输出为准） |
+| 提交 commit | 以上述分支的当前顶端为准（平台提交时用 `git rev-parse origin/2026-competition-ecosystem` 获取最新值填入） |
 | 项目资产目录 | `qoder/` |
 
 ## 项目网站
