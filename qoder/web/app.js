@@ -166,5 +166,50 @@ async function loadDocs() {
   } catch (error) { $("doc-list").innerHTML = `<div class="meta">${esc(error.message)}</div>`; }
 }
 
+/* ---------- URL 参数自动执行（支持分享链接与无头演示） ---------- */
+function activateTab(name) {
+  const button = document.querySelector(`.tab[data-tab="${name}"]`);
+  if (button) button.click();
+}
+
+function runFromUrlParams() {
+  const params = new URLSearchParams(location.search);
+  const tab = params.get("tab");
+  if (tab) activateTab(tab);
+  const query = params.get("q");
+  if (query) {
+    $("q").value = query;
+    if (params.get("mode")) $("mode").value = params.get("mode");
+    if (params.get("project")) $("f-project").value = params.get("project");
+    if (params.get("since")) $("f-since").value = params.get("since");
+    if (params.get("until")) $("f-until").value = params.get("until");
+    doSearch().then(() => {
+      if (params.get("sql")) {
+        const box = $("sql-box");
+        if (box) box.open = true;
+      }
+    });
+  }
+  const recallQuery = params.get("rq");
+  if (recallQuery) {
+    activateTab("memory");
+    $("r-q").value = recallQuery;
+    if (params.get("rmode")) $("r-mode").value = params.get("rmode");
+    recall();
+  }
+  if (params.get("autodraft")) {
+    activateTab("draft");
+    if (params.get("since")) $("d-since").value = params.get("since");
+    if (params.get("until")) $("d-until").value = params.get("until");
+    if (params.get("dproject")) $("d-project").value = params.get("dproject");
+    makeDraft();
+  }
+  if (params.get("docs")) {
+    activateTab("corpus");
+    loadDocs();
+  }
+}
+
 loadHealth();
 setInterval(loadHealth, 15000);
+runFromUrlParams();
